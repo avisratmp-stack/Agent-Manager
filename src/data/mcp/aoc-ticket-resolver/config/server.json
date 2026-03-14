@@ -1,0 +1,11 @@
+{
+  "name": "AOC Ticket Resolver",
+  "description": "Local MCP for automated ticket resolution and classification using AOC triage logic",
+  "version": "1.0.0",
+  "transport": "stdio",
+  "tools": [
+    "resolve_ticket",
+    "classify_ticket",
+    "get_resolution_history"
+  ]
+}

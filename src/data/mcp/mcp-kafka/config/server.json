@@ -1,0 +1,1 @@
+{"name": "MCP Kafka", "version": "1.0.0", "transport": "stdio", "description": "Kafka message flow auditing — DLQ inspection, consumer lag, entity message tracking"}

@@ -1,0 +1,11 @@
+{
+  "name": "AOC Log Aggregator",
+  "description": "Local MCP for aggregating and querying logs across distributed services",
+  "version": "1.0.0",
+  "transport": "stdio",
+  "tools": [
+    "query_logs",
+    "aggregate_metrics",
+    "detect_anomalies"
+  ]
+}

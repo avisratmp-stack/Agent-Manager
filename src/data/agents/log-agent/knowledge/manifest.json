@@ -1,0 +1,22 @@
+[
+  {
+    "id": "kb-log-1",
+    "name": "ELK Stack Operations Guide",
+    "type": "pdf",
+    "source": "file",
+    "uploadDate": "2026-02-10T09:00:00Z",
+    "status": "indexed",
+    "size": 1450000,
+    "tags": ["elk", "operations", "reference"]
+  },
+  {
+    "id": "kb-log-2",
+    "name": "Log4j Pattern Reference",
+    "type": "url",
+    "source": "https://logging.apache.org/log4j/2.x/manual/layouts.html",
+    "uploadDate": "2026-03-01T14:00:00Z",
+    "status": "indexed",
+    "size": null,
+    "tags": ["log4j", "patterns"]
+  }
+]

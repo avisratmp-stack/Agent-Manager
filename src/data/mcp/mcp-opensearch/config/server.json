@@ -1,0 +1,1 @@
+{"name": "MCP OpenSearch", "version": "1.0.0", "transport": "stdio", "description": "OpenSearch deep log indexing — full-text search, trace-correlated logs, stack trace extraction"}

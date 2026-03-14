@@ -1,0 +1,10 @@
+{
+  "name": "resolve_ticket",
+  "description": "Tool: resolve ticket",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "handler": "stub"
+}

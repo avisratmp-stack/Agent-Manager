@@ -1,0 +1,1 @@
+{"name": "MCP Digital Mass", "version": "1.0.0", "transport": "stdio", "description": "Business data layer — entity queries, state verification, audit trail, discrepancy detection"}

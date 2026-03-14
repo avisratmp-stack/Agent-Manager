@@ -1,0 +1,10 @@
+{
+  "name": "detect_anomalies",
+  "description": "Tool: detect anomalies",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "handler": "stub"
+}

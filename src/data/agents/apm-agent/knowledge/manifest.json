@@ -1,0 +1,32 @@
+[
+  {
+    "id": "kb-apm-1",
+    "name": "OpenTelemetry Specification",
+    "type": "url",
+    "source": "https://opentelemetry.io/docs/specs/otel/",
+    "uploadDate": "2026-01-20T10:00:00Z",
+    "status": "indexed",
+    "size": null,
+    "tags": ["opentelemetry", "standard", "tracing"]
+  },
+  {
+    "id": "kb-apm-2",
+    "name": "SLA Definitions - Tier 1 Services",
+    "type": "pdf",
+    "source": "file",
+    "uploadDate": "2026-02-28T11:30:00Z",
+    "status": "indexed",
+    "size": 380000,
+    "tags": ["sla", "tier1"]
+  },
+  {
+    "id": "kb-apm-3",
+    "name": "JVM GC Tuning Playbook",
+    "type": "docx",
+    "source": "file",
+    "uploadDate": "2026-03-05T09:00:00Z",
+    "status": "processing",
+    "size": 215000,
+    "tags": ["jvm", "gc", "performance"]
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "name": "STUB MCP",
+  "version": "1.0.0",
+  "transport": "stdio",
+  "description": "Universal stub — returns dummy data for any tool call"
+}

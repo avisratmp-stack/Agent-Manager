@@ -1,0 +1,1242 @@
+[
+  {
+    "id": "elasticsearch",
+    "name": "Elasticsearch",
+    "description": "Distributed search and analytics engine for log storage and full-text search.",
+    "url": "mcp://es-cluster.internal:9200",
+    "transport": "stdio",
+    "tools": [
+      "search",
+      "index",
+      "aggregate",
+      "scroll",
+      "delete-by-query"
+    ],
+    "tags": [
+      "logs",
+      "search",
+      "analytics"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "kafka",
+    "name": "Apache Kafka",
+    "description": "Distributed event streaming platform for real-time log and event ingestion.",
+    "url": "mcp://kafka-broker.internal:9092",
+    "transport": "sse",
+    "tools": [
+      "consume",
+      "produce",
+      "list-topics",
+      "seek"
+    ],
+    "tags": [
+      "streaming",
+      "events",
+      "messaging"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "prometheus",
+    "name": "Prometheus",
+    "description": "Time-series monitoring database for application and infrastructure metrics.",
+    "url": "mcp://prometheus.internal:9090",
+    "transport": "stdio",
+    "tools": [
+      "query",
+      "query-range",
+      "series",
+      "alerts"
+    ],
+    "tags": [
+      "metrics",
+      "monitoring",
+      "alerting"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "jaeger",
+    "name": "Jaeger",
+    "description": "Distributed tracing backend for end-to-end request flow analysis.",
+    "url": "mcp://jaeger.internal:16686",
+    "transport": "stdio",
+    "tools": [
+      "find-traces",
+      "get-trace",
+      "get-services",
+      "get-operations"
+    ],
+    "tags": [
+      "tracing",
+      "distributed",
+      "performance"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "pagerduty",
+    "name": "PagerDuty",
+    "description": "Incident management platform for alerting, on-call scheduling, and escalation.",
+    "url": "mcp://api.pagerduty.com",
+    "transport": "sse",
+    "tools": [
+      "create-incident",
+      "resolve-incident",
+      "escalate",
+      "list-oncall",
+      "add-note"
+    ],
+    "tags": [
+      "incidents",
+      "alerting",
+      "oncall"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "datadog",
+    "name": "Datadog",
+    "description": "Cloud monitoring and security platform for metrics, dashboards, and alerts.",
+    "url": "mcp://api.datadoghq.com",
+    "transport": "sse",
+    "tools": [
+      "query-metrics",
+      "list-monitors",
+      "create-monitor",
+      "get-dashboard"
+    ],
+    "tags": [
+      "metrics",
+      "monitoring",
+      "cloud"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "postgresql",
+    "name": "PostgreSQL",
+    "description": "Relational database for structured data queries — orders, transactions, and state.",
+    "url": "mcp://postgres.internal:5432",
+    "transport": "stdio",
+    "tools": [
+      "query",
+      "execute",
+      "list-tables",
+      "describe-table"
+    ],
+    "tags": [
+      "database",
+      "sql",
+      "relational"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "redis",
+    "name": "Redis",
+    "description": "In-memory data store for caching, session state, and real-time counters.",
+    "url": "mcp://redis.internal:6379",
+    "transport": "stdio",
+    "tools": [
+      "get",
+      "set",
+      "scan",
+      "pub-sub"
+    ],
+    "tags": [
+      "cache",
+      "realtime",
+      "sessions"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "s3",
+    "name": "AWS S3",
+    "description": "Object storage for log archives, snapshots, and long-term retention.",
+    "url": "mcp://s3.amazonaws.com",
+    "transport": "stdio",
+    "tools": [
+      "get-object",
+      "put-object",
+      "list-objects",
+      "presign-url"
+    ],
+    "tags": [
+      "storage",
+      "archive",
+      "cloud"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "jira",
+    "name": "Jira",
+    "description": "Issue tracking for correlating incidents with engineering work items.",
+    "url": "mcp://jira.atlassian.net",
+    "transport": "sse",
+    "tools": [
+      "search-issues",
+      "create-issue",
+      "update-issue",
+      "get-issue",
+      "add-comment"
+    ],
+    "tags": [
+      "ticketing",
+      "project",
+      "tracking"
+    ],
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "grafana",
+    "name": "Grafana",
+    "description": "Observability dashboards and visualization platform for metrics, logs, and traces.",
+    "url": "mcp://grafana.internal:3000",
+    "transport": "stdio",
+    "tools": [
+      "query-datasource",
+      "list-dashboards",
+      "get-dashboard",
+      "get-annotations",
+      "render-panel"
+    ],
+    "tags": [
+      "visualization",
+      "dashboards",
+      "observability"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "kubernetes",
+    "name": "Kubernetes",
+    "description": "Container orchestration platform API for pod, deployment, and cluster management.",
+    "url": "mcp://k8s-api.internal:6443",
+    "transport": "stdio",
+    "tools": [
+      "get-pods",
+      "get-logs",
+      "describe-resource",
+      "list-events",
+      "get-deployments",
+      "exec"
+    ],
+    "tags": [
+      "k8s",
+      "containers",
+      "orchestration"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "outlook",
+    "name": "Outlook",
+    "description": "Microsoft Outlook integration for scanning production alerts and email-based notifications.",
+    "url": "mcp://outlook.office365.com",
+    "transport": "sse",
+    "tools": [
+      "search-mail",
+      "get-mail",
+      "send-mail",
+      "list-folders",
+      "move-mail"
+    ],
+    "tags": [
+      "email",
+      "alerts",
+      "notifications"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Released"
+  },
+  {
+    "id": "azure-platform",
+    "name": "Azure MCP Server (Official)",
+    "description": "Imported-web-azure: https://github.com/microsoft/mcp — Official Microsoft MCP server covering 40+ Azure services. Includes Azure Monitor, Log Analytics, App Insights, Storage, CosmosDB, SQL, Key Vault. Natural language to Azure queries. GA v1.0.",
+    "url": "mcp://azure-mcp.microsoft.com",
+    "transport": "stdio",
+    "tools": [
+      "query-log-analytics",
+      "query-metrics",
+      "get-resource",
+      "list-resources",
+      "get-app-insights",
+      "query-storage",
+      "manage-keyvault"
+    ],
+    "tags": [
+      "azure",
+      "cloud",
+      "platform",
+      "multi-service",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-log-analytics",
+    "name": "Azure Log Analytics MCP",
+    "description": "Imported-web-azure: https://github.com/MananShahTR/azure-log-analytics-mcp — Dedicated MCP for querying Azure Log Analytics using natural language. Translates to KQL, queries workspaces, returns structured results. Direct fit for AOC log-based RCA on Azure.",
+    "url": "mcp://azure-log-analytics.internal",
+    "transport": "stdio",
+    "tools": [
+      "query-kql",
+      "list-workspaces",
+      "list-tables",
+      "natural-language-query"
+    ],
+    "tags": [
+      "azure",
+      "logs",
+      "kql",
+      "log-analytics",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-adx",
+    "name": "Azure Data Explorer (Kusto) MCP",
+    "description": "Imported-web-azure: https://github.com/pab1it0/adx-mcp-server — Python MCP for Azure Data Explorer. KQL query execution, DB discovery, schema exploration. Multiple auth methods (DefaultAzureCredential). Docker support.",
+    "url": "mcp://azure-adx.internal",
+    "transport": "stdio",
+    "tools": [
+      "execute-kql",
+      "list-databases",
+      "get-schema",
+      "discover-tables"
+    ],
+    "tags": [
+      "azure",
+      "kusto",
+      "adx",
+      "telemetry",
+      "kql",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-kql",
+    "name": "MCP KQL Server",
+    "description": "Imported-web-azure: https://github.com/4R9UN/mcp-kql-server — MCP for both Kusto and Log Analytics. Natural language to KQL translation, schema caching, query execution. Pip installable.",
+    "url": "mcp://azure-kql.internal",
+    "transport": "stdio",
+    "tools": [
+      "nl-to-kql",
+      "execute-kql",
+      "cache-schema",
+      "query-log-analytics"
+    ],
+    "tags": [
+      "azure",
+      "kql",
+      "kusto",
+      "log-analytics",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-adx-go",
+    "name": "Azure Data Explorer MCP (Go)",
+    "description": "Imported-web-azure: https://github.com/abhirockzz/mcp_kusto — Go-based MCP for Azure Data Explorer. Vibe querying — natural language to KQL via MCP.",
+    "url": "mcp://azure-adx-go.internal",
+    "transport": "stdio",
+    "tools": [
+      "vibe-query",
+      "execute-kql"
+    ],
+    "tags": [
+      "azure",
+      "kusto",
+      "adx",
+      "go",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": false,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-sentinel",
+    "name": "Microsoft Sentinel MCP",
+    "description": "Imported-web-azure: https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-mcp-triage-tool — Azure Sentinel MCP for AI-powered threat hunting. Triage tools: list incidents by severity/status, retrieve alerts, hunt data. Reduces MTTR. Integrates with GitHub Copilot.",
+    "url": "mcp://azure-sentinel.internal",
+    "transport": "sse",
+    "tools": [
+      "list-incidents",
+      "get-incident",
+      "retrieve-alerts",
+      "hunt-data",
+      "triage"
+    ],
+    "tags": [
+      "azure",
+      "sentinel",
+      "siem",
+      "security",
+      "threat-hunting",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-cosmosdb",
+    "name": "Azure Cosmos DB MCP",
+    "description": "Imported-web-azure: https://github.com/AzureCosmosDB/azure-cosmos-mcp-server — Official MCP for Azure Cosmos DB. Secure LLM access to query and analyze data. Standardized interface for DB-level RCA.",
+    "url": "mcp://azure-cosmosdb.internal",
+    "transport": "stdio",
+    "tools": [
+      "query",
+      "list-databases",
+      "list-containers",
+      "get-document"
+    ],
+    "tags": [
+      "azure",
+      "cosmosdb",
+      "database",
+      "nosql",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-monitor",
+    "name": "Azure Monitor Tools",
+    "description": "Imported-web-azure: https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/tools/monitor — Azure Monitor namespace within the official MCP server. Query Log Analytics workspaces, analyze ops data, monitor resource health, retrieve metrics, list activity logs.",
+    "url": "mcp://azure-monitor.internal",
+    "transport": "stdio",
+    "tools": [
+      "query-log-analytics",
+      "get-resource-health",
+      "retrieve-metrics",
+      "list-activity-logs",
+      "analyze-ops-data"
+    ],
+    "tags": [
+      "azure",
+      "monitor",
+      "metrics",
+      "health",
+      "logs",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-servicebus",
+    "name": "Azure Service Bus Tools",
+    "description": "Imported-web-azure: https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/tools/service-bus — Service Bus tools within Azure MCP: queue runtime details, topic status, subscription message counts, peek messages. Relevant for DLQ investigation on Azure.",
+    "url": "mcp://azure-servicebus.internal",
+    "transport": "stdio",
+    "tools": [
+      "get-queue-runtime",
+      "get-topic-status",
+      "get-subscription-counts",
+      "peek-messages",
+      "peek-dlq"
+    ],
+    "tags": [
+      "azure",
+      "servicebus",
+      "messaging",
+      "dlq",
+      "queues",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-fabric-rti",
+    "name": "Fabric Real-Time Intelligence MCP",
+    "description": "Imported-web-azure: https://github.com/mcp/microsoft/fabric-rti-mcp — Official Microsoft MCP for Fabric RTI. Eventhouse/ADX queries, Eventstreams, Activator triggers, 12+ Kusto tools. For real-time telemetry analysis.",
+    "url": "mcp://azure-fabric-rti.internal",
+    "transport": "stdio",
+    "tools": [
+      "query-eventhouse",
+      "list-eventstreams",
+      "create-activator",
+      "execute-kql",
+      "get-schema"
+    ],
+    "tags": [
+      "azure",
+      "fabric",
+      "real-time",
+      "telemetry",
+      "kusto",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "azure-functions",
+    "name": "Azure Functions Templates MCP",
+    "description": "Imported-web-azure: https://github.com/Azure/azure-functions-templates-mcp-server — MCP for Azure Functions templates with Service Bus, Event Hub bindings. Useful for building serverless observability agents.",
+    "url": "mcp://azure-functions.internal",
+    "transport": "stdio",
+    "tools": [
+      "list-templates",
+      "get-template",
+      "create-function",
+      "list-bindings"
+    ],
+    "tags": [
+      "azure",
+      "functions",
+      "serverless",
+      "templates",
+      "Azure",
+      "Imported",
+      "Imported-Web"
+    ],
+    "enabled": false,
+    "type": "external",
+    "role": "public",
+    "stage": "Design"
+  },
+  {
+    "id": "aoc-ticket-resolver",
+    "name": "AOC Ticket Resolver",
+    "description": "Local MCP for automated ticket resolution and classification using AOC triage logic",
+    "enabled": false,
+    "type": "local",
+    "role": "public",
+    "stage": "Dev",
+    "tags": [
+      "AOC",
+      "Local",
+      "Ticket-Management"
+    ],
+    "tools": [
+      {
+        "name": "resolve_ticket",
+        "description": "Tool: resolve ticket"
+      },
+      {
+        "name": "classify_ticket",
+        "description": "Tool: classify ticket"
+      },
+      {
+        "name": "get_resolution_history",
+        "description": "Tool: get resolution history"
+      }
+    ]
+  },
+  {
+    "id": "aoc-log-aggregator",
+    "name": "AOC Log Aggregator",
+    "description": "Local MCP for aggregating and querying logs across distributed services",
+    "enabled": false,
+    "type": "local",
+    "role": "public",
+    "stage": "Dev",
+    "tags": [
+      "AOC",
+      "Local",
+      "Observability"
+    ],
+    "tools": [
+      {
+        "name": "query_logs",
+        "description": "Tool: query logs"
+      },
+      {
+        "name": "aggregate_metrics",
+        "description": "Tool: aggregate metrics"
+      },
+      {
+        "name": "detect_anomalies",
+        "description": "Tool: detect anomalies"
+      }
+    ]
+  },
+  {
+    "id": "stub-mcp",
+    "name": "STUB MCP",
+    "description": "Universal stub MCP that mirrors all tools from every registered MCP server. Returns dummy *STUB RESULTS* for testing without live backends.",
+    "enabled": true,
+    "type": "local",
+    "role": "public",
+    "stage": "Dev",
+    "tags": [
+      "Stub",
+      "Testing",
+      "Local"
+    ],
+    "tools": [
+      {
+        "name": "search",
+        "description": "Stub: search"
+      },
+      {
+        "name": "index",
+        "description": "Stub: index"
+      },
+      {
+        "name": "aggregate",
+        "description": "Stub: aggregate"
+      },
+      {
+        "name": "scroll",
+        "description": "Stub: scroll"
+      },
+      {
+        "name": "delete-by-query",
+        "description": "Stub: delete-by-query"
+      },
+      {
+        "name": "consume",
+        "description": "Stub: consume"
+      },
+      {
+        "name": "produce",
+        "description": "Stub: produce"
+      },
+      {
+        "name": "list-topics",
+        "description": "Stub: list-topics"
+      },
+      {
+        "name": "seek",
+        "description": "Stub: seek"
+      },
+      {
+        "name": "query",
+        "description": "Stub: query"
+      },
+      {
+        "name": "query-range",
+        "description": "Stub: query-range"
+      },
+      {
+        "name": "series",
+        "description": "Stub: series"
+      },
+      {
+        "name": "alerts",
+        "description": "Stub: alerts"
+      },
+      {
+        "name": "find-traces",
+        "description": "Stub: find-traces"
+      },
+      {
+        "name": "get-trace",
+        "description": "Stub: get-trace"
+      },
+      {
+        "name": "get-services",
+        "description": "Stub: get-services"
+      },
+      {
+        "name": "get-operations",
+        "description": "Stub: get-operations"
+      },
+      {
+        "name": "create-incident",
+        "description": "Stub: create-incident"
+      },
+      {
+        "name": "resolve-incident",
+        "description": "Stub: resolve-incident"
+      },
+      {
+        "name": "escalate",
+        "description": "Stub: escalate"
+      },
+      {
+        "name": "list-oncall",
+        "description": "Stub: list-oncall"
+      },
+      {
+        "name": "add-note",
+        "description": "Stub: add-note"
+      },
+      {
+        "name": "query-metrics",
+        "description": "Stub: query-metrics"
+      },
+      {
+        "name": "list-monitors",
+        "description": "Stub: list-monitors"
+      },
+      {
+        "name": "create-monitor",
+        "description": "Stub: create-monitor"
+      },
+      {
+        "name": "get-dashboard",
+        "description": "Stub: get-dashboard"
+      },
+      {
+        "name": "execute",
+        "description": "Stub: execute"
+      },
+      {
+        "name": "list-tables",
+        "description": "Stub: list-tables"
+      },
+      {
+        "name": "describe-table",
+        "description": "Stub: describe-table"
+      },
+      {
+        "name": "get",
+        "description": "Stub: get"
+      },
+      {
+        "name": "set",
+        "description": "Stub: set"
+      },
+      {
+        "name": "scan",
+        "description": "Stub: scan"
+      },
+      {
+        "name": "pub-sub",
+        "description": "Stub: pub-sub"
+      },
+      {
+        "name": "get-object",
+        "description": "Stub: get-object"
+      },
+      {
+        "name": "put-object",
+        "description": "Stub: put-object"
+      },
+      {
+        "name": "list-objects",
+        "description": "Stub: list-objects"
+      },
+      {
+        "name": "presign-url",
+        "description": "Stub: presign-url"
+      },
+      {
+        "name": "search-issues",
+        "description": "Stub: search-issues"
+      },
+      {
+        "name": "create-issue",
+        "description": "Stub: create-issue"
+      },
+      {
+        "name": "update-issue",
+        "description": "Stub: update-issue"
+      },
+      {
+        "name": "get-issue",
+        "description": "Stub: get-issue"
+      },
+      {
+        "name": "add-comment",
+        "description": "Stub: add-comment"
+      },
+      {
+        "name": "query-datasource",
+        "description": "Stub: query-datasource"
+      },
+      {
+        "name": "list-dashboards",
+        "description": "Stub: list-dashboards"
+      },
+      {
+        "name": "get-annotations",
+        "description": "Stub: get-annotations"
+      },
+      {
+        "name": "render-panel",
+        "description": "Stub: render-panel"
+      },
+      {
+        "name": "get-pods",
+        "description": "Stub: get-pods"
+      },
+      {
+        "name": "get-logs",
+        "description": "Stub: get-logs"
+      },
+      {
+        "name": "describe-resource",
+        "description": "Stub: describe-resource"
+      },
+      {
+        "name": "list-events",
+        "description": "Stub: list-events"
+      },
+      {
+        "name": "get-deployments",
+        "description": "Stub: get-deployments"
+      },
+      {
+        "name": "exec",
+        "description": "Stub: exec"
+      },
+      {
+        "name": "search-mail",
+        "description": "Stub: search-mail"
+      },
+      {
+        "name": "get-mail",
+        "description": "Stub: get-mail"
+      },
+      {
+        "name": "send-mail",
+        "description": "Stub: send-mail"
+      },
+      {
+        "name": "list-folders",
+        "description": "Stub: list-folders"
+      },
+      {
+        "name": "move-mail",
+        "description": "Stub: move-mail"
+      },
+      {
+        "name": "query-log-analytics",
+        "description": "Stub: query-log-analytics"
+      },
+      {
+        "name": "get-resource",
+        "description": "Stub: get-resource"
+      },
+      {
+        "name": "list-resources",
+        "description": "Stub: list-resources"
+      },
+      {
+        "name": "get-app-insights",
+        "description": "Stub: get-app-insights"
+      },
+      {
+        "name": "query-storage",
+        "description": "Stub: query-storage"
+      },
+      {
+        "name": "manage-keyvault",
+        "description": "Stub: manage-keyvault"
+      },
+      {
+        "name": "query-kql",
+        "description": "Stub: query-kql"
+      },
+      {
+        "name": "list-workspaces",
+        "description": "Stub: list-workspaces"
+      },
+      {
+        "name": "natural-language-query",
+        "description": "Stub: natural-language-query"
+      },
+      {
+        "name": "execute-kql",
+        "description": "Stub: execute-kql"
+      },
+      {
+        "name": "list-databases",
+        "description": "Stub: list-databases"
+      },
+      {
+        "name": "get-schema",
+        "description": "Stub: get-schema"
+      },
+      {
+        "name": "discover-tables",
+        "description": "Stub: discover-tables"
+      },
+      {
+        "name": "nl-to-kql",
+        "description": "Stub: nl-to-kql"
+      },
+      {
+        "name": "cache-schema",
+        "description": "Stub: cache-schema"
+      },
+      {
+        "name": "vibe-query",
+        "description": "Stub: vibe-query"
+      },
+      {
+        "name": "list-incidents",
+        "description": "Stub: list-incidents"
+      },
+      {
+        "name": "get-incident",
+        "description": "Stub: get-incident"
+      },
+      {
+        "name": "retrieve-alerts",
+        "description": "Stub: retrieve-alerts"
+      },
+      {
+        "name": "hunt-data",
+        "description": "Stub: hunt-data"
+      },
+      {
+        "name": "triage",
+        "description": "Stub: triage"
+      },
+      {
+        "name": "list-containers",
+        "description": "Stub: list-containers"
+      },
+      {
+        "name": "get-document",
+        "description": "Stub: get-document"
+      },
+      {
+        "name": "get-resource-health",
+        "description": "Stub: get-resource-health"
+      },
+      {
+        "name": "retrieve-metrics",
+        "description": "Stub: retrieve-metrics"
+      },
+      {
+        "name": "list-activity-logs",
+        "description": "Stub: list-activity-logs"
+      },
+      {
+        "name": "analyze-ops-data",
+        "description": "Stub: analyze-ops-data"
+      },
+      {
+        "name": "get-queue-runtime",
+        "description": "Stub: get-queue-runtime"
+      },
+      {
+        "name": "get-topic-status",
+        "description": "Stub: get-topic-status"
+      },
+      {
+        "name": "get-subscription-counts",
+        "description": "Stub: get-subscription-counts"
+      },
+      {
+        "name": "peek-messages",
+        "description": "Stub: peek-messages"
+      },
+      {
+        "name": "peek-dlq",
+        "description": "Stub: peek-dlq"
+      },
+      {
+        "name": "query-eventhouse",
+        "description": "Stub: query-eventhouse"
+      },
+      {
+        "name": "list-eventstreams",
+        "description": "Stub: list-eventstreams"
+      },
+      {
+        "name": "create-activator",
+        "description": "Stub: create-activator"
+      },
+      {
+        "name": "list-templates",
+        "description": "Stub: list-templates"
+      },
+      {
+        "name": "get-template",
+        "description": "Stub: get-template"
+      },
+      {
+        "name": "create-function",
+        "description": "Stub: create-function"
+      },
+      {
+        "name": "list-bindings",
+        "description": "Stub: list-bindings"
+      },
+      {
+        "name": "resolve_ticket",
+        "description": "Stub: resolve_ticket"
+      },
+      {
+        "name": "classify_ticket",
+        "description": "Stub: classify_ticket"
+      },
+      {
+        "name": "get_resolution_history",
+        "description": "Stub: get_resolution_history"
+      },
+      {
+        "name": "query_logs",
+        "description": "Stub: query_logs"
+      },
+      {
+        "name": "aggregate_metrics",
+        "description": "Stub: aggregate_metrics"
+      },
+      {
+        "name": "detect_anomalies",
+        "description": "Stub: detect_anomalies"
+      }
+    ]
+  },
+  {
+    "id": "mcp-apm",
+    "name": "MCP APM (SkyWalking)",
+    "description": "Apache SkyWalking APM — distributed tracing, service mesh topology, span analysis, and infrastructure health metrics.",
+    "tools": [
+      {
+        "name": "get-trace",
+        "description": "Retrieve a full distributed trace by Trace ID"
+      },
+      {
+        "name": "search-traces",
+        "description": "Search traces by service, endpoint, time range, or business entity ID"
+      },
+      {
+        "name": "get-topology",
+        "description": "Get the service mesh topology map for a given time window"
+      },
+      {
+        "name": "get-span-detail",
+        "description": "Get detailed span info including tags, logs, and duration"
+      },
+      {
+        "name": "get-service-metrics",
+        "description": "Retrieve CPU, memory, latency, and error rate for a service"
+      },
+      {
+        "name": "get-endpoint-metrics",
+        "description": "Get throughput, avg response time, and error % for an endpoint"
+      },
+      {
+        "name": "list-services",
+        "description": "List all registered services in the mesh"
+      },
+      {
+        "name": "get-alarms",
+        "description": "Retrieve active alarms and alerts from SkyWalking"
+      }
+    ],
+    "tags": [
+      "Feature-1",
+      "APM",
+      "Tracing",
+      "Observability"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Dev",
+    "url": "",
+    "transport": "stdio"
+  },
+  {
+    "id": "mcp-opensearch",
+    "name": "MCP OpenSearch",
+    "description": "OpenSearch deep log indexing — full-text search across application logs, stack trace extraction, and log correlation by Trace ID.",
+    "tools": [
+      {
+        "name": "search-logs",
+        "description": "Full-text search across log indices with filters (service, level, time range)"
+      },
+      {
+        "name": "get-logs-by-trace",
+        "description": "Retrieve all log entries correlated to a specific Trace ID"
+      },
+      {
+        "name": "get-error-logs",
+        "description": "Search for ERROR/FATAL level logs in a time window"
+      },
+      {
+        "name": "get-stack-trace",
+        "description": "Extract and format stack traces from log entries"
+      },
+      {
+        "name": "aggregate-log-stats",
+        "description": "Aggregate log counts by level, service, or error type"
+      },
+      {
+        "name": "list-indices",
+        "description": "List available log indices and their date ranges"
+      }
+    ],
+    "tags": [
+      "Feature-1",
+      "Logs",
+      "Search",
+      "Observability"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Dev",
+    "url": "",
+    "transport": "stdio"
+  },
+  {
+    "id": "mcp-kafka",
+    "name": "MCP Kafka",
+    "description": "Kafka message flow auditing — DLQ inspection, consumer lag monitoring, and message tracking for specific business entities.",
+    "tools": [
+      {
+        "name": "search-dlq",
+        "description": "Search Dead Letter Queue for messages related to a business entity"
+      },
+      {
+        "name": "get-message-by-key",
+        "description": "Retrieve a Kafka message by key from a specific topic"
+      },
+      {
+        "name": "get-consumer-lag",
+        "description": "Check consumer group lag for a topic"
+      },
+      {
+        "name": "list-dlq-topics",
+        "description": "List all DLQ topics and their message counts"
+      },
+      {
+        "name": "get-topic-stats",
+        "description": "Get partition count, throughput, and retention for a topic"
+      },
+      {
+        "name": "peek-messages",
+        "description": "Peek at the latest N messages on a topic/partition"
+      }
+    ],
+    "tags": [
+      "Feature-1",
+      "Kafka",
+      "DLQ",
+      "Messaging"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Dev",
+    "url": "",
+    "transport": "stdio"
+  },
+  {
+    "id": "mcp-digital-mass",
+    "name": "MCP Digital Mass",
+    "description": "Business data layer — direct SQL/NoSQL queries against the Digital Mass business database for entity state verification and validation.",
+    "tools": [
+      {
+        "name": "query-entity",
+        "description": "Query a business entity (order, subscription, customer) by ID"
+      },
+      {
+        "name": "get-entity-history",
+        "description": "Get the state history / audit trail for a business entity"
+      },
+      {
+        "name": "query-sql",
+        "description": "Execute a read-only SQL query against the business database"
+      },
+      {
+        "name": "list-tables",
+        "description": "List available tables and their schemas"
+      },
+      {
+        "name": "get-entity-status",
+        "description": "Get the current status and last-modified timestamp for an entity"
+      },
+      {
+        "name": "compare-states",
+        "description": "Compare expected vs actual entity state for discrepancy detection"
+      }
+    ],
+    "tags": [
+      "Feature-1",
+      "Database",
+      "Business-Data"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Dev",
+    "url": "",
+    "transport": "stdio"
+  }
+]

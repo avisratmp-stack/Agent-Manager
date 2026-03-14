@@ -1,0 +1,10 @@
+{
+  "name": "get_resolution_history",
+  "description": "Tool: get resolution history",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "handler": "stub"
+}

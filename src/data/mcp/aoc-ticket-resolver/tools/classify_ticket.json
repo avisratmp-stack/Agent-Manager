@@ -1,0 +1,10 @@
+{
+  "name": "classify_ticket",
+  "description": "Tool: classify ticket",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "handler": "stub"
+}

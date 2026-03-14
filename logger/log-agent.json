@@ -1,0 +1,109 @@
+[
+  {
+    "requestId": "req-a1b2c3d4",
+    "timestamp": "2026-03-08T09:12:34.123Z",
+    "request": {
+      "action": "log-search",
+      "params": { "query": "ERROR payment-service", "timeRange": "1h", "limit": 100 }
+    },
+    "reasoning": "User requested error logs for payment-service in the last hour. Querying Elasticsearch with full-text search on ERROR level, filtering by service name.",
+    "response": {
+      "status": "success",
+      "matchCount": 47,
+      "topPatterns": ["NullPointerException in PaymentProcessor.execute", "Connection timeout to payment-gateway"],
+      "latencyMs": 312
+    }
+  },
+  {
+    "requestId": "req-e5f6g7h8",
+    "timestamp": "2026-03-08T09:15:01.456Z",
+    "request": {
+      "action": "pattern-detect",
+      "params": { "service": "order-service", "window": "30m", "baseline": "7d" }
+    },
+    "reasoning": "Anomaly detection triggered for order-service. Comparing current 30-minute error rate against 7-day baseline. Error rate is 3.2x above normal threshold.",
+    "response": {
+      "status": "success",
+      "anomalyDetected": true,
+      "errorRateMultiplier": 3.2,
+      "baselineErrorRate": 0.4,
+      "currentErrorRate": 1.28,
+      "latencyMs": 847
+    }
+  },
+  {
+    "requestId": "req-i9j0k1l2",
+    "timestamp": "2026-03-08T09:18:22.789Z",
+    "request": {
+      "action": "log-search",
+      "params": { "query": "timeout", "service": "catalog-service", "timeRange": "2h", "limit": 50 }
+    },
+    "reasoning": "Searching for timeout-related entries in catalog-service logs. This is a follow-up investigation from an APM latency alert on the catalog endpoint.",
+    "response": {
+      "status": "success",
+      "matchCount": 12,
+      "topPatterns": ["Read timed out after 30000ms calling inventory-api"],
+      "latencyMs": 198
+    }
+  },
+  {
+    "requestId": "req-m3n4o5p6",
+    "timestamp": "2026-03-08T09:22:45.012Z",
+    "request": {
+      "action": "log-tail",
+      "params": { "service": "billing-service", "follow": true, "filter": "level:ERROR OR level:WARN" }
+    },
+    "reasoning": "Live tail requested for billing-service errors and warnings. Streaming mode activated to monitor ongoing billing reconciliation batch job.",
+    "response": {
+      "status": "streaming",
+      "eventsPerSecond": 2.4,
+      "sessionId": "tail-sess-7x8y9z",
+      "latencyMs": 45
+    }
+  },
+  {
+    "requestId": "req-q7r8s9t0",
+    "timestamp": "2026-03-08T09:31:10.345Z",
+    "request": {
+      "action": "log-search",
+      "params": { "traceId": "abc-123-def-456", "timeRange": "15m" }
+    },
+    "reasoning": "Correlated log lookup requested by Trace Agent. Fetching all log entries tied to trace ID abc-123-def-456 across all indexed services to build incident timeline.",
+    "response": {
+      "status": "success",
+      "matchCount": 23,
+      "servicesInvolved": ["order-service", "payment-service", "inventory-api"],
+      "latencyMs": 267
+    }
+  },
+  {
+    "requestId": "req-u1v2w3x4",
+    "timestamp": "2026-03-08T10:05:33.678Z",
+    "request": {
+      "action": "pattern-detect",
+      "params": { "service": "*", "window": "1h", "baseline": "24h" }
+    },
+    "reasoning": "Global anomaly scan across all services. Scheduled hourly check comparing current error patterns against 24-hour rolling baseline.",
+    "response": {
+      "status": "success",
+      "anomalyDetected": false,
+      "servicesScanned": 14,
+      "latencyMs": 2103
+    }
+  },
+  {
+    "requestId": "req-y5z6a7b8",
+    "timestamp": "2026-03-08T10:12:55.901Z",
+    "request": {
+      "action": "log-search",
+      "params": { "query": "OOM", "service": "recommendation-engine", "timeRange": "6h", "limit": 200 }
+    },
+    "reasoning": "Investigating OutOfMemory reports in recommendation-engine. The service has been flagged by APM Agent for memory pressure exceeding 90% heap usage.",
+    "response": {
+      "status": "success",
+      "matchCount": 8,
+      "topPatterns": ["java.lang.OutOfMemoryError: Java heap space", "GC overhead limit exceeded"],
+      "latencyMs": 423
+    }
+  }
+]

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ObsAgents Data Entity Model</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 32px;
+  }
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: #f8fafc;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 28px;
+  }
+  .diagram-container {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 28px;
+    overflow-x: auto;
+  }
+  .mermaid { display: flex; justify-content: center; }
+  .legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #cbd5e1;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+  .files {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+  }
+  .files h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #f8fafc;
+    margin-bottom: 10px;
+  }
+  .file-row {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 4px 0;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .file-path { color: #facc15; }
+  .file-desc { color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<h1>ObsAgents — Data Entity Model</h1>
+<p class="subtitle">Entity relationships for the Observability Agents management platform</p>
+
+<div class="diagram-container">
+  <pre class="mermaid">
+erDiagram
+    REGISTRY ||--o{ CONSUMER : contains
+    REGISTRY ||--o{ AGENT : contains
+    MCP_REGISTRY ||--o{ MCP_SERVER : contains
+
+    CONSUMER ||--o{ CONSUMER_CALL : makes
+    CONSUMER_CALL }o--|| AGENT : "calls (public only)"
+
+    AGENT ||--o{ AGENT_CALL : makes
+    AGENT_CALL }o--|| AGENT : "calls"
+
+    AGENT ||--o{ MCP_BINDING : has
+    MCP_BINDING }o--|| MCP_SERVER : "binds to"
+    MCP_BINDING ||--o{ BOUND_TOOL : selects
+
+    AGENT ||--|| AGENT_DEF : defines
+    AGENT_DEF ||--o{ AGENT_TOOL : exposes
+    AGENT_DEF ||--|| CAPABILITIES : has
+
+    AGENT ||--o{ SKILL : "has (local only)"
+    SKILL ||--o{ SKILL_ASSET : contains
+
+    AGENT ||--o{ KNOWLEDGE_DOC : "has (local only)"
+
+    AGENT ||--o{ LOG_ENTRY : generates
+
+    MCP_SERVER ||--o{ SERVER_TOOL : exposes
+
+    CONSUMER {
+        string id PK
+        string name
+    }
+
+    AGENT {
+        int id PK
+        string origin "local or external"
+        string role "sub-agent or null"
+        string stage "Design Dev Released"
+        string slug UK
+        boolean enabled
+        string_arr tags
+    }
+
+    AGENT_DEF {
+        string name
+        string description
+        string url
+        string version
+    }
+
+    CAPABILITIES {
+        boolean streaming
+        boolean async_execution
+    }
+
+    AGENT_TOOL {
+        string id PK
+        string name
+        string description
+        string_arr tags
+    }
+
+    MCP_BINDING {
+        string serverId FK
+        string purpose
+    }
+
+    BOUND_TOOL {
+        string tool_name
+    }
+
+    AGENT_CALL {
+        string target_slug FK
+    }
+
+    CONSUMER_CALL {
+        string target_slug FK
+    }
+
+    MCP_SERVER {
+        string id PK
+        string name
+        string description
+        string url
+        string transport "stdio or sse"
+        string origin "local or external"
+        string role "public or private"
+        string stage "Design Dev Released"
+        boolean enabled
+        string_arr tags
+    }
+
+    SERVER_TOOL {
+        string name
+        string description
+    }
+
+    SKILL {
+        string name
+        string status "active or inactive"
+        string path
+    }
+
+    SKILL_ASSET {
+        string type "SKILL_MD script asset ref"
+        string path
+    }
+
+    KNOWLEDGE_DOC {
+        string id PK
+        string name
+        string type "pdf or url"
+        string source
+        string status "indexed or pending"
+        int size
+        string_arr tags
+    }
+
+    LOG_ENTRY {
+        string requestId PK
+        datetime timestamp
+        object request
+        string reasoning
+        object response
+    }
+  </pre>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:#059669"></span> Agent (local)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#2563eb"></span> Agent (external)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#d97706"></span> MCP Server (local)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#ca8a04"></span> MCP Server (external)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span> Consumer</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#dc2626"></span> Log Entry</div>
+</div>
+
+<div class="files">
+  <h3>File Locations (under src/data/)</h3>
+  <div class="file-row"><span class="file-path">common/agents.json</span><span class="file-desc">— Agent registry (agents[] + consumers[])</span></div>
+  <div class="file-row"><span class="file-path">common/mcp-servers.json</span><span class="file-desc">— MCP server registry (local + external)</span></div>
+  <div class="file-row"><span class="file-path">agents/&lt;slug&gt;/skills/*/SKILL.md</span><span class="file-desc">— Skill definitions per local agent</span></div>
+  <div class="file-row"><span class="file-path">agents/&lt;slug&gt;/knowledge/manifest.json</span><span class="file-desc">— Knowledge documents per local agent</span></div>
+  <div class="file-row"><span class="file-path">mcp/&lt;slug&gt;/tools/*.json</span><span class="file-desc">— Tool definitions per local MCP</span></div>
+  <div class="file-row"><span class="file-path">mcp/&lt;slug&gt;/config/server.json</span><span class="file-desc">— MCP server config per local MCP</span></div>
+  <div class="file-row"><span class="file-path">../../logger/&lt;slug&gt;.json</span><span class="file-desc">— Traffic logs per agent</span></div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#334155',
+      primaryTextColor: '#f8fafc',
+      primaryBorderColor: '#475569',
+      lineColor: '#64748b',
+      secondaryColor: '#1e293b',
+      tertiaryColor: '#0f172a',
+      fontSize: '13px',
+      fontFamily: 'JetBrains Mono, monospace'
+    },
+    er: {
+      diagramPadding: 20,
+      entityPadding: 15,
+      useMaxWidth: true
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Data Model</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e14;
+  --surface: #13161f;
+  --surface-2: #1a1e2a;
+  --border: #252a38;
+  --text: #e2e4ea;
+  --text-dim: #8b8fa3;
+  --text-muted: #5c6078;
+  --accent: #7c6aef;
+  --accent-glow: rgba(124,106,239,0.15);
+  --green: #3ecf8e;
+  --green-dim: rgba(62,207,142,0.12);
+  --orange: #f0a44b;
+  --orange-dim: rgba(240,164,75,0.12);
+  --red: #ef6461;
+  --red-dim: rgba(239,100,97,0.12);
+  --blue: #5b9bf5;
+  --blue-dim: rgba(91,155,245,0.12);
+  --cyan: #4ecdc4;
+  --cyan-dim: rgba(78,205,196,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  padding: 40px 32px;
+  min-height: 100vh;
+}
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--accent), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-top: 6px;
+}
+.model-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.entity {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  position: relative;
+  animation: fadeIn 0.4s ease both;
+}
+.entity:nth-child(2) { animation-delay: 0.08s; }
+.entity:nth-child(3) { animation-delay: 0.16s; }
+.entity:nth-child(4) { animation-delay: 0.24s; }
+.entity:nth-child(5) { animation-delay: 0.32s; }
+.entity::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 12px 0 0 12px;
+}
+.entity--root::before { background: var(--accent); }
+.entity--agent::before { background: var(--blue); }
+.entity--skill::before { background: var(--green); }
+.entity--knowledge::before { background: var(--orange); }
+.entity--handler::before { background: var(--cyan); }
+.entity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.entity-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.entity-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.badge--root { color: var(--accent); background: var(--accent-glow); }
+.badge--agent { color: var(--blue); background: var(--blue-dim); }
+.badge--skill { color: var(--green); background: var(--green-dim); }
+.badge--knowledge { color: var(--orange); background: var(--orange-dim); }
+.badge--handler { color: var(--cyan); background: var(--cyan-dim); }
+.badge--spec { color: var(--green); background: var(--green-dim); font-size: 9px; }
+.field-row {
+  display: grid;
+  grid-template-columns: 200px 140px 1fr;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 36px;
+  align-items: stretch;
+}
+.field-row:last-child { border-bottom: none; }
+.field-row.section-divider {
+  background: var(--surface-2);
+  grid-template-columns: 1fr;
+  min-height: 28px;
+}
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+.dot--purple { background: var(--accent); }
+.dot--blue { background: var(--blue); }
+.dot--green { background: var(--green); }
+.dot--orange { background: var(--orange); }
+.dot--cyan { background: var(--cyan); }
+.field-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  color: var(--text);
+  padding: 8px 20px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+.field-type {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+.field-desc {
+  color: var(--text-dim);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tag {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.tag--required { color: var(--red); background: var(--red-dim); }
+.tag--optional { color: var(--text-muted); background: rgba(92,96,120,0.15); }
+.tag--spec { color: var(--green); background: var(--green-dim); }
+.tag--ui { color: var(--accent); background: var(--accent-glow); }
+.tag--array { color: var(--cyan); background: var(--cyan-dim); }
+.nested-ref {
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+}
+.rel-section {
+  margin-top: 48px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  animation: fadeIn 0.4s ease 0.5s both;
+}
+.rel-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.rel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.rel-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rel-from, .rel-to {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.rel-from { background: var(--accent-glow); color: var(--accent); }
+.rel-to--agent { background: var(--blue-dim); color: var(--blue); }
+.rel-to--skill { background: var(--green-dim); color: var(--green); }
+.rel-to--knowledge { background: var(--orange-dim); color: var(--orange); }
+.rel-to--handler { background: var(--cyan-dim); color: var(--cyan); }
+.rel-arrow {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  white-space: nowrap;
+}
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+  justify-content: center;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(8px); }
+  to { opacity:1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Agent Configuration &mdash; Full Data Model</h1>
+  <p>Each agent record = 5 entities. Skills follow the <strong>agentskills.io</strong> specification.</p>
+</div>
+
+<div class="model-container">
+
+  <!-- AgentRecord (root) -->
+  <div class="entity entity--root">
+    <div class="entity-head">
+      <span class="entity-name">AgentRecord</span>
+      <span class="entity-badge badge--root">Root Entity</span>
+    </div>
+    <div class="entity-body">
+      <div class="field-row">
+        <div class="field-name">id</div>
+        <div class="field-type">number</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Unique record identifier</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">agent</div>
+        <div class="field-type">AgentConfig</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> <span class="nested-ref">&rarr; see AgentConfig</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">managedSkills</div>
+        <div class="field-type">Skill[]</div>
+        <div class="field-desc"><span class="tag tag--array">array</span> <span class="tag tag--spec">agent skills spec</span> Ordered SKILL.md entries</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">knowledge</div>
+        <div class="field-type">KnowledgeDoc[]</div>
+        <div class="field-desc"><span class="tag tag--array">array</span> Unstructured docs for RAG retrieval</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AgentConfig -->
+  <div class="entity entity--agent">
+    <div class="entity-head">
+      <span class="entity-name">AgentConfig</span>
+      <span class="entity-badge badge--agent">Agent Identity &amp; Runtime</span>
+    </div>
+    <div class="entity-body">
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--blue"></span>Identity</div></div>
+      <div class="field-row">
+        <div class="field-name">name</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Human-readable agent name</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">description</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> What this agent does</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">url</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Agent endpoint URL</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">version</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Semantic version (e.g. 2.1.0)</div>
+      </div>
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--blue"></span>Capabilities</div></div>
+      <div class="field-row">
+        <div class="field-name">capabilities.streaming</div>
+        <div class="field-type">boolean</div>
+        <div class="field-desc">Supports streaming responses</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">capabilities.async_execution</div>
+        <div class="field-type">boolean</div>
+        <div class="field-desc">Supports async task execution</div>
+      </div>
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--blue"></span>Registered Tools (runtime endpoints)</div></div>
+      <div class="field-row">
+        <div class="field-name">tools[].id</div>
+        <div class="field-type">string</div>
+        <div class="field-desc">Tool endpoint identifier</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">tools[].name</div>
+        <div class="field-type">string</div>
+        <div class="field-desc">Display name</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">tools[].description</div>
+        <div class="field-type">string</div>
+        <div class="field-desc">What the tool endpoint does</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">tools[].tags</div>
+        <div class="field-type">string[]</div>
+        <div class="field-desc"><span class="tag tag--array">array</span> Categorization tags</div>
+      </div>
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--cyan"></span>Handler</div></div>
+      <div class="field-row">
+        <div class="field-name">handler</div>
+        <div class="field-type">Handler</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> <span class="nested-ref">&rarr; see Handler</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Handler -->
+  <div class="entity entity--handler">
+    <div class="entity-head">
+      <span class="entity-name">Handler</span>
+      <span class="entity-badge badge--handler">Request Processing</span>
+    </div>
+    <div class="entity-body">
+      <div class="field-row">
+        <div class="field-name">class</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Fully qualified handler class</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">args.agent_executor</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Executor class path</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">args.task_store</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Task persistence (InMemory / Redis)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill (Agent Skills Spec) -->
+  <div class="entity entity--skill">
+    <div class="entity-head">
+      <span class="entity-name">Skill</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="entity-badge badge--spec">agentskills.io</span>
+        <span class="entity-badge badge--skill">SKILL.md</span>
+      </div>
+    </div>
+    <div class="entity-body">
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--purple"></span>UI-only fields (not in spec)</div></div>
+      <div class="field-row">
+        <div class="field-name">id</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--ui">ui</span> Internal record ID (sk-xxxxx)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">status</div>
+        <div class="field-type">enum</div>
+        <div class="field-desc"><span class="tag tag--ui">ui</span> "active" | "inactive"</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">lastModified</div>
+        <div class="field-type">ISO 8601</div>
+        <div class="field-desc"><span class="tag tag--ui">ui</span> Last edit timestamp</div>
+      </div>
+
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--green"></span>Spec required &mdash; YAML frontmatter</div></div>
+      <div class="field-row">
+        <div class="field-name">name</div>
+        <div class="field-type">string(1-64)</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> <span class="tag tag--spec">spec</span> Lowercase slug (a-z, 0-9, hyphens). No leading/trailing/consecutive hyphens. = directory name.</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">description</div>
+        <div class="field-type">string(1-1024)</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> <span class="tag tag--spec">spec</span> What it does + when to use it. Include keywords for agent discovery.</div>
+      </div>
+
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--green"></span>Spec optional &mdash; YAML frontmatter</div></div>
+      <div class="field-row">
+        <div class="field-name">license</div>
+        <div class="field-type">string | null</div>
+        <div class="field-desc"><span class="tag tag--optional">optional</span> <span class="tag tag--spec">spec</span> License name or file ref (e.g. Apache-2.0)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">compatibility</div>
+        <div class="field-type">string(0-500)|null</div>
+        <div class="field-desc"><span class="tag tag--optional">optional</span> <span class="tag tag--spec">spec</span> Environment reqs (product, packages, network)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">metadata</div>
+        <div class="field-type">{key,value}[]</div>
+        <div class="field-desc"><span class="tag tag--optional">optional</span> <span class="tag tag--spec">spec</span> <span class="tag tag--array">array</span> Arbitrary key-value pairs (author, version, ...)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">allowedTools</div>
+        <div class="field-type">string | null</div>
+        <div class="field-desc"><span class="tag tag--optional">optional</span> <span class="tag tag--spec">spec</span> Space-delimited pre-approved tools (experimental)</div>
+      </div>
+
+      <div class="field-row section-divider"><div class="section-label"><span class="dot dot--green"></span>Full SKILL.md file</div></div>
+      <div class="field-row">
+        <div class="field-name">content</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Complete SKILL.md = YAML frontmatter + markdown body (instructions, examples, edge cases)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KnowledgeDoc -->
+  <div class="entity entity--knowledge">
+    <div class="entity-head">
+      <span class="entity-name">KnowledgeDoc</span>
+      <span class="entity-badge badge--knowledge">RAG Document</span>
+    </div>
+    <div class="entity-body">
+      <div class="field-row">
+        <div class="field-name">id</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Unique doc ID (kb-xxxxx)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">name</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> Filename or display title</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">type</div>
+        <div class="field-type">enum</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> "pdf" | "docx" | "txt" | "md" | "url" | "text"</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">source</div>
+        <div class="field-type">string</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> "file" for uploads, or the full URL string</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">uploadDate</div>
+        <div class="field-type">ISO 8601</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> When the document was added</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">status</div>
+        <div class="field-type">enum</div>
+        <div class="field-desc"><span class="tag tag--required">required</span> "indexed" | "processing" | "failed"</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">size</div>
+        <div class="field-type">number | null</div>
+        <div class="field-desc"><span class="tag tag--optional">optional</span> File size in bytes (null for URLs)</div>
+      </div>
+      <div class="field-row">
+        <div class="field-name">tags</div>
+        <div class="field-type">string[]</div>
+        <div class="field-desc"><span class="tag tag--optional">optional</span> <span class="tag tag--array">array</span> Labels for traceability / filtering</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relationships -->
+  <div class="rel-section">
+    <h2>Relationships</h2>
+    <div class="rel-grid">
+      <div class="rel-card">
+        <span class="rel-from">AgentRecord</span>
+        <span class="rel-arrow">&mdash; 1:1 &rarr;</span>
+        <span class="rel-to rel-to--agent">AgentConfig</span>
+      </div>
+      <div class="rel-card">
+        <span class="rel-from">AgentConfig</span>
+        <span class="rel-arrow">&mdash; 1:1 &rarr;</span>
+        <span class="rel-to rel-to--handler">Handler</span>
+      </div>
+      <div class="rel-card">
+        <span class="rel-from">AgentRecord</span>
+        <span class="rel-arrow">&mdash; 1:N &rarr;</span>
+        <span class="rel-to rel-to--skill">Skill[]</span>
+      </div>
+      <div class="rel-card">
+        <span class="rel-from">AgentRecord</span>
+        <span class="rel-arrow">&mdash; 1:N &rarr;</span>
+        <span class="rel-to rel-to--knowledge">KnowledgeDoc[]</span>
+      </div>
+      <div class="rel-card">
+        <span class="rel-from">AgentConfig</span>
+        <span class="rel-arrow">&mdash; 1:N &rarr;</span>
+        <span class="rel-to rel-to--agent">tools[] (runtime)</span>
+      </div>
+      <div class="rel-card">
+        <span class="rel-from">Skill.content</span>
+        <span class="rel-arrow">&mdash; generates &rarr;</span>
+        <span class="rel-to rel-to--skill">SKILL.md file</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Root / UI</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Agent Identity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div> Handler</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Skill (agentskills.io spec)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> Knowledge (RAG)</div>
+  </div>
+
+</div>
+</body>
+</html>

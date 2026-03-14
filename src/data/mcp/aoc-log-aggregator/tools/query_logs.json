@@ -1,0 +1,10 @@
+{
+  "name": "query_logs",
+  "description": "Tool: query logs",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "handler": "stub"
+}
