@@ -52,7 +52,7 @@ const AgentConfig = () => {
   const [dialogMode, setDialogMode] = useState('create')
   const [sortColumn, setSortColumn] = useState(null)
   const [sortDirection, setSortDirection] = useState('asc')
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = useState(50)
   const [currentPage, setCurrentPage] = useState(1)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
