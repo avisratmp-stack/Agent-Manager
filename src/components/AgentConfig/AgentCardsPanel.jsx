@@ -5,6 +5,7 @@ const STAGE_COLORS = {
   Released: { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
   Dev:      { bg: '#dbeafe', text: '#1d4ed8', border: '#93c5fd' },
   Design:   { bg: '#fef3c7', text: '#92400e', border: '#fcd34d' },
+  Draft:    { bg: '#f1f5f9', text: '#64748b', border: '#cbd5e1' },
 }
 
 const AgentCardsPanel = ({ items, onSelect, onPreview, selectedId, previewId, onToggleAgent, onToggleMcp, selectedMcpId, onSelectMcp, onEditMcp }) => {

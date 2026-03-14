@@ -31,7 +31,7 @@
       "id": 1,
       "type": "local",
       "role": "sub-agent",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "log-agent",
       "calls": [],
       "mcpBindings": [
@@ -114,7 +114,7 @@
       "id": 2,
       "type": "local",
       "role": "sub-agent",
-      "stage": "Dev",
+      "stage": "Draft",
       "slug": "apm-agent",
       "calls": [
         "log-agent"
@@ -192,13 +192,13 @@
           }
         }
       },
-      "enabled": true,
+      "enabled": false,
       "tags": []
     },
     {
       "id": 4,
       "type": "external",
-      "stage": "Released",
+      "stage": "Draft",
       "slug": null,
       "calls": [],
       "mcpBindings": [
@@ -241,13 +241,13 @@
           }
         }
       },
-      "enabled": true,
+      "enabled": false,
       "tags": []
     },
     {
       "id": 5,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "ensemble-agent",
       "calls": [
         "log-agent",
@@ -309,7 +309,7 @@
     {
       "id": 9,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "trace-agent",
       "calls": [
         "log-agent",
@@ -370,7 +370,7 @@
     {
       "id": 10,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "obs-troubleshooting-agent",
       "calls": [],
       "mcpBindings": [
@@ -465,7 +465,7 @@
           }
         }
       },
-      "enabled": true,
+      "enabled": false,
       "tags": [
         "Imported",
         "Imported-Confluence"
@@ -474,7 +474,7 @@
     {
       "id": 11,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "k8s-troubleshooting-agent",
       "calls": [],
       "mcpBindings": [
@@ -561,7 +561,7 @@
     {
       "id": 12,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "ms360-operational-agent",
       "calls": [],
       "mcpBindings": [
@@ -654,7 +654,7 @@
     {
       "id": 13,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "structured-logging-agent",
       "calls": [],
       "mcpBindings": [
@@ -723,7 +723,7 @@
     {
       "id": 14,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "wizai-troubleshooting-agent",
       "calls": [],
       "mcpBindings": [],
@@ -774,7 +774,7 @@
     {
       "id": 15,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "observable-items-agent",
       "calls": [],
       "mcpBindings": [
@@ -834,7 +834,7 @@
     {
       "id": 16,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "production-anomaly-agent",
       "calls": [],
       "mcpBindings": [
@@ -897,7 +897,7 @@
     {
       "id": 17,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "investigate-now-agent",
       "calls": [],
       "mcpBindings": [
@@ -966,7 +966,7 @@
     {
       "id": 18,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "smart-shift-summary-agent",
       "calls": [],
       "mcpBindings": [
@@ -1030,7 +1030,7 @@
     {
       "id": 19,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "first-alert-fixer-agent",
       "calls": [],
       "mcpBindings": [
@@ -1092,7 +1092,7 @@
     {
       "id": 20,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "britebill-sanity-agent",
       "calls": [],
       "mcpBindings": [
@@ -1147,7 +1147,7 @@
     {
       "id": 21,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "elastic-log-analysis-agent",
       "calls": [],
       "mcpBindings": [
@@ -1216,7 +1216,7 @@
     {
       "id": 22,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "elasticsearch-langchain-agent",
       "calls": [],
       "mcpBindings": [
@@ -1277,7 +1277,7 @@
     {
       "id": 23,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "k8s-cursor-plugin-agent",
       "calls": [],
       "mcpBindings": [
@@ -1339,7 +1339,7 @@
     {
       "id": 24,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "aws-oasis-agent",
       "calls": [],
       "mcpBindings": [
@@ -1393,7 +1393,7 @@
     {
       "id": 25,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "aws-observability-agent",
       "calls": [],
       "mcpBindings": [
@@ -1454,7 +1454,7 @@
     {
       "id": 26,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "opsagent-monitoring",
       "calls": [],
       "mcpBindings": [
@@ -1508,7 +1508,7 @@
     {
       "id": 27,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "telecom-mas-agent",
       "calls": [],
       "mcpBindings": [],
@@ -1560,7 +1560,7 @@
     {
       "id": 28,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "dual-layer-observability-agent",
       "calls": [],
       "mcpBindings": [
@@ -1613,7 +1613,7 @@
     {
       "id": 29,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "elastic-otel-langchain-agent",
       "calls": [],
       "mcpBindings": [
@@ -1682,7 +1682,7 @@
     {
       "id": 30,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "servicenow-l1-agent",
       "calls": [],
       "mcpBindings": [
@@ -1735,7 +1735,7 @@
     {
       "id": 31,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "azure-copilot-obs-agent",
       "calls": [],
       "mcpBindings": [
@@ -1815,7 +1815,7 @@
     {
       "id": 32,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "azure-sentinel-ref-agent",
       "calls": [],
       "mcpBindings": [
@@ -1879,7 +1879,7 @@
     {
       "id": 33,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "azure-container-apps-agent",
       "calls": [],
       "mcpBindings": [
@@ -1941,7 +1941,7 @@
     {
       "id": 34,
       "type": "local",
-      "stage": "Design",
+      "stage": "Draft",
       "slug": "azure-mcp-samples-agent",
       "calls": [],
       "mcpBindings": [

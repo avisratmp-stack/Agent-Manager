@@ -20,7 +20,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "kafka",
@@ -42,7 +42,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "prometheus",
@@ -63,7 +63,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "jaeger",
@@ -84,7 +84,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "pagerduty",
@@ -106,7 +106,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "datadog",
@@ -127,7 +127,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "postgresql",
@@ -148,7 +148,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "redis",
@@ -169,7 +169,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "s3",
@@ -190,7 +190,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "jira",
@@ -212,7 +212,7 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "grafana",
@@ -235,7 +235,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "kubernetes",
@@ -259,7 +259,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "outlook",
@@ -282,7 +282,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Released"
+    "stage": "Draft"
   },
   {
     "id": "azure-platform",
@@ -311,7 +311,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-log-analytics",
@@ -337,7 +337,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-adx",
@@ -364,7 +364,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-kql",
@@ -390,7 +390,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-adx-go",
@@ -414,7 +414,7 @@
     "enabled": false,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-sentinel",
@@ -442,7 +442,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-cosmosdb",
@@ -468,7 +468,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-monitor",
@@ -496,7 +496,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-servicebus",
@@ -524,7 +524,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-fabric-rti",
@@ -552,7 +552,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "azure-functions",
@@ -578,7 +578,7 @@
     "enabled": false,
     "type": "external",
     "role": "public",
-    "stage": "Design"
+    "stage": "Draft"
   },
   {
     "id": "aoc-ticket-resolver",
@@ -587,7 +587,7 @@
     "enabled": false,
     "type": "local",
     "role": "public",
-    "stage": "Dev",
+    "stage": "Draft",
     "tags": [
       "AOC",
       "Local",
@@ -615,7 +615,7 @@
     "enabled": false,
     "type": "local",
     "role": "public",
-    "stage": "Dev",
+    "stage": "Draft",
     "tags": [
       "AOC",
       "Local",
@@ -643,7 +643,7 @@
     "enabled": true,
     "type": "local",
     "role": "public",
-    "stage": "Dev",
+    "stage": "Draft",
     "tags": [
       "Stub",
       "Testing",

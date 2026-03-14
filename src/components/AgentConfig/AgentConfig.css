@@ -517,6 +517,11 @@
   transition: background 0.15s, border-color 0.15s;
 }
 
+.ac-stage-draft .ac-stage-step.filled {
+  background: #94a3b8;
+  border-color: #64748b;
+}
+
 .ac-stage-design .ac-stage-step.filled {
   background: #3b82f6;
   border-color: #2563eb;
@@ -3933,6 +3938,16 @@
 .ac-tag-chip:hover {
   background: #ede9fe;
   border-color: #c4b5fd;
+}
+
+.ac-stage-chip {
+  background: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+.ac-stage-chip:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
 }
 
 /* ── Test Panel ── */

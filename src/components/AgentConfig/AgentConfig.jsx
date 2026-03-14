@@ -63,8 +63,11 @@ const AgentConfig = () => {
   const [importing, setImporting] = useState(false)
   const [selectedTags, setSelectedTags] = useState([])
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false)
+  const [selectedStages, setSelectedStages] = useState([])
+  const [stageDropdownOpen, setStageDropdownOpen] = useState(false)
   const importInputRef = useRef(null)
   const tagDropdownRef = useRef(null)
+  const stageDropdownRef = useRef(null)
 
   const refreshAgents = useCallback(async () => {
     try {
@@ -88,6 +91,22 @@ const AgentConfig = () => {
     return () => document.removeEventListener('mousedown', handler)
   }, [tagDropdownOpen])
 
+  useEffect(() => {
+    if (!stageDropdownOpen) return
+    const handler = (e) => {
+      if (stageDropdownRef.current && !stageDropdownRef.current.contains(e.target)) setStageDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [stageDropdownOpen])
+
+  const ALL_STAGES = ['Draft', 'Design', 'Dev', 'Released']
+
+  const toggleStage = (stage) => {
+    setSelectedStages(prev => prev.includes(stage) ? prev.filter(s => s !== stage) : [...prev, stage])
+    setCurrentPage(1)
+  }
+
   const allTags = useMemo(() => {
     const set = new Set()
     agents.forEach(a => (a.tags || []).forEach(t => set.add(t)))
@@ -105,6 +124,9 @@ const AgentConfig = () => {
     if (selectedTags.length > 0) {
       result = result.filter(s => selectedTags.some(t => (s.tags || []).includes(t)))
     }
+    if (selectedStages.length > 0) {
+      result = result.filter(s => selectedStages.includes(s.stage || 'Draft'))
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       result = result.filter(s =>
@@ -116,12 +138,15 @@ const AgentConfig = () => {
       )
     }
     return result
-  }, [mcpServers, selectedTags, searchQuery])
+  }, [mcpServers, selectedTags, selectedStages, searchQuery])
 
   const filteredAgents = useMemo(() => {
     return agents.filter(a => {
       if (selectedTags.length > 0) {
         if (!selectedTags.some(t => (a.tags || []).includes(t))) return false
+      }
+      if (selectedStages.length > 0) {
+        if (!selectedStages.includes(a.stage || 'Draft')) return false
       }
       if (!searchQuery) return true
       const q = searchQuery.toLowerCase()
@@ -135,7 +160,7 @@ const AgentConfig = () => {
         String(a.id).includes(q)
       )
     })
-  }, [agents, searchQuery, selectedTags])
+  }, [agents, searchQuery, selectedTags, selectedStages])
 
   const localMcpServers = useMemo(() => mcpServers.filter(s => s.type === 'local'), [mcpServers])
 
@@ -149,7 +174,7 @@ const AgentConfig = () => {
       _version: a.agent.version || '',
       _url: a.agent.url || '',
       _type: a.type || 'external',
-      _stage: a.stage || 'Design',
+      _stage: a.stage || 'Draft',
       _role: a.role,
       _enabled: a.enabled !== false,
       _tags: a.tags || [],
@@ -165,7 +190,7 @@ const AgentConfig = () => {
       _version: s.version || '',
       _url: '',
       _type: s.type || 'local',
-      _stage: s.stage || 'Design',
+      _stage: s.stage || 'Draft',
       _role: s.role || 'public',
       _enabled: s.enabled !== false,
       _tags: s.tags || [],
@@ -176,6 +201,10 @@ const AgentConfig = () => {
 
     if (selectedTags.length > 0) {
       result = result.filter(r => selectedTags.some(t => r._tags.includes(t)))
+    }
+
+    if (selectedStages.length > 0) {
+      result = result.filter(r => selectedStages.includes(r._stage))
     }
 
     if (searchQuery) {
@@ -214,7 +243,7 @@ const AgentConfig = () => {
     }
 
     return result
-  }, [agents, localMcpServers, selectedTags, searchQuery, sortColumn, sortDirection])
+  }, [agents, localMcpServers, selectedTags, selectedStages, searchQuery, sortColumn, sortDirection])
 
   const totalPages = Math.max(1, Math.ceil(listItems.length / pageSize))
   const pagedItems = listItems.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -288,7 +317,7 @@ const AgentConfig = () => {
         const record = await api.createAgent({
           type: formData.type || 'external',
           slug: formData.slug || null,
-          stage: formData.stage || 'Design',
+          stage: formData.stage || 'Draft',
           agent: formData.agent,
         })
         setAgents(prev => [...prev, record])
@@ -297,7 +326,7 @@ const AgentConfig = () => {
         const updated = await api.updateAgent(selectedId, {
           type: formData.type,
           slug: formData.slug,
-          stage: formData.stage || 'Design',
+          stage: formData.stage || 'Draft',
           agent: formData.agent,
         })
         setAgents(prev => prev.map(a => a.id === selectedId ? updated : a))
@@ -488,9 +517,42 @@ const AgentConfig = () => {
                 </div>
               )}
             </div>
+            <div className="ac-tag-filter" ref={stageDropdownRef}>
+              <button
+                className={`ac-btn ac-btn-tag ${selectedStages.length > 0 ? 'active' : ''}`}
+                onClick={() => setStageDropdownOpen(v => !v)}
+              >
+                <Gauge size={14} />
+                Stage{selectedStages.length > 0 && <span className="ac-tag-count">{selectedStages.length}</span>}
+              </button>
+              {selectedStages.length > 0 && (
+                <button className="ac-tag-clear" onClick={() => { setSelectedStages([]); setCurrentPage(1) }} title="Clear stage filter">
+                  <X size={12} />
+                </button>
+              )}
+              {stageDropdownOpen && (
+                <div className="ac-tag-dropdown">
+                  {ALL_STAGES.map(stage => (
+                    <label key={stage} className={`ac-tag-option ${selectedStages.includes(stage) ? 'selected' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={selectedStages.includes(stage)}
+                        onChange={() => toggleStage(stage)}
+                      />
+                      <span>{stage}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          {selectedTags.length > 0 && (
+          {(selectedTags.length > 0 || selectedStages.length > 0) && (
             <div className="ac-tag-chips">
+              {selectedStages.map(stage => (
+                <span key={`s-${stage}`} className="ac-tag-chip ac-stage-chip" onClick={() => toggleStage(stage)}>
+                  {stage} <X size={10} />
+                </span>
+              ))}
               {selectedTags.map(tag => (
                 <span key={tag} className="ac-tag-chip" onClick={() => toggleTag(tag)}>
                   {tag} <X size={10} />
@@ -623,12 +685,13 @@ const AgentConfig = () => {
                           <td>
                             {(() => {
                               const stage = row._stage
-                              const level = stage === 'Released' ? 3 : stage === 'Dev' ? 2 : 1
+                              const level = stage === 'Released' ? 4 : stage === 'Dev' ? 3 : stage === 'Design' ? 2 : 1
                               return (
                                 <div className={`ac-stage-bar ac-stage-${stage.toLowerCase()}`} title={stage}>
                                   <span className={`ac-stage-step ${level >= 1 ? 'filled' : ''}`} />
                                   <span className={`ac-stage-step ${level >= 2 ? 'filled' : ''}`} />
                                   <span className={`ac-stage-step ${level >= 3 ? 'filled' : ''}`} />
+                                  <span className={`ac-stage-step ${level >= 4 ? 'filled' : ''}`} />
                                   <span className="ac-stage-label">{stage}</span>
                                 </div>
                               )

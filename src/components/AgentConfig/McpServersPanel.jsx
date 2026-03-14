@@ -333,6 +333,7 @@ const McpServerDialog = ({ mode, server, onSave, onClose }) => {
             <div className="form-group">
               <label>Stage</label>
               <select value={form.stage} onChange={e => set('stage', e.target.value)} className="mcp-stage-select">
+                <option value="Draft">Draft</option>
                 <option value="Design">Design</option>
                 <option value="Dev">Dev</option>
                 <option value="Released">Released</option>

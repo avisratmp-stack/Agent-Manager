@@ -5,7 +5,7 @@ import McpBindingsPanel from './McpBindingsPanel'
 
 const emptyFormData = {
   type: 'external',
-  stage: 'Design',
+  stage: 'Draft',
   slug: null,
   agent: {
     name: '',
@@ -307,9 +307,10 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                   <div className="form-group">
                     <label>Stage</label>
                     <select
-                      value={formData.stage || 'Design'}
+                      value={formData.stage || 'Draft'}
                       onChange={e => setFormData(prev => ({ ...prev, stage: e.target.value }))}
                     >
+                      <option value="Draft">Draft</option>
                       <option value="Design">Design</option>
                       <option value="Dev">Dev</option>
                       <option value="Released">Released</option>
