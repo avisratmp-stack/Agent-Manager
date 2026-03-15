@@ -31,7 +31,7 @@
       "id": 1,
       "type": "local",
       "role": "sub-agent",
-      "stage": "Draft",
+      "stage": "Dev",
       "slug": "log-agent",
       "calls": [],
       "mcpBindings": [
@@ -114,7 +114,7 @@
       "id": 2,
       "type": "local",
       "role": "sub-agent",
-      "stage": "Draft",
+      "stage": "Dev",
       "slug": "apm-agent",
       "calls": [
         "log-agent"
@@ -2146,6 +2146,1251 @@
         "SRE",
         "RCA",
         "Observability"
+      ]
+    },
+    {
+      "id": 36,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-change-offer-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer",
+            "validate-eligibility",
+            "get-pricing"
+          ],
+          "purpose": "Primary data source for Offer change failures, migration errors"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Change Offer Agent",
+        "description": "CES Digital Business Domain agent. Handles: Offer change failures, migration errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9100",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-offer-change",
+            "name": "Diagnose Offer Change",
+            "description": "Analyze offer change failures including migration and catalog mismatch errors",
+            "tags": [
+              "offer",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "validate-offer-state",
+            "name": "Validate Offer State",
+            "description": "Verify offer state consistency across ordering and catalog systems",
+            "tags": [
+              "validation",
+              "offer"
+            ]
+          },
+          {
+            "id": "resolve-migration-error",
+            "name": "Resolve Migration Error",
+            "description": "Identify and resolve offer migration errors with rollback options",
+            "tags": [
+              "migration",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_change_offer_agent.CesChangeOfferAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_change_offer_agent.CesChangeOfferAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 37,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-submit-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order",
+            "list-orders",
+            "get-order-status",
+            "cancel-order"
+          ],
+          "purpose": "Primary data source for Order submission failures, validation errors"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Submit Order Agent",
+        "description": "CES Digital Business Domain agent. Handles: Order submission failures, validation errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9101",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-submission",
+            "name": "Diagnose Submission",
+            "description": "Analyze order submission failures and validation errors",
+            "tags": [
+              "order",
+              "submission"
+            ]
+          },
+          {
+            "id": "validate-order-payload",
+            "name": "Validate Order Payload",
+            "description": "Validate order payload against schema and business rules",
+            "tags": [
+              "validation",
+              "payload"
+            ]
+          },
+          {
+            "id": "retry-submission",
+            "name": "Retry Submission",
+            "description": "Retry failed order submission with corrected parameters",
+            "tags": [
+              "retry",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_submit_order_agent.CesSubmitOrderAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_submit_order_agent.CesSubmitOrderAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 38,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-change-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order",
+            "list-orders",
+            "get-order-status",
+            "cancel-order"
+          ],
+          "purpose": "Primary data source for Order modification failures, in-flight change errors"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Change Order Agent",
+        "description": "CES Digital Business Domain agent. Handles: Order modification failures, in-flight change errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9102",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-order-change",
+            "name": "Diagnose Order Change",
+            "description": "Analyze in-flight order modification failures",
+            "tags": [
+              "order",
+              "change"
+            ]
+          },
+          {
+            "id": "validate-change-eligibility",
+            "name": "Validate Change Eligibility",
+            "description": "Check if order is eligible for modification at current state",
+            "tags": [
+              "eligibility",
+              "validation"
+            ]
+          },
+          {
+            "id": "rollback-change",
+            "name": "Rollback Change",
+            "description": "Roll back failed order changes to previous consistent state",
+            "tags": [
+              "rollback",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_change_order_agent.CesChangeOrderAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_change_order_agent.CesChangeOrderAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 39,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-billing-dispute-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for Invoice mismatches, overcharges, proration errors, credit disputes"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Billing Dispute Agent",
+        "description": "CES Digital Business Domain agent. Handles: Invoice mismatches, overcharges, proration errors, credit disputes. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9103",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "analyze-dispute",
+            "name": "Analyze Dispute",
+            "description": "Analyze billing dispute by comparing invoices, charges, and payment records",
+            "tags": [
+              "dispute",
+              "billing"
+            ]
+          },
+          {
+            "id": "calculate-adjustment",
+            "name": "Calculate Adjustment",
+            "description": "Calculate credit/debit adjustments for valid disputes",
+            "tags": [
+              "adjustment",
+              "credit"
+            ]
+          },
+          {
+            "id": "resolve-proration",
+            "name": "Resolve Proration",
+            "description": "Identify and fix proration calculation errors",
+            "tags": [
+              "proration",
+              "fix"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_billing_dispute_agent.CesBillingDisputeAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_billing_dispute_agent.CesBillingDisputeAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 40,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-provisioning-failure-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order",
+            "list-orders",
+            "get-order-status",
+            "cancel-order"
+          ],
+          "purpose": "Primary data source for Activation failures, NE sync errors, workflow stuck states"
+        },
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Provisioning Failure Agent",
+        "description": "CES Digital Business Domain agent. Handles: Activation failures, NE sync errors, workflow stuck states. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9104",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-provisioning",
+            "name": "Diagnose Provisioning",
+            "description": "Analyze provisioning failures including NE sync and activation errors",
+            "tags": [
+              "provisioning",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "retry-activation",
+            "name": "Retry Activation",
+            "description": "Retry failed service activation with corrected parameters",
+            "tags": [
+              "activation",
+              "retry"
+            ]
+          },
+          {
+            "id": "check-workflow-state",
+            "name": "Check Workflow State",
+            "description": "Inspect and unstick provisioning workflow states",
+            "tags": [
+              "workflow",
+              "state"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_provisioning_failure_agent.CesProvisioningFailureAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_provisioning_failure_agent.CesProvisioningFailureAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 41,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-number-porting-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions",
+            "update-customer",
+            "get-account"
+          ],
+          "purpose": "Primary data source for MNP rejections, port-in/out failures, clearinghouse timeouts"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Number Porting Agent",
+        "description": "CES Digital Business Domain agent. Handles: MNP rejections, port-in/out failures, clearinghouse timeouts. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9105",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-porting",
+            "name": "Diagnose Porting",
+            "description": "Analyze MNP porting failures and clearinghouse rejections",
+            "tags": [
+              "porting",
+              "MNP"
+            ]
+          },
+          {
+            "id": "validate-porting-request",
+            "name": "Validate Porting Request",
+            "description": "Validate porting request against donor/recipient network rules",
+            "tags": [
+              "validation",
+              "porting"
+            ]
+          },
+          {
+            "id": "retry-port-request",
+            "name": "Retry Port Request",
+            "description": "Resubmit failed port-in/out requests",
+            "tags": [
+              "retry",
+              "porting"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_number_porting_agent.CesNumberPortingAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_number_porting_agent.CesNumberPortingAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 42,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-payment-processing-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for Payment gateway failures, retry exhaustion, dunning cycle errors"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Payment Processing Agent",
+        "description": "CES Digital Business Domain agent. Handles: Payment gateway failures, retry exhaustion, dunning cycle errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9106",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-payment",
+            "name": "Diagnose Payment",
+            "description": "Analyze payment gateway failures and transaction errors",
+            "tags": [
+              "payment",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "retry-payment",
+            "name": "Retry Payment",
+            "description": "Retry failed payment with alternative gateway or parameters",
+            "tags": [
+              "retry",
+              "payment"
+            ]
+          },
+          {
+            "id": "check-dunning-cycle",
+            "name": "Check Dunning Cycle",
+            "description": "Inspect dunning cycle state and escalation status",
+            "tags": [
+              "dunning",
+              "collections"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_payment_processing_agent.CesPaymentProcessingAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_payment_processing_agent.CesPaymentProcessingAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 43,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-sim-esim-activation-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config",
+            "list-configs",
+            "get-config-history"
+          ],
+          "purpose": "Primary data source for SIM swap failures, eSIM profile push errors, HLR/HSS sync"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: SIM/eSIM Activation Agent",
+        "description": "CES Digital Business Domain agent. Handles: SIM swap failures, eSIM profile push errors, HLR/HSS sync. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9107",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-sim-activation",
+            "name": "Diagnose SIM Activation",
+            "description": "Analyze SIM swap and eSIM profile push failures",
+            "tags": [
+              "SIM",
+              "eSIM"
+            ]
+          },
+          {
+            "id": "check-hlr-sync",
+            "name": "Check HLR/HSS Sync",
+            "description": "Verify HLR/HSS synchronization status for subscriber",
+            "tags": [
+              "HLR",
+              "HSS",
+              "sync"
+            ]
+          },
+          {
+            "id": "repush-esim-profile",
+            "name": "Repush eSIM Profile",
+            "description": "Re-trigger eSIM profile download to device",
+            "tags": [
+              "eSIM",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_sim_esim_activation_agent.CesSimEsimActivationAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_sim_esim_activation_agent.CesSimEsimActivationAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 44,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-rating-charging-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for CDR rejection, zero-rating anomalies, balance depletion errors"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Rating & Charging Agent",
+        "description": "CES Digital Business Domain agent. Handles: CDR rejection, zero-rating anomalies, balance depletion errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9108",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-rating",
+            "name": "Diagnose Rating",
+            "description": "Analyze CDR rejection and rating anomalies",
+            "tags": [
+              "CDR",
+              "rating"
+            ]
+          },
+          {
+            "id": "validate-zero-rating",
+            "name": "Validate Zero Rating",
+            "description": "Verify zero-rating rules and detect misapplication",
+            "tags": [
+              "zero-rating",
+              "validation"
+            ]
+          },
+          {
+            "id": "check-balance-depletion",
+            "name": "Check Balance Depletion",
+            "description": "Investigate unexpected balance depletion events",
+            "tags": [
+              "balance",
+              "investigation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_rating_charging_agent.CesRatingChargingAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_rating_charging_agent.CesRatingChargingAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 45,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-network-service-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history",
+            "get-diff",
+            "list-repositories"
+          ],
+          "purpose": "Primary data source for Connectivity degradation, cell site alarms, capacity breaches"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Network Service Agent",
+        "description": "CES Digital Business Domain agent. Handles: Connectivity degradation, cell site alarms, capacity breaches. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9109",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-connectivity",
+            "name": "Diagnose Connectivity",
+            "description": "Analyze network connectivity degradation and service outages",
+            "tags": [
+              "network",
+              "connectivity"
+            ]
+          },
+          {
+            "id": "check-cell-site",
+            "name": "Check Cell Site",
+            "description": "Monitor cell site alarms and capacity thresholds",
+            "tags": [
+              "cell-site",
+              "alarms"
+            ]
+          },
+          {
+            "id": "capacity-analysis",
+            "name": "Capacity Analysis",
+            "description": "Analyze network capacity utilization and predict breaches",
+            "tags": [
+              "capacity",
+              "planning"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_network_service_agent.CesNetworkServiceAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_network_service_agent.CesNetworkServiceAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 46,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-product-catalog-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer",
+            "validate-eligibility",
+            "get-pricing"
+          ],
+          "purpose": "Primary data source for Offer eligibility failures, bundle conflicts, price plan mismatches"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Product Catalog Agent",
+        "description": "CES Digital Business Domain agent. Handles: Offer eligibility failures, bundle conflicts, price plan mismatches. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9110",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-eligibility",
+            "name": "Diagnose Eligibility",
+            "description": "Analyze offer eligibility failures and rule conflicts",
+            "tags": [
+              "eligibility",
+              "catalog"
+            ]
+          },
+          {
+            "id": "resolve-bundle-conflict",
+            "name": "Resolve Bundle Conflict",
+            "description": "Identify and resolve product bundle compatibility issues",
+            "tags": [
+              "bundle",
+              "conflict"
+            ]
+          },
+          {
+            "id": "validate-price-plan",
+            "name": "Validate Price Plan",
+            "description": "Validate price plan configuration and detect mismatches",
+            "tags": [
+              "pricing",
+              "validation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_product_catalog_agent.CesProductCatalogAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_product_catalog_agent.CesProductCatalogAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 47,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-customer-data-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions",
+            "update-customer",
+            "get-account"
+          ],
+          "purpose": "Primary data source for Duplicate records, KYC failures, address validation, consent discrepancies"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Customer Data Agent",
+        "description": "CES Digital Business Domain agent. Handles: Duplicate records, KYC failures, address validation, consent discrepancies. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9111",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "detect-duplicates",
+            "name": "Detect Duplicates",
+            "description": "Identify duplicate customer records across systems",
+            "tags": [
+              "dedup",
+              "data-quality"
+            ]
+          },
+          {
+            "id": "validate-kyc",
+            "name": "Validate KYC",
+            "description": "Run KYC validation and identity verification checks",
+            "tags": [
+              "KYC",
+              "identity"
+            ]
+          },
+          {
+            "id": "fix-address-validation",
+            "name": "Fix Address Validation",
+            "description": "Resolve address validation failures and normalize addresses",
+            "tags": [
+              "address",
+              "validation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_customer_data_agent.CesCustomerDataAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_customer_data_agent.CesCustomerDataAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ]
+    },
+    {
+      "id": 48,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-revenue-assurance-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for Usage-vs-billing gaps, unbilled CDRs, interconnect discrepancies"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Revenue Assurance Agent",
+        "description": "CES Digital Business Domain agent. Handles: Usage-vs-billing gaps, unbilled CDRs, interconnect discrepancies. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9112",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "detect-leakage",
+            "name": "Detect Leakage",
+            "description": "Identify usage-vs-billing gaps and revenue leakage",
+            "tags": [
+              "leakage",
+              "revenue"
+            ]
+          },
+          {
+            "id": "audit-cdrs",
+            "name": "Audit CDRs",
+            "description": "Audit unbilled CDRs and interconnect records",
+            "tags": [
+              "CDR",
+              "audit"
+            ]
+          },
+          {
+            "id": "reconcile-interconnect",
+            "name": "Reconcile Interconnect",
+            "description": "Reconcile interconnect billing discrepancies with partners",
+            "tags": [
+              "interconnect",
+              "reconciliation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_revenue_assurance_agent.CesRevenueAssuranceAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_revenue_assurance_agent.CesRevenueAssuranceAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
       ]
     }
   ]

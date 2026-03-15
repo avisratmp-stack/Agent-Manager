@@ -15,6 +15,7 @@ import AgentLogViewer from './AgentLogViewer'
 import AgentTestPanel from './AgentTestPanel'
 import AgentCardsPanel from './AgentCardsPanel'
 import AgentMapVerticalPanel from './AgentMapVerticalPanel'
+import ConfigurationPanel, { getDefaultConfig } from './ConfigurationPanel'
 import { api } from '../../api'
 import './AgentConfig.css'
 
@@ -25,11 +26,11 @@ const SIDEBAR_ITEMS = [
   { icon: Server, label: 'External MCP', view: 'mcp', sub: true },
   { icon: Grid3x3, label: 'Agent to MCPs', view: 'matrix', sub: true },
   { icon: Zap, label: 'Test', view: 'test', sub: true },
+  { icon: Settings, label: 'Configuration', view: 'config', sub: true },
 ]
 
 const COLUMNS = [
   { key: 'icon', label: '', width: '36px' },
-  { key: 'id', label: 'ID', width: '60px' },
   { key: 'origin', label: 'Origin', width: '90px' },
   { key: 'name', label: 'Name', width: '1fr' },
   { key: 'description', label: 'Description', width: '1.5fr' },
@@ -41,20 +42,21 @@ const COLUMNS = [
 ]
 
 const AgentConfig = () => {
+  const [appConfig, setAppConfig] = useState(() => getDefaultConfig())
   const [agents, setAgents] = useState([])
   const [consumers, setConsumers] = useState([])
   const [mcpServers, setMcpServers] = useState([])
-  const [activeView, setActiveView] = useState('list')
+  const [activeView, setActiveView] = useState(() => getDefaultConfig().defaultView || 'list')
   const [selectedId, setSelectedId] = useState(null)
   const [previewId, setPreviewId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState('create')
-  const [sortColumn, setSortColumn] = useState(null)
-  const [sortDirection, setSortDirection] = useState('asc')
-  const [pageSize, setPageSize] = useState(50)
+  const [sortColumn, setSortColumn] = useState(() => getDefaultConfig().defaultSortColumn || null)
+  const [sortDirection, setSortDirection] = useState(() => getDefaultConfig().defaultSortDirection || 'asc')
+  const [pageSize, setPageSize] = useState(() => getDefaultConfig().pageSize || 50)
   const [currentPage, setCurrentPage] = useState(1)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => getDefaultConfig().sidebarOpen !== false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [mcpAddTrigger, setMcpAddTrigger] = useState(0)
   const [mcpEditTarget, setMcpEditTarget] = useState(null)
@@ -100,7 +102,20 @@ const AgentConfig = () => {
     return () => document.removeEventListener('mousedown', handler)
   }, [stageDropdownOpen])
 
-  const ALL_STAGES = ['Draft', 'Design', 'Dev', 'Released']
+  const handleConfigChange = useCallback((newConfig) => {
+    setAppConfig(newConfig)
+    setPageSize(newConfig.pageSize || 50)
+    setSidebarOpen(newConfig.sidebarOpen !== false)
+    if (newConfig.defaultSortColumn !== undefined) setSortColumn(newConfig.defaultSortColumn || null)
+    if (newConfig.defaultSortDirection) setSortDirection(newConfig.defaultSortDirection)
+  }, [])
+
+  const visibleColumns = useMemo(() => {
+    const visible = appConfig.visibleColumns || ['icon', 'origin', 'name', 'description', 'version', 'url', 'stage', 'public', 'live']
+    return COLUMNS.filter(col => visible.includes(col.key))
+  }, [appConfig.visibleColumns])
+
+  const ALL_STAGES = appConfig.stagePipeline || ['Draft', 'Design', 'Dev', 'Released']
 
   const toggleStage = (stage) => {
     setSelectedStages(prev => prev.includes(stage) ? prev.filter(s => s !== stage) : [...prev, stage])
@@ -315,9 +330,9 @@ const AgentConfig = () => {
     try {
       if (dialogMode === 'create') {
         const record = await api.createAgent({
-          type: formData.type || 'external',
+          type: formData.type || appConfig.defaultAgentOrigin || 'local',
           slug: formData.slug || null,
-          stage: formData.stage || 'Draft',
+          stage: formData.stage || appConfig.defaultAgentStage || 'Draft',
           agent: formData.agent,
         })
         setAgents(prev => [...prev, record])
@@ -326,7 +341,7 @@ const AgentConfig = () => {
         const updated = await api.updateAgent(selectedId, {
           type: formData.type,
           slug: formData.slug,
-          stage: formData.stage || 'Draft',
+          stage: formData.stage || appConfig.defaultAgentStage || 'Draft',
           agent: formData.agent,
         })
         setAgents(prev => prev.map(a => a.id === selectedId ? updated : a))
@@ -402,7 +417,7 @@ const AgentConfig = () => {
           <button className="ac-menu-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <Menu size={18} />
           </button>
-          <span className="ac-logo">IT Operation</span>
+          <span className="ac-logo">{appConfig.appTitle || 'IT Operation'}</span>
           <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
           <span className="ac-header-separator">Observability</span>
           <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
@@ -561,7 +576,9 @@ const AgentConfig = () => {
             </div>
           )}
 
-          {activeView === 'test' ? (
+          {activeView === 'config' ? (
+            <ConfigurationPanel config={appConfig} onConfigChange={handleConfigChange} />
+          ) : activeView === 'test' ? (
             <AgentTestPanel agents={agents} />
           ) : activeView === 'cards' ? (
             <>
@@ -622,7 +639,7 @@ const AgentConfig = () => {
                 <table className="ac-grid">
                   <thead>
                     <tr>
-                      {COLUMNS.map(col => (
+                      {visibleColumns.map(col => (
                         <th key={col.key} onClick={() => handleSort(col.key)} className="ac-col-sortable">
                           <span>{col.label}</span>
                           {sortColumn === col.key && (
@@ -636,7 +653,7 @@ const AgentConfig = () => {
                   <tbody>
                     {pagedItems.length === 0 && (
                       <tr>
-                        <td colSpan={COLUMNS.length + 1} className="ac-no-data">No Data Found</td>
+                        <td colSpan={visibleColumns.length + 1} className="ac-no-data">No Data Found</td>
                       </tr>
                     )}
                     {pagedItems.map(row => {
@@ -667,54 +684,79 @@ const AgentConfig = () => {
                             }
                           }}
                         >
-                          <td className="ac-col-icon">
-                            {isAgent
-                              ? <Cpu size={15} className="ac-row-icon ac-row-icon-agent" />
-                              : <Plug size={15} className="ac-row-icon ac-row-icon-mcp" />}
-                          </td>
-                          <td>{isAgent ? row.raw.id : row.raw.id}</td>
-                          <td>
-                            <span className={`ac-type-badge ac-type-${row._type}`}>
-                              {row._type === 'local' ? 'Local' : 'External'}
-                            </span>
-                          </td>
-                          <td className="ac-cell-name">{row._name}</td>
-                          <td className="ac-cell-desc">{row._desc}</td>
-                          <td>{row._version}</td>
-                          <td className="ac-cell-url">{row._url}</td>
-                          <td>
-                            {(() => {
-                              const stage = row._stage
-                              const level = stage === 'Released' ? 4 : stage === 'Dev' ? 3 : stage === 'Design' ? 2 : 1
-                              return (
-                                <div className={`ac-stage-bar ac-stage-${stage.toLowerCase()}`} title={stage}>
-                                  <span className={`ac-stage-step ${level >= 1 ? 'filled' : ''}`} />
-                                  <span className={`ac-stage-step ${level >= 2 ? 'filled' : ''}`} />
-                                  <span className={`ac-stage-step ${level >= 3 ? 'filled' : ''}`} />
-                                  <span className={`ac-stage-step ${level >= 4 ? 'filled' : ''}`} />
-                                  <span className="ac-stage-label">{stage}</span>
-                                </div>
-                              )
-                            })()}
-                          </td>
-                          <td>
-                            <span className={`ac-public-badge ${isPrivate ? 'ac-public-private' : 'ac-public-public'}`}>
-                              {isPrivate ? 'Private' : 'Public'}
-                            </span>
-                          </td>
-                          <td className="ac-col-toggle">
-                            <label className="live-toggle" onClick={e => e.stopPropagation()}>
-                              <input
-                                type="checkbox"
-                                checked={row._enabled}
-                                onChange={() => {
-                                  if (isAgent) handleToggleAgent(itemId, row._enabled)
-                                  else handleToggleMcp(row.raw.id, row._enabled)
-                                }}
-                              />
-                              <span className="live-toggle-track" />
-                            </label>
-                          </td>
+                          {visibleColumns.map(col => {
+                            switch (col.key) {
+                              case 'icon':
+                                return (
+                                  <td key="icon" className="ac-col-icon">
+                                    {isAgent
+                                      ? <Cpu size={15} className="ac-row-icon ac-row-icon-agent" />
+                                      : <Plug size={15} className="ac-row-icon ac-row-icon-mcp" />}
+                                  </td>
+                                )
+                              case 'origin':
+                                return (
+                                  <td key="origin">
+                                    <span className={`ac-type-badge ac-type-${row._type}`}>
+                                      {row._type === 'local' ? 'Local' : 'External'}
+                                    </span>
+                                  </td>
+                                )
+                              case 'name':
+                                return <td key="name" className="ac-cell-name">{row._name}</td>
+                              case 'description':
+                                return <td key="desc" className="ac-cell-desc">{row._desc}</td>
+                              case 'version':
+                                return <td key="ver">{row._version}</td>
+                              case 'url':
+                                return <td key="url" className="ac-cell-url">{row._url}</td>
+                              case 'stage':
+                                return (
+                                  <td key="stage">
+                                    {(() => {
+                                      const stage = row._stage
+                                      const stageIdx = ALL_STAGES.indexOf(stage)
+                                      const level = stageIdx >= 0 ? stageIdx + 1 : 1
+                                      const total = ALL_STAGES.length
+                                      return (
+                                        <div className={`ac-stage-bar ac-stage-${stage.toLowerCase()}`} title={stage}>
+                                          {ALL_STAGES.map((_, si) => (
+                                            <span key={si} className={`ac-stage-step ${si < level ? 'filled' : ''}`} />
+                                          ))}
+                                          <span className="ac-stage-label">{stage}</span>
+                                        </div>
+                                      )
+                                    })()}
+                                  </td>
+                                )
+                              case 'public':
+                                return (
+                                  <td key="pub">
+                                    <span className={`ac-public-badge ${isPrivate ? 'ac-public-private' : 'ac-public-public'}`}>
+                                      {isPrivate ? 'Private' : 'Public'}
+                                    </span>
+                                  </td>
+                                )
+                              case 'live':
+                                return (
+                                  <td key="live" className="ac-col-toggle">
+                                    <label className="live-toggle" onClick={e => e.stopPropagation()}>
+                                      <input
+                                        type="checkbox"
+                                        checked={row._enabled}
+                                        onChange={() => {
+                                          if (isAgent) handleToggleAgent(itemId, row._enabled)
+                                          else handleToggleMcp(row.raw.id, row._enabled)
+                                        }}
+                                      />
+                                      <span className="live-toggle-track" />
+                                    </label>
+                                  </td>
+                                )
+                              default:
+                                return null
+                            }
+                          })}
                           <td className="ac-col-preview">
                             {isAgent ? (
                               <button
@@ -744,6 +786,7 @@ const AgentConfig = () => {
                     <option value={10}>10</option>
                     <option value={20}>20</option>
                     <option value={50}>50</option>
+                    <option value={100}>100</option>
                   </select>
                   <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
                     <ChevronLeft size={16} />

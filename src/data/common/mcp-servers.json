@@ -1238,5 +1238,290 @@
     "stage": "Dev",
     "url": "",
     "transport": "stdio"
+  },
+  {
+    "id": "ces-mcp-ordering",
+    "name": "CES 2.X: MCP-Ordering",
+    "description": "Digital commerce ordering system — order lifecycle management, submission, modification, and status tracking for CES business operations.",
+    "url": "mcp://ces-ordering.internal:8080",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "get-order",
+        "description": "Retrieve order details by order ID"
+      },
+      {
+        "name": "create-order",
+        "description": "Submit a new order into the ordering system"
+      },
+      {
+        "name": "update-order",
+        "description": "Modify an existing order (change items, address, etc.)"
+      },
+      {
+        "name": "list-orders",
+        "description": "List orders by customer, status, or date range"
+      },
+      {
+        "name": "get-order-status",
+        "description": "Check current fulfillment status of an order"
+      },
+      {
+        "name": "cancel-order",
+        "description": "Cancel an in-flight order and trigger reversal"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "Ordering",
+      "Commerce"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
+  },
+  {
+    "id": "ces-mcp-crm",
+    "name": "CES 2.X: MCP-CRM",
+    "description": "Customer Relationship Management system — customer profiles, interactions, account management, and service history for CES operations.",
+    "url": "mcp://ces-crm.internal:8081",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "get-customer",
+        "description": "Retrieve customer profile by customer ID"
+      },
+      {
+        "name": "search-customers",
+        "description": "Search customers by name, phone, email, or account number"
+      },
+      {
+        "name": "get-interactions",
+        "description": "Retrieve customer interaction history (calls, chats, tickets)"
+      },
+      {
+        "name": "update-customer",
+        "description": "Update customer profile fields"
+      },
+      {
+        "name": "get-account",
+        "description": "Retrieve account details including subscriptions and services"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "CRM",
+      "Customer"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
+  },
+  {
+    "id": "ces-mcp-billing",
+    "name": "CES 2.X: MCP-Billing",
+    "description": "Billing and revenue management system — invoices, payments, charges, credits, and balance management for CES operations.",
+    "url": "mcp://ces-billing.internal:8082",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "get-invoice",
+        "description": "Retrieve invoice details by invoice ID or billing period"
+      },
+      {
+        "name": "get-balance",
+        "description": "Get current account balance and outstanding amounts"
+      },
+      {
+        "name": "get-charges",
+        "description": "List charges and adjustments for a billing period"
+      },
+      {
+        "name": "get-payment-history",
+        "description": "Retrieve payment transaction history"
+      },
+      {
+        "name": "apply-credit",
+        "description": "Apply credit or adjustment to a customer account"
+      },
+      {
+        "name": "validate-rating",
+        "description": "Validate CDR rating and charge calculation"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "Billing",
+      "Revenue"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
+  },
+  {
+    "id": "ces-mcp-catalog",
+    "name": "CES 2.X: MCP-Catalog",
+    "description": "Product catalog system — offers, products, pricing plans, eligibility rules, and bundle management for CES operations.",
+    "url": "mcp://ces-catalog.internal:8083",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "get-product",
+        "description": "Retrieve product details by product ID"
+      },
+      {
+        "name": "search-products",
+        "description": "Search products by category, type, or keyword"
+      },
+      {
+        "name": "get-offer",
+        "description": "Retrieve offer details including pricing and eligibility"
+      },
+      {
+        "name": "validate-eligibility",
+        "description": "Check customer eligibility for a product or offer"
+      },
+      {
+        "name": "get-pricing",
+        "description": "Retrieve pricing plan details and rate cards"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "Catalog",
+      "Products"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
+  },
+  {
+    "id": "ces-mcp-suit-config",
+    "name": "CES 2.X: MCP-Suit Config",
+    "description": "Suite configuration management — system settings, feature flags, environment configs, and service parameters for CES platform.",
+    "url": "mcp://ces-suit-config.internal:8084",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "get-config",
+        "description": "Retrieve configuration by key or namespace"
+      },
+      {
+        "name": "update-config",
+        "description": "Update configuration parameters"
+      },
+      {
+        "name": "validate-config",
+        "description": "Validate configuration against schema and constraints"
+      },
+      {
+        "name": "list-configs",
+        "description": "List all configurations for a service or environment"
+      },
+      {
+        "name": "get-config-history",
+        "description": "Retrieve configuration change audit trail"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "Config",
+      "Platform"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
+  },
+  {
+    "id": "ces-mcp-suit-source-code",
+    "name": "CES 2.X: MCP-Suit Source Code",
+    "description": "Source code intelligence — repository search, commit history, diff analysis, and code navigation for CES platform codebase.",
+    "url": "mcp://ces-suit-source.internal:8085",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "get-source",
+        "description": "Retrieve source file content from repository"
+      },
+      {
+        "name": "search-code",
+        "description": "Full-text search across CES codebase"
+      },
+      {
+        "name": "get-commit-history",
+        "description": "Retrieve commit history for a file or module"
+      },
+      {
+        "name": "get-diff",
+        "description": "Get diff between versions or commits"
+      },
+      {
+        "name": "list-repositories",
+        "description": "List available code repositories and modules"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "Source-Code",
+      "DevOps"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
+  },
+  {
+    "id": "ces-mcp-tickets",
+    "name": "CES 2.X: MCP-Tickets",
+    "description": "Ticket management system — incident creation, tracking, escalation, and resolution workflow for CES operational support.",
+    "url": "mcp://ces-tickets.internal:8086",
+    "transport": "sse",
+    "tools": [
+      {
+        "name": "create-ticket",
+        "description": "Create a new support or incident ticket"
+      },
+      {
+        "name": "get-ticket",
+        "description": "Retrieve ticket details by ticket ID"
+      },
+      {
+        "name": "update-ticket",
+        "description": "Update ticket status, assignee, or priority"
+      },
+      {
+        "name": "search-tickets",
+        "description": "Search tickets by status, priority, or category"
+      },
+      {
+        "name": "close-ticket",
+        "description": "Close a ticket with resolution summary"
+      },
+      {
+        "name": "escalate-ticket",
+        "description": "Escalate ticket to next support tier"
+      }
+    ],
+    "tags": [
+      "Feature-3",
+      "Digital-Business-Domain",
+      "Tickets",
+      "ITSM"
+    ],
+    "enabled": true,
+    "type": "external",
+    "role": "public",
+    "stage": "Draft"
   }
 ]
