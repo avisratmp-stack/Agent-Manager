@@ -65,6 +65,13 @@ export const api = {
     return request('/api/agents/import', { method: 'POST', body: formData })
   },
 
+  importAgentConfirm: (file, agentDef) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('agentDef', JSON.stringify(agentDef))
+    return request('/api/agents/import-confirm', { method: 'POST', body: formData })
+  },
+
   executeTrace: (agentSlug, action, params, stubMode) =>
     request('/api/test/execute', { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify({ agentSlug, action, params, stubMode }) }),
 }

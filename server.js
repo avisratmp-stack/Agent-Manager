@@ -355,31 +355,98 @@ app.get('/api/agents/:slug/logs', (req, res) => {
 })
 
 // ── POST /api/agents/import  (zip upload) ──
+// Validates the uploaded agent folder. If all required fields are present,
+// auto-imports. Otherwise returns partial data so the UI can ask the user to
+// fill in the gaps.
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } })
+
+function extractAgentZip(buffer) {
+  const zip = new AdmZip(buffer)
+  const entries = zip.getEntries()
+
+  const paths = entries.map(e => e.entryName.replace(/\\/g, '/'))
+  const topDirs = new Set(paths.map(p => p.split('/')[0]).filter(Boolean))
+  let rootPrefix = ''
+  if (topDirs.size === 1) {
+    const candidate = [...topDirs][0]
+    if (entries.some(e => e.entryName.replace(/\\/g, '/').startsWith(candidate + '/'))) {
+      rootPrefix = candidate + '/'
+    }
+  }
+
+  const agentJsonEntry = entries.find(e => {
+    const rel = e.entryName.replace(/\\/g, '/').replace(rootPrefix, '')
+    return rel === 'agent.json' && !e.isDirectory
+  })
+
+  return { zip, entries, rootPrefix, agentJsonEntry }
+}
+
+function validateAgentDef(agentDef) {
+  const missing = []
+  const a = agentDef.agent || {}
+  if (!(a.name || '').trim()) missing.push('name')
+  if (!(a.url || '').trim()) missing.push('url')
+  if (!(a.version || '').trim()) missing.push('version')
+  const isLocal = (agentDef.type || 'local') === 'local'
+  if (isLocal && !(agentDef.slug || '').trim()) missing.push('slug')
+  if (isLocal && !(a.handler?.class || '').trim()) missing.push('handlerClass')
+  if (isLocal && !(a.handler?.args?.agent_executor || '').trim()) missing.push('agentExecutor')
+  return missing
+}
+
+function finalizeImport(buffer, agentDef, slug) {
+  const { entries, rootPrefix } = extractAgentZip(buffer)
+  const registry = readRegistry()
+  const newId = registry.agents.length > 0
+    ? Math.max(...registry.agents.map(a => a.id)) + 1 : 1
+
+  const entry = {
+    id: newId,
+    type: agentDef.type || 'local',
+    role: agentDef.role || 'public',
+    stage: agentDef.stage || 'Draft',
+    slug,
+    calls: agentDef.calls || [],
+    mcpBindings: agentDef.mcpBindings || [],
+    agent: agentDef.agent,
+    enabled: agentDef.enabled !== undefined ? agentDef.enabled : true,
+    tags: agentDef.tags || [],
+  }
+
+  const agentDir = path.join(AGENTS_DIR, slug)
+  if (fs.existsSync(agentDir)) {
+    fs.rmSync(agentDir, { recursive: true, force: true })
+  }
+
+  for (const zipEntry of entries) {
+    const rel = zipEntry.entryName.replace(/\\/g, '/').replace(rootPrefix, '')
+    if (!rel || rel === 'agent.json') continue
+    const targetPath = path.join(agentDir, rel)
+    if (zipEntry.isDirectory) {
+      ensureDir(targetPath)
+    } else {
+      ensureDir(path.dirname(targetPath))
+      fs.writeFileSync(targetPath, zipEntry.getData())
+    }
+  }
+
+  ensureDir(path.join(agentDir, 'skills'))
+  ensureDir(path.join(agentDir, 'knowledge'))
+  const manifestPath = path.join(agentDir, 'knowledge', 'manifest.json')
+  if (!fs.existsSync(manifestPath)) fs.writeFileSync(manifestPath, '[]\n')
+
+  registry.agents.push(entry)
+  writeRegistry(registry)
+
+  return buildAgentRecord(entry)
+}
 
 app.post('/api/agents/import', upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
 
   try {
-    const zip = new AdmZip(req.file.buffer)
-    const entries = zip.getEntries()
-
-    // Detect root folder — the zip may or may not have a single wrapping directory
-    const paths = entries.map(e => e.entryName.replace(/\\/g, '/'))
-    const topDirs = new Set(paths.map(p => p.split('/')[0]).filter(Boolean))
-    let rootPrefix = ''
-    if (topDirs.size === 1) {
-      const candidate = [...topDirs][0]
-      if (entries.some(e => e.entryName.replace(/\\/g, '/').startsWith(candidate + '/'))) {
-        rootPrefix = candidate + '/'
-      }
-    }
-
-    // Look for agent.json (the agent definition)
-    const agentJsonEntry = entries.find(e => {
-      const rel = e.entryName.replace(/\\/g, '/').replace(rootPrefix, '')
-      return rel === 'agent.json' && !e.isDirectory
-    })
+    const { agentJsonEntry } = extractAgentZip(req.file.buffer)
 
     if (!agentJsonEntry) {
       return res.status(400).json({ error: 'Zip must contain an agent.json file at the root level' })
@@ -392,64 +459,45 @@ app.post('/api/agents/import', upload.single('file'), (req, res) => {
       return res.status(400).json({ error: 'agent.json is not valid JSON' })
     }
 
-    if (!agentDef.agent || !agentDef.agent.name) {
-      return res.status(400).json({ error: 'agent.json must contain an "agent" object with at least a "name" field' })
-    }
+    if (!agentDef.agent) agentDef.agent = {}
 
-    // Derive slug
     const slug = agentDef.slug
-      || agentDef.agent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-agent'
+      || (agentDef.agent.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-agent'
+    agentDef.slug = slug
 
-    // Build registry entry
-    const registry = readRegistry()
-    const newId = registry.agents.length > 0
-      ? Math.max(...registry.agents.map(a => a.id)) + 1 : 1
+    const missingFields = validateAgentDef(agentDef)
 
-    const entry = {
-      id: newId,
-      type: agentDef.type || 'local',
-      role: agentDef.role || null,
-      stage: agentDef.stage || 'Design',
-      slug,
-      calls: agentDef.calls || [],
-      mcpBindings: agentDef.mcpBindings || [],
-      agent: agentDef.agent,
-      enabled: agentDef.enabled !== undefined ? agentDef.enabled : true,
+    if (missingFields.length === 0) {
+      const record = finalizeImport(req.file.buffer, agentDef, slug)
+      return res.json({ status: 'complete', record })
     }
 
-    // Extract directory contents (skills/, knowledge/, etc.) into agents/<slug>/
-    const agentDir = path.join(AGENTS_DIR, slug)
-    if (fs.existsSync(agentDir)) {
-      fs.rmSync(agentDir, { recursive: true, force: true })
-    }
-
-    for (const zipEntry of entries) {
-      const rel = zipEntry.entryName.replace(/\\/g, '/').replace(rootPrefix, '')
-      if (!rel || rel === 'agent.json') continue
-
-      const targetPath = path.join(agentDir, rel)
-      if (zipEntry.isDirectory) {
-        ensureDir(targetPath)
-      } else {
-        ensureDir(path.dirname(targetPath))
-        fs.writeFileSync(targetPath, zipEntry.getData())
-      }
-    }
-
-    // Ensure base dirs exist even if zip didn't include them
-    ensureDir(path.join(agentDir, 'skills'))
-    ensureDir(path.join(agentDir, 'knowledge'))
-    const manifestPath = path.join(agentDir, 'knowledge', 'manifest.json')
-    if (!fs.existsSync(manifestPath)) fs.writeFileSync(manifestPath, '[]\n')
-
-    // Save to registry
-    registry.agents.push(entry)
-    writeRegistry(registry)
-
-    res.json(buildAgentRecord(entry))
+    return res.json({ status: 'incomplete', partial: agentDef, missingFields })
   } catch (err) {
     console.error('Import failed:', err)
     res.status(500).json({ error: 'Import failed: ' + err.message })
+  }
+})
+
+// ── POST /api/agents/import-confirm  (finalize incomplete import) ──
+app.post('/api/agents/import-confirm', upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' })
+
+  let agentDef
+  try {
+    agentDef = JSON.parse(req.body.agentDef || '{}')
+  } catch {
+    return res.status(400).json({ error: 'Invalid agentDef JSON' })
+  }
+
+  try {
+    const slug = agentDef.slug
+      || (agentDef.agent?.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-agent'
+    const record = finalizeImport(req.file.buffer, agentDef, slug)
+    res.json({ status: 'complete', record })
+  } catch (err) {
+    console.error('Import confirm failed:', err)
+    res.status(500).json({ error: 'Import confirm failed: ' + err.message })
   }
 })
 

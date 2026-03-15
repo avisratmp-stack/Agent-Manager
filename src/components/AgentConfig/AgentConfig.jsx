@@ -22,7 +22,7 @@ import './AgentConfig.css'
 const SIDEBAR_ITEMS = [
   { icon: Bot, label: 'Observability', highlight: true, section: true },
   { icon: List, label: 'Agents & Local MCPs', view: 'list', sub: true },
-  { icon: Map, label: 'Operation Map', view: 'map', sub: true },
+  { icon: Map, label: 'Operation Graph', view: 'map', sub: true },
   { icon: Server, label: 'External MCP', view: 'mcp', sub: true },
   { icon: Grid3x3, label: 'Agent to MCPs', view: 'matrix', sub: true },
   { icon: Zap, label: 'Test', view: 'test', sub: true },
@@ -63,6 +63,8 @@ const AgentConfig = () => {
   const [selectedMcpId, setSelectedMcpId] = useState(null)
   const [logViewer, setLogViewer] = useState(null)
   const [importing, setImporting] = useState(false)
+  const [importPendingFile, setImportPendingFile] = useState(null)
+  const [importPartialData, setImportPartialData] = useState(null)
   const [selectedTags, setSelectedTags] = useState([])
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false)
   const [selectedStages, setSelectedStages] = useState([])
@@ -356,13 +358,47 @@ const AgentConfig = () => {
     e.target.value = ''
     setImporting(true)
     try {
-      const record = await api.importAgent(file)
-      setAgents(prev => [...prev, record])
-      setSelectedId(record.id)
+      const result = await api.importAgent(file)
+      if (result.status === 'complete') {
+        setAgents(prev => [...prev, result.record])
+        setSelectedId(result.record.id)
+      } else if (result.status === 'incomplete') {
+        setImportPendingFile(file)
+        setImportPartialData(result.partial)
+        setDialogMode('import')
+        setDialogOpen(true)
+      }
     } catch (err) {
       alert('Import failed: ' + err.message)
     } finally {
       setImporting(false)
+    }
+  }
+
+  const handleImportSave = async (formData) => {
+    if (!importPendingFile) return
+    try {
+      const agentDef = {
+        ...importPartialData,
+        type: formData.type || importPartialData?.type || 'local',
+        slug: formData.slug || importPartialData?.slug || null,
+        stage: formData.stage || importPartialData?.stage || appConfig.defaultAgentStage || 'Draft',
+        calls: importPartialData?.calls || [],
+        mcpBindings: importPartialData?.mcpBindings || [],
+        tags: importPartialData?.tags || [],
+        agent: formData.agent,
+      }
+      const result = await api.importAgentConfirm(importPendingFile, agentDef)
+      if (result.status === 'complete') {
+        setAgents(prev => [...prev, result.record])
+        setSelectedId(result.record.id)
+      }
+    } catch (err) {
+      alert('Import save failed: ' + err.message)
+    } finally {
+      setImportPendingFile(null)
+      setImportPartialData(null)
+      setDialogOpen(false)
     }
   }
 
@@ -418,8 +454,6 @@ const AgentConfig = () => {
             <Menu size={18} />
           </button>
           <span className="ac-logo">{appConfig.appTitle || 'IT Operation'}</span>
-          <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
-          <span className="ac-header-separator">Observability</span>
           <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
           <span className="ac-header-page">{(SIDEBAR_ITEMS.find(i => i.view === activeView) || {}).label || 'Agent Config'}</span>
         </div>
@@ -818,10 +852,16 @@ const AgentConfig = () => {
       {/* Form Dialog */}
       <AgentFormDialog
         isOpen={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        onSave={handleSave}
-        editData={dialogMode === 'edit' ? selectedAgent : null}
-        mode={dialogMode}
+        onClose={() => {
+          setDialogOpen(false)
+          if (dialogMode === 'import') {
+            setImportPendingFile(null)
+            setImportPartialData(null)
+          }
+        }}
+        onSave={dialogMode === 'import' ? handleImportSave : handleSave}
+        editData={dialogMode === 'edit' ? selectedAgent : dialogMode === 'import' ? importPartialData : null}
+        mode={dialogMode === 'import' ? 'import' : dialogMode}
         mcpServers={mcpServers}
         onUpdateSkills={(updatedSkills) => {
           if (!selectedId) return

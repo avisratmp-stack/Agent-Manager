@@ -33,7 +33,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
   const [activeTab, setActiveTab] = useState('general')
 
   useEffect(() => {
-    if (editData && mode === 'edit') {
+    if (editData && (mode === 'edit' || mode === 'import')) {
       const clone = JSON.parse(JSON.stringify(editData))
       const a = clone.agent || {}
       if (!a.capabilities) a.capabilities = { streaming: false, async_execution: false }
@@ -57,6 +57,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
   const agent = formData.agent || emptyFormData.agent
   const isLocal = formData.type === 'local'
   const isEdit = mode === 'edit'
+  const isImport = mode === 'import'
   const showExtendedTabs = isLocal && isEdit
 
   const tabs = [
@@ -202,7 +203,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
     <div className="dialog-overlay">
       <div className="dialog-container">
         <div className="dialog-header">
-          <h2>{mode === 'edit' ? 'Update' : 'Create'} Observability Agent</h2>
+          <h2>{isImport ? 'Import Agent — Complete Missing Data' : mode === 'edit' ? 'Update' : 'Create'} {isImport ? '' : 'Observability Agent'}</h2>
           <button className="dialog-close" onClick={onClose}><X size={20} /></button>
         </div>
 
@@ -505,7 +506,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
           <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
           {activeTab === 'general' && (
             <button className="btn btn-save" onClick={handleSave}>
-              {mode === 'edit' ? 'Update' : 'Create'}
+              {isImport ? 'Import' : mode === 'edit' ? 'Update' : 'Create'}
             </button>
           )}
         </div>
