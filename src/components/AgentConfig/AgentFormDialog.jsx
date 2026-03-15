@@ -6,6 +6,7 @@ import McpBindingsPanel from './McpBindingsPanel'
 const emptyFormData = {
   type: 'external',
   stage: 'Draft',
+  environment: 'AOC',
   slug: null,
   agent: {
     name: '',

@@ -20,7 +20,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "kafka",
@@ -42,7 +43,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "prometheus",
@@ -63,7 +65,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "jaeger",
@@ -84,7 +87,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "pagerduty",
@@ -106,7 +110,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "datadog",
@@ -127,7 +132,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "postgresql",
@@ -148,7 +154,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "redis",
@@ -169,7 +176,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "s3",
@@ -190,7 +198,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "jira",
@@ -212,7 +221,8 @@
     ],
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "grafana",
@@ -235,7 +245,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "kubernetes",
@@ -259,7 +270,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "outlook",
@@ -282,7 +294,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-platform",
@@ -311,7 +324,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-log-analytics",
@@ -337,7 +351,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-adx",
@@ -364,7 +379,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-kql",
@@ -390,7 +406,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-adx-go",
@@ -414,7 +431,8 @@
     "enabled": false,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-sentinel",
@@ -442,7 +460,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-cosmosdb",
@@ -468,7 +487,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-monitor",
@@ -496,7 +516,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-servicebus",
@@ -524,7 +545,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-fabric-rti",
@@ -552,7 +574,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "azure-functions",
@@ -578,7 +601,8 @@
     "enabled": false,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "aoc-ticket-resolver",
@@ -606,7 +630,8 @@
         "name": "get_resolution_history",
         "description": "Tool: get resolution history"
       }
-    ]
+    ],
+    "environment": "AOC"
   },
   {
     "id": "aoc-log-aggregator",
@@ -634,7 +659,8 @@
         "name": "detect_anomalies",
         "description": "Tool: detect anomalies"
       }
-    ]
+    ],
+    "environment": "AOC"
   },
   {
     "id": "stub-mcp",
@@ -1058,7 +1084,8 @@
         "name": "detect_anomalies",
         "description": "Stub: detect_anomalies"
       }
-    ]
+    ],
+    "environment": "AOC"
   },
   {
     "id": "mcp-apm",
@@ -1109,7 +1136,8 @@
     "role": "public",
     "stage": "Dev",
     "url": "",
-    "transport": "stdio"
+    "transport": "stdio",
+    "environment": "AOC"
   },
   {
     "id": "mcp-opensearch",
@@ -1152,7 +1180,8 @@
     "role": "public",
     "stage": "Dev",
     "url": "",
-    "transport": "stdio"
+    "transport": "stdio",
+    "environment": "AOC"
   },
   {
     "id": "mcp-kafka",
@@ -1195,7 +1224,8 @@
     "role": "public",
     "stage": "Dev",
     "url": "",
-    "transport": "stdio"
+    "transport": "stdio",
+    "environment": "AOC"
   },
   {
     "id": "mcp-digital-mass",
@@ -1237,7 +1267,8 @@
     "role": "public",
     "stage": "Dev",
     "url": "",
-    "transport": "stdio"
+    "transport": "stdio",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-ordering",
@@ -1280,7 +1311,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-crm",
@@ -1319,7 +1351,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-billing",
@@ -1362,7 +1395,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-catalog",
@@ -1401,7 +1435,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-suit-config",
@@ -1440,7 +1475,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-suit-source-code",
@@ -1479,7 +1515,8 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   },
   {
     "id": "ces-mcp-tickets",
@@ -1522,6 +1559,7 @@
     "enabled": true,
     "type": "external",
     "role": "public",
-    "stage": "Draft"
+    "stage": "Draft",
+    "environment": "AOC"
   }
 ]

@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import {
   Save, RotateCcw, List, Map, Server, Grid3x3, Zap, Settings,
-  Eye, EyeOff, ChevronDown, ChevronUp, Gauge, Tag, Columns, Layout, Bot, Plug
+  Eye, EyeOff, ChevronDown, ChevronUp, Gauge, Tag, Columns, Layout, Bot, Plug,
+  Globe
 } from 'lucide-react'
 
 const SECTION_ICONS = {
   general: Layout,
+  environment: Globe,
   list: List,
   defaults: Bot,
   stages: Gauge,
@@ -44,6 +46,7 @@ const SORT_OPTIONS = [
 
 const DEFAULT_CONFIG = {
   appTitle: 'IT Operation',
+  sectionTitle: 'Observability',
   defaultView: 'list',
   sidebarOpen: true,
   pageSize: 50,
@@ -55,6 +58,9 @@ const DEFAULT_CONFIG = {
   defaultAgentRole: 'public',
   defaultAgentOrigin: 'local',
   defaultMcpOrigin: 'external',
+  defaultEnvironment: 'AOC',
+  environments: ['AOC', 'Sky'],
+  activeEnvironment: 'AOC',
   stagePipeline: ['Draft', 'Design', 'Dev', 'Released'],
   mapShowConnections: true,
   mapLayout: 'horizontal',
@@ -73,7 +79,7 @@ export function getDefaultConfig() {
 export default function ConfigurationPanel({ config, onConfigChange }) {
   const [local, setLocal] = useState({ ...config })
   const [expandedSections, setExpandedSections] = useState({
-    general: true, list: true, defaults: true, stages: true, map: true, columns: true
+    general: true, environment: true, list: true, defaults: true, stages: true, map: true, columns: true
   })
   const [dirty, setDirty] = useState(false)
 
@@ -156,6 +162,16 @@ export default function ConfigurationPanel({ config, onConfigChange }) {
                 <span className="cfg-hint">Displayed in the header breadcrumb</span>
               </div>
               <div className="cfg-field">
+                <label>Menu Section Title</label>
+                <input
+                  type="text"
+                  value={local.sectionTitle}
+                  onChange={e => update('sectionTitle', e.target.value)}
+                  placeholder="Observability"
+                />
+                <span className="cfg-hint">The sidebar section heading (e.g. "Observability")</span>
+              </div>
+              <div className="cfg-field">
                 <label>Default View</label>
                 <select value={local.defaultView} onChange={e => update('defaultView', e.target.value)}>
                   {VIEW_OPTIONS.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
@@ -175,6 +191,69 @@ export default function ConfigurationPanel({ config, onConfigChange }) {
                   </label>
                   <span className="cfg-toggle-label">{local.sidebarOpen ? 'Expanded' : 'Collapsed'}</span>
                 </div>
+              </div>
+            </>
+          ))}
+
+          {/* Environment */}
+          {renderSection('environment', 'Environment', (
+            <>
+              <div className="cfg-field">
+                <label>Active Environment</label>
+                <select
+                  value={local.activeEnvironment || ''}
+                  onChange={e => update('activeEnvironment', e.target.value)}
+                >
+                  <option value="">All (no filter)</option>
+                  {(local.environments || []).map(env => (
+                    <option key={env} value={env}>{env}</option>
+                  ))}
+                </select>
+                <span className="cfg-hint">Filter all views to show only components from this environment. "All" shows everything.</span>
+              </div>
+              <div className="cfg-field">
+                <label>Default Environment for New Components</label>
+                <select
+                  value={local.defaultEnvironment || 'AOC'}
+                  onChange={e => update('defaultEnvironment', e.target.value)}
+                >
+                  {(local.environments || []).map(env => (
+                    <option key={env} value={env}>{env}</option>
+                  ))}
+                </select>
+                <span className="cfg-hint">Assigned to newly created agents and MCPs</span>
+              </div>
+              <div className="cfg-field">
+                <label>Available Environments</label>
+                <div className="cfg-pipeline">
+                  {(local.environments || []).map((env, i) => (
+                    <div key={i} className="cfg-pipeline-step">
+                      <div className="cfg-pipeline-dot" style={{ background: '#0ea5e9' }} />
+                      <input
+                        type="text"
+                        value={env}
+                        onChange={e => {
+                          const updated = [...(local.environments || [])]
+                          updated[i] = e.target.value
+                          update('environments', updated)
+                        }}
+                      />
+                      {(local.environments || []).length > 1 && (
+                        <button
+                          className="cfg-pipeline-remove"
+                          onClick={() => update('environments', (local.environments || []).filter((_, j) => j !== i))}
+                          title="Remove environment"
+                        >×</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="ac-btn cfg-btn-add-stage"
+                  onClick={() => update('environments', [...(local.environments || []), 'New'])}
+                >
+                  + Add Environment
+                </button>
               </div>
             </>
           ))}

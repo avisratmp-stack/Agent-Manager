@@ -108,7 +108,8 @@
         }
       },
       "enabled": false,
-      "tags": []
+      "tags": [],
+      "environment": "AOC"
     },
     {
       "id": 2,
@@ -193,7 +194,8 @@
         }
       },
       "enabled": false,
-      "tags": []
+      "tags": [],
+      "environment": "AOC"
     },
     {
       "id": 4,
@@ -242,7 +244,8 @@
         }
       },
       "enabled": true,
-      "tags": []
+      "tags": [],
+      "environment": "AOC"
     },
     {
       "id": 5,
@@ -304,7 +307,8 @@
         }
       },
       "enabled": true,
-      "tags": []
+      "tags": [],
+      "environment": "AOC"
     },
     {
       "id": 9,
@@ -365,7 +369,8 @@
         "url": "http://localhost:8080"
       },
       "enabled": false,
-      "tags": []
+      "tags": [],
+      "environment": "AOC"
     },
     {
       "id": 10,
@@ -469,13 +474,14 @@
       "tags": [
         "Imported",
         "Imported-Confluence"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 11,
-      "type": "local",
+      "type": "external",
       "stage": "Draft",
-      "slug": "k8s-troubleshooting-agent",
+      "slug": null,
       "calls": [],
       "mcpBindings": [
         {
@@ -556,7 +562,8 @@
       "tags": [
         "Imported",
         "Imported-Confluence"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 12,
@@ -649,7 +656,8 @@
       "tags": [
         "Imported",
         "Imported-Confluence"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 13,
@@ -718,7 +726,8 @@
       "tags": [
         "Imported",
         "Imported-Confluence"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 14,
@@ -769,7 +778,8 @@
       "tags": [
         "Imported",
         "Imported-Confluence"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 15,
@@ -829,7 +839,8 @@
       "tags": [
         "Imported",
         "Imported-Confluence"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 16,
@@ -892,7 +903,8 @@
         "ATT",
         "Imported",
         "Imported-ATT"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 17,
@@ -961,7 +973,8 @@
         "ATT",
         "Imported",
         "Imported-ATT"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 18,
@@ -1025,7 +1038,8 @@
         "ATT",
         "Imported",
         "Imported-ATT"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 19,
@@ -1087,7 +1101,8 @@
         "ATT",
         "Imported",
         "Imported-ATT"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 20,
@@ -1142,7 +1157,8 @@
         "ATT",
         "Imported",
         "Imported-ATT"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 21,
@@ -1211,7 +1227,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 22,
@@ -1272,7 +1289,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 23,
@@ -1334,7 +1352,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 24,
@@ -1388,7 +1407,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 25,
@@ -1449,7 +1469,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 26,
@@ -1503,7 +1524,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 27,
@@ -1555,7 +1577,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 28,
@@ -1608,7 +1631,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 29,
@@ -1677,7 +1701,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 30,
@@ -1730,7 +1755,8 @@
       "tags": [
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 31,
@@ -1810,7 +1836,8 @@
         "Azure",
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 32,
@@ -1874,7 +1901,8 @@
         "Azure",
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 33,
@@ -1936,7 +1964,8 @@
         "Azure",
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 34,
@@ -1996,7 +2025,8 @@
         "Azure",
         "Imported",
         "Imported-Web"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 35,
@@ -2146,7 +2176,8 @@
         "SRE",
         "RCA",
         "Observability"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 36,
@@ -2265,7 +2296,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 37,
@@ -2367,7 +2399,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 38,
@@ -2469,7 +2502,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 39,
@@ -2553,7 +2587,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 40,
@@ -2655,7 +2690,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 41,
@@ -2738,7 +2774,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 42,
@@ -2831,7 +2868,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 43,
@@ -2933,7 +2971,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 44,
@@ -3035,7 +3074,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 45,
@@ -3116,7 +3156,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 46,
@@ -3215,7 +3256,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 47,
@@ -3298,7 +3340,8 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
-      ]
+      ],
+      "environment": "AOC"
     },
     {
       "id": 48,
@@ -3391,6 +3434,798 @@
       "tags": [
         "Feature-3",
         "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 49,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-analyze-issue-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "get-ticket",
+            "search-tickets"
+          ]
+        },
+        {
+          "mcpId": "mcp-opensearch",
+          "tools": [
+            "search-logs",
+            "get-error-logs",
+            "get-stack-trace"
+          ]
+        },
+        {
+          "mcpId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "list-dlq-topics"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "search-traces",
+            "get-span-detail"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Analyze Issue - Agent",
+        "description": "AI agent that reads incoming fallout tickets - error code, stack trace, order context, affected entity - classifies issue type, root cause category and confidence score. Groups similar DLQ events to reduce redundant classification calls.",
+        "url": "http://localhost:10049",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "classify-issue",
+            "name": "Classify Issue",
+            "description": "Classifies fallout ticket by type, root cause and confidence",
+            "tags": [
+              "classification",
+              "ai"
+            ]
+          },
+          {
+            "id": "group-dlq-events",
+            "name": "Group DLQ Events",
+            "description": "Groups similar DLQ events to deduplicate classification",
+            "tags": [
+              "dlq",
+              "grouping"
+            ]
+          },
+          {
+            "id": "extract-context",
+            "name": "Extract Context",
+            "description": "Extracts error code, stack trace and entity context from ticket",
+            "tags": [
+              "parsing",
+              "context"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_analyze_issue.AnalyzeIssueExecutor",
+          "args": {
+            "agent_executor": "services.sky_analyze_issue.AnalyzeIssueExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 50,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-update-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "update-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "update-customer",
+            "get-account"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history",
+            "get-entity-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Update Order - Agent",
+        "description": "Applies pre-defined or AI-suggested order field updates to upstream systems (OMS, CRM). Uses M&P-defined action set. Executes only when confidence is above threshold or after human approval. Logs every field change with before/after values for audit.",
+        "url": "http://localhost:10050",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "apply-order-fix",
+            "name": "Apply Order Fix",
+            "description": "Applies field-level update to order in upstream system",
+            "tags": [
+              "order",
+              "update"
+            ]
+          },
+          {
+            "id": "audit-change",
+            "name": "Audit Change",
+            "description": "Logs before/after values for every field change",
+            "tags": [
+              "audit",
+              "logging"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_update_order.UpdateOrderExecutor",
+          "args": {
+            "agent_executor": "services.sky_update_order.UpdateOrderExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 51,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-update-config-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config",
+            "get-config-history"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Update Configuration - Agent",
+        "description": "Modifies system or service configuration parameters as part of a known fix - resetting flags, updating provisioning attributes. Runs against controlled change set from M&P. Includes pre-check validation and rollback trigger if post-test fails.",
+        "url": "http://localhost:10051",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "apply-config-change",
+            "name": "Apply Config Change",
+            "description": "Applies configuration parameter update from controlled change set",
+            "tags": [
+              "config",
+              "update"
+            ]
+          },
+          {
+            "id": "validate-pre-check",
+            "name": "Validate Pre-Check",
+            "description": "Validates preconditions before applying configuration change",
+            "tags": [
+              "validation",
+              "pre-check"
+            ]
+          },
+          {
+            "id": "rollback-config",
+            "name": "Rollback Config",
+            "description": "Reverts configuration change if post-test fails",
+            "tags": [
+              "rollback",
+              "safety"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_update_config.UpdateConfigExecutor",
+          "args": {
+            "agent_executor": "services.sky_update_config.UpdateConfigExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 52,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-test-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status",
+            "list-orders"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-status",
+            "compare-states"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket",
+            "close-ticket",
+            "escalate-ticket"
+          ]
+        },
+        {
+          "mcpId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "get-span-detail"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Test Order after Handling - Agent",
+        "description": "After a fix is applied, automatically validates the order state by querying relevant systems. Checks expected field values, status transitions and downstream acknowledgment. Returns pass/fail result - pass closes the ticket, fail triggers escalation or re-run.",
+        "url": "http://localhost:10052",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "validate-order-state",
+            "name": "Validate Order State",
+            "description": "Checks expected field values and status transitions post-fix",
+            "tags": [
+              "validation",
+              "testing"
+            ]
+          },
+          {
+            "id": "check-downstream",
+            "name": "Check Downstream",
+            "description": "Verifies downstream system acknowledgment of the fix",
+            "tags": [
+              "verification",
+              "downstream"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_test_order.TestOrderExecutor",
+          "args": {
+            "agent_executor": "services.sky_test_order.TestOrderExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 53,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-handle-rerun-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "update-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "peek-messages"
+          ]
+        },
+        {
+          "mcpId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "search-traces",
+            "get-service-metrics"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Handle Re-run - Agent",
+        "description": "Triggers re-execution of the failed order or flow from the point of failure using the same input payload. Applies after a configuration or order fix. Monitors execution result and feeds outcome back to the workflow for decision on close or escalate.",
+        "url": "http://localhost:10053",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "trigger-rerun",
+            "name": "Trigger Re-run",
+            "description": "Re-executes failed flow from point of failure with same payload",
+            "tags": [
+              "rerun",
+              "retry"
+            ]
+          },
+          {
+            "id": "monitor-execution",
+            "name": "Monitor Execution",
+            "description": "Monitors re-run execution result and reports outcome",
+            "tags": [
+              "monitoring",
+              "status"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_handle_rerun.HandleRerunExecutor",
+          "args": {
+            "agent_executor": "services.sky_handle_rerun.HandleRerunExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 54,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-handle-reprocess-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "list-dlq-topics",
+            "peek-messages"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Handle Reprocess - Agent",
+        "description": "Pushes the order or message back into the processing pipeline from the beginning or a specified checkpoint. Used when re-run is not sufficient - e.g. corrupted or needs enrichment before retry. Manages DLQ removal and queue re-injection.",
+        "url": "http://localhost:10054",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "reprocess-message",
+            "name": "Reprocess Message",
+            "description": "Re-injects message into processing pipeline from checkpoint",
+            "tags": [
+              "reprocess",
+              "dlq"
+            ]
+          },
+          {
+            "id": "manage-dlq",
+            "name": "Manage DLQ",
+            "description": "Removes message from DLQ and handles queue re-injection",
+            "tags": [
+              "dlq",
+              "queue"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_handle_reprocess.HandleReprocessExecutor",
+          "args": {
+            "agent_executor": "services.sky_handle_reprocess.HandleReprocessExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 55,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-capture-outcome-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "get-ticket",
+            "update-ticket",
+            "search-tickets"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history"
+          ]
+        },
+        {
+          "mcpId": "mcp-opensearch",
+          "tools": [
+            "search-logs",
+            "aggregate-log-stats"
+          ]
+        },
+        {
+          "mcpId": "postgresql",
+          "tools": [
+            "query",
+            "execute"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Capture Outcome - Agent",
+        "description": "Logs the full resolution path - classification, actions taken, test result, time to resolve - into the Sky data store. Structured output trains and improves AI classifiers. Flags cases where AI suggestion was overridden by human for model feedback loops.",
+        "url": "http://localhost:10055",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "log-resolution",
+            "name": "Log Resolution",
+            "description": "Stores full resolution path with classification, actions and timing",
+            "tags": [
+              "logging",
+              "audit"
+            ]
+          },
+          {
+            "id": "flag-override",
+            "name": "Flag Override",
+            "description": "Flags human overrides of AI suggestions for feedback loops",
+            "tags": [
+              "feedback",
+              "ml"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_capture_outcome.CaptureOutcomeExecutor",
+          "args": {
+            "agent_executor": "services.sky_capture_outcome.CaptureOutcomeExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 56,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-route-to-handler-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "update-ticket",
+            "escalate-ticket",
+            "search-tickets"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "get-account"
+          ]
+        },
+        {
+          "mcpId": "pagerduty",
+          "tools": [
+            "create-incident",
+            "escalate",
+            "list-oncall"
+          ]
+        },
+        {
+          "mcpId": "jira",
+          "tools": [
+            "create-issue",
+            "update-issue",
+            "search-issues"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Route to Handler - Agent",
+        "description": "Based on issue classification and account context, assigns the ticket to the correct queue, team or automated handler. Routing rules combine static logic (account tier, domain) with AI-ranked priority score. Supports fallback to manual queue when no confident auto-route is found.",
+        "url": "http://localhost:10056",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "route-ticket",
+            "name": "Route Ticket",
+            "description": "Routes ticket to queue, team or automated handler based on rules + AI priority",
+            "tags": [
+              "routing",
+              "assignment"
+            ]
+          },
+          {
+            "id": "fallback-manual",
+            "name": "Fallback Manual",
+            "description": "Assigns to manual queue when no confident automated route exists",
+            "tags": [
+              "fallback",
+              "escalation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_route_handler.RouteToHandlerExecutor",
+          "args": {
+            "agent_executor": "services.sky_route_handler.RouteToHandlerExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 57,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-update-entity-python-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history",
+            "get-entity-status",
+            "compare-states"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "update-order"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        },
+        {
+          "mcpId": "postgresql",
+          "tools": [
+            "query",
+            "execute"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Update Entity (Python) - Agent",
+        "description": "Executes a Python script to update a target entity (order, service, resource) via direct API or DB call. Used for complex or non-standard updates not covered by standard connectors. Script defined in M&P, versioned, executed in sandboxed runtime with I/O validation.",
+        "url": "http://localhost:10057",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "execute-script",
+            "name": "Execute Script",
+            "description": "Runs versioned Python script in sandboxed runtime with I/O validation",
+            "tags": [
+              "python",
+              "scripting"
+            ]
+          },
+          {
+            "id": "validate-io",
+            "name": "Validate I/O",
+            "description": "Validates input parameters and output results of entity update script",
+            "tags": [
+              "validation",
+              "safety"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_update_entity_python.UpdateEntityPythonExecutor",
+          "args": {
+            "agent_executor": "services.sky_update_entity_python.UpdateEntityPythonExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
       ]
     }
   ]

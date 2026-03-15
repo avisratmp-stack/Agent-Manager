@@ -19,8 +19,8 @@ import ConfigurationPanel, { getDefaultConfig } from './ConfigurationPanel'
 import { api } from '../../api'
 import './AgentConfig.css'
 
-const SIDEBAR_ITEMS = [
-  { icon: Bot, label: 'Observability', highlight: true, section: true },
+const SIDEBAR_ITEMS_BASE = [
+  { icon: Bot, label: '__SECTION__', highlight: true, section: true },
   { icon: List, label: 'Agents & Local MCPs', view: 'list', sub: true },
   { icon: Map, label: 'Operation Graph', view: 'map', sub: true },
   { icon: Server, label: 'External MCP', view: 'mcp', sub: true },
@@ -112,6 +112,13 @@ const AgentConfig = () => {
     if (newConfig.defaultSortDirection) setSortDirection(newConfig.defaultSortDirection)
   }, [])
 
+  const SIDEBAR_ITEMS = useMemo(() =>
+    SIDEBAR_ITEMS_BASE.map(item =>
+      item.label === '__SECTION__'
+        ? { ...item, label: appConfig.sectionTitle || 'Observability' }
+        : item
+    ), [appConfig.sectionTitle])
+
   const visibleColumns = useMemo(() => {
     const visible = appConfig.visibleColumns || ['icon', 'origin', 'name', 'description', 'version', 'url', 'stage', 'public', 'live']
     return COLUMNS.filter(col => visible.includes(col.key))
@@ -138,6 +145,10 @@ const AgentConfig = () => {
 
   const filteredMcpServers = useMemo(() => {
     let result = mcpServers
+    const envFilter = appConfig.activeEnvironment
+    if (envFilter) {
+      result = result.filter(s => (s.environment || 'AOC') === envFilter)
+    }
     if (selectedTags.length > 0) {
       result = result.filter(s => selectedTags.some(t => (s.tags || []).includes(t)))
     }
@@ -155,10 +166,12 @@ const AgentConfig = () => {
       )
     }
     return result
-  }, [mcpServers, selectedTags, selectedStages, searchQuery])
+  }, [mcpServers, selectedTags, selectedStages, searchQuery, appConfig.activeEnvironment])
 
   const filteredAgents = useMemo(() => {
     return agents.filter(a => {
+      const envFilter = appConfig.activeEnvironment
+      if (envFilter && (a.environment || 'AOC') !== envFilter) return false
       if (selectedTags.length > 0) {
         if (!selectedTags.some(t => (a.tags || []).includes(t))) return false
       }
@@ -177,7 +190,7 @@ const AgentConfig = () => {
         String(a.id).includes(q)
       )
     })
-  }, [agents, searchQuery, selectedTags, selectedStages])
+  }, [agents, searchQuery, selectedTags, selectedStages, appConfig.activeEnvironment])
 
   const localMcpServers = useMemo(() => mcpServers.filter(s => s.type === 'local'), [mcpServers])
 
@@ -195,6 +208,7 @@ const AgentConfig = () => {
       _role: a.role,
       _enabled: a.enabled !== false,
       _tags: a.tags || [],
+      _env: a.environment || 'AOC',
       raw: a,
     }))
 
@@ -211,10 +225,16 @@ const AgentConfig = () => {
       _role: s.role || 'public',
       _enabled: s.enabled !== false,
       _tags: s.tags || [],
+      _env: s.environment || 'AOC',
       raw: s,
     }))
 
     let result = [...agentRows, ...mcpRows]
+
+    const envFilter = appConfig.activeEnvironment
+    if (envFilter) {
+      result = result.filter(r => r._env === envFilter)
+    }
 
     if (selectedTags.length > 0) {
       result = result.filter(r => selectedTags.some(t => r._tags.includes(t)))
@@ -260,7 +280,7 @@ const AgentConfig = () => {
     }
 
     return result
-  }, [agents, localMcpServers, selectedTags, selectedStages, searchQuery, sortColumn, sortDirection])
+  }, [agents, localMcpServers, selectedTags, selectedStages, searchQuery, sortColumn, sortDirection, appConfig.activeEnvironment])
 
   const totalPages = Math.max(1, Math.ceil(listItems.length / pageSize))
   const pagedItems = listItems.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -320,6 +340,7 @@ const AgentConfig = () => {
 
   const handleMcpEditSave = async (formData) => {
     try {
+      if (!formData.environment) formData.environment = appConfig.defaultEnvironment || 'AOC'
       const updated = mcpEditTarget?.id
         ? await api.updateMcpServer(mcpEditTarget.id, formData)
         : await api.createMcpServer(formData)
@@ -335,6 +356,7 @@ const AgentConfig = () => {
           type: formData.type || appConfig.defaultAgentOrigin || 'local',
           slug: formData.slug || null,
           stage: formData.stage || appConfig.defaultAgentStage || 'Draft',
+          environment: formData.environment || appConfig.defaultEnvironment || 'AOC',
           agent: formData.agent,
         })
         setAgents(prev => [...prev, record])
@@ -344,6 +366,7 @@ const AgentConfig = () => {
           type: formData.type,
           slug: formData.slug,
           stage: formData.stage || appConfig.defaultAgentStage || 'Draft',
+          environment: formData.environment || appConfig.defaultEnvironment || 'AOC',
           agent: formData.agent,
         })
         setAgents(prev => prev.map(a => a.id === selectedId ? updated : a))

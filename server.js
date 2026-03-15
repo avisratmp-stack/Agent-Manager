@@ -97,6 +97,7 @@ function buildAgentRecord(entry) {
     type: entry.type,
     role: entry.role || null,
     stage: entry.stage || null,
+    environment: entry.environment || 'AOC',
     tags: entry.tags || [],
     slug: entry.slug,
     calls: entry.calls || [],
@@ -159,11 +160,11 @@ app.get('/api/consumers', (req, res) => {
 // ── POST /api/agents ──
 app.post('/api/agents', (req, res) => {
   const registry = readRegistry()
-  const { type, role, stage, tags, slug, agent, mcpBindings } = req.body
+  const { type, role, stage, environment, tags, slug, agent, mcpBindings } = req.body
   const newId = registry.agents.length > 0
     ? Math.max(...registry.agents.map(a => a.id)) + 1 : 1
 
-  const entry = { id: newId, type, role: role || null, stage: stage || null, tags: tags || [], slug: slug || null, calls: [], mcpBindings: mcpBindings || [], agent }
+  const entry = { id: newId, type, role: role || null, stage: stage || null, environment: environment || 'AOC', tags: tags || [], slug: slug || null, calls: [], mcpBindings: mcpBindings || [], agent }
   registry.agents.push(entry)
   writeRegistry(registry)
 
@@ -181,8 +182,8 @@ app.put('/api/agents/:id', (req, res) => {
   const idx = registry.agents.findIndex(a => a.id === id)
   if (idx === -1) return res.status(404).json({ error: 'Agent not found' })
 
-  const { type, role, stage, tags, slug, agent, mcpBindings } = req.body
-  registry.agents[idx] = { ...registry.agents[idx], type, role: role !== undefined ? (role || null) : registry.agents[idx].role, stage: stage !== undefined ? (stage || null) : registry.agents[idx].stage, tags: tags !== undefined ? (tags || []) : (registry.agents[idx].tags || []), slug: slug || null, agent, mcpBindings: mcpBindings || registry.agents[idx].mcpBindings || [] }
+  const { type, role, stage, environment, tags, slug, agent, mcpBindings } = req.body
+  registry.agents[idx] = { ...registry.agents[idx], type, role: role !== undefined ? (role || null) : registry.agents[idx].role, stage: stage !== undefined ? (stage || null) : registry.agents[idx].stage, environment: environment !== undefined ? (environment || 'AOC') : (registry.agents[idx].environment || 'AOC'), tags: tags !== undefined ? (tags || []) : (registry.agents[idx].tags || []), slug: slug || null, agent, mcpBindings: mcpBindings || registry.agents[idx].mcpBindings || [] }
   writeRegistry(registry)
   res.json(buildAgentRecord(registry.agents[idx]))
 })

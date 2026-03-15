@@ -241,6 +241,7 @@ const McpServerDialog = ({ mode, server, onSave, onClose }) => {
     type: server?.type || 'external',
     role: server?.role || 'public',
     stage: server?.stage || 'Design',
+    environment: server?.environment || 'AOC',
     tools: toolsToStr(server?.tools),
     tags: (server?.tags || []).join(', '),
   })

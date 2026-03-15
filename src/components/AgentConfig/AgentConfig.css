@@ -340,8 +340,7 @@
 .ac-grid {
   width: 100%;
   min-width: 1100px;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   font-size: 13px;
 }
 
@@ -396,14 +395,13 @@
   background: #f0eaff;
 }
 
-.ac-grid tbody tr:last-child td {
+.ac-grid tbody tr:last-child {
   border-bottom: none;
 }
 
 .ac-grid td {
   padding: 10px 14px;
   vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
   color: #334155;
 }
 
@@ -4811,4 +4809,46 @@
 }
 .cfg-btn-add-stage:hover {
   background: #ede9fe !important;
+}
+
+/* Environment filter in toolbar */
+.ac-env-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  color: #64748b;
+}
+.ac-env-select {
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  min-width: 80px;
+}
+.ac-env-select:focus {
+  border-color: #6366f1;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99,102,241,.15);
+}
+
+/* Environment badges in list */
+.ac-env-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+}
+.ac-env-aoc {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.ac-env-sky {
+  background: #fef3c7;
+  color: #92400e;
 }
