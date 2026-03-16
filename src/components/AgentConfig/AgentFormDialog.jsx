@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Plus, Trash2, Globe, HardDrive, Settings, Zap, Server } from 'lucide-react'
+import { X, Plus, Trash2, Globe, HardDrive, Settings, Zap, Server, FileCode, FileJson } from 'lucide-react'
 import SkillsPanel from './SkillsPanel'
 import McpBindingsPanel from './McpBindingsPanel'
 
@@ -32,6 +32,8 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
   const [newTag, setNewTag] = useState({})
   const [errors, setErrors] = useState({})
   const [activeTab, setActiveTab] = useState('general')
+  const [handlerCode, setHandlerCode] = useState(null)
+  const [serversConfig, setServersConfig] = useState(null)
 
   useEffect(() => {
     if (editData && (mode === 'edit' || mode === 'import')) {
@@ -51,6 +53,12 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
     }
     setErrors({})
     setActiveTab('general')
+    setHandlerCode(null)
+    setServersConfig(null)
+    if (editData?.slug && (mode === 'edit')) {
+      fetch(`/api/agents/${editData.slug}/handler`).then(r => r.json()).then(d => setHandlerCode(d.content)).catch(() => {})
+      fetch(`/api/agents/${editData.slug}/servers-config`).then(r => r.json()).then(d => setServersConfig(d.content)).catch(() => {})
+    }
   }, [editData, mode, isOpen])
 
   if (!isOpen) return null
@@ -65,6 +73,8 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
     { id: 'general', label: 'General', icon: Settings },
     ...(showExtendedTabs ? [{ id: 'skills', label: 'Skills', icon: Zap }] : []),
     ...(showExtendedTabs ? [{ id: 'mcp', label: 'MCP Bindings', icon: Server }] : []),
+    ...(showExtendedTabs ? [{ id: 'handler', label: 'Handler', icon: FileCode }] : []),
+    ...(showExtendedTabs ? [{ id: 'contract', label: 'Contract', icon: FileJson }] : []),
   ]
 
   const updateAgent = (field, value) => {
@@ -513,6 +523,38 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                 mcpServers={mcpServers || []}
                 onUpdate={onUpdateMcpBindings}
               />
+            </div>
+          )}
+
+          {activeTab === 'handler' && showExtendedTabs && (
+            <div className="dlg-extended-tab-body">
+              <div className="form-section">
+                <h3 className="form-section-title">Handler Service — handler.py</h3>
+                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>
+                  Python handler implementing this agent's request processing logic. Located at <code>agents/{editData?.slug}/services/handler.py</code>
+                </span>
+                {handlerCode ? (
+                  <pre className="code-viewer">{handlerCode}</pre>
+                ) : (
+                  <p className="empty-skills">No handler.py found for this agent.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'contract' && showExtendedTabs && (
+            <div className="dlg-extended-tab-body">
+              <div className="form-section">
+                <h3 className="form-section-title">Agent Servers Contract — agent_servers.json</h3>
+                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>
+                  Configuration contract defining this agent's server bindings. Located at <code>agents/{editData?.slug}/agent_servers.json</code>
+                </span>
+                {serversConfig ? (
+                  <pre className="code-viewer">{serversConfig}</pre>
+                ) : (
+                  <p className="empty-skills">No agent_servers.json found for this agent.</p>
+                )}
+              </div>
             </div>
           )}
         </div>

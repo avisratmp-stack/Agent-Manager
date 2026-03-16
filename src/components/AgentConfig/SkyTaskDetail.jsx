@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ArrowLeft, Copy, CheckCircle2, Circle, Clock, Play, User, Bot,
   ChevronDown, ChevronUp, AlertTriangle, SkipForward, Mail, Shield,
-  Pencil, FileText
+  Pencil, FileText, Workflow, Code, Terminal, Loader
 } from 'lucide-react'
 
 const PRIORITY_COLORS = {
@@ -19,10 +19,13 @@ const STEP_ICONS = {
   MANUAL_DONE: { icon: CheckCircle2, color: '#16a34a' },
   MANUAL_ACTIVE: { icon: Pencil, color: '#ea580c' },
   MANUAL_PENDING: { icon: Circle, color: '#cbd5e1' },
+  HYBRID_DONE: { icon: CheckCircle2, color: '#16a34a' },
+  HYBRID_ACTIVE: { icon: Workflow, color: '#7c3aed' },
+  HYBRID_PENDING: { icon: Circle, color: '#cbd5e1' },
 }
 
 function getStepMeta(step) {
-  const base = step.type === 'AUTO-AGENT' ? 'AUTO' : 'MANUAL'
+  const base = step.type === 'HYBRID' ? 'HYBRID' : step.type === 'AUTO-AGENT' ? 'AUTO' : 'MANUAL'
   const state = step.status === 'DONE' ? 'DONE' : step.status === 'IN_PROGRESS' ? 'ACTIVE' : 'PENDING'
   return STEP_ICONS[`${base}_${state}`] || STEP_ICONS.AUTO_PENDING
 }
@@ -40,6 +43,30 @@ export default function SkyTaskDetail({ task, onBack }) {
     task.steps.forEach(s => { map[s.id] = s.status })
     return map
   })
+  const [handlers, setHandlers] = useState([])
+  const [selectedHandler, setSelectedHandler] = useState({})
+  const [handlerCode, setHandlerCode] = useState({})
+  const [execState, setExecState] = useState({})
+
+  useEffect(() => {
+    fetch('/api/agent-handlers').then(r => r.json()).then(setHandlers).catch(() => {})
+  }, [])
+
+  const loadHandler = (stepId, slug) => {
+    setSelectedHandler(prev => ({ ...prev, [stepId]: slug }))
+    if (!slug) { setHandlerCode(prev => ({ ...prev, [stepId]: null })); return }
+    fetch(`/api/agents/${slug}/handler`).then(r => r.json()).then(d => {
+      setHandlerCode(prev => ({ ...prev, [stepId]: d.content }))
+    }).catch(() => {})
+  }
+
+  const executeHandler = (stepId) => {
+    setExecState(prev => ({ ...prev, [stepId]: 'running' }))
+    setTimeout(() => {
+      setExecState(prev => ({ ...prev, [stepId]: 'done' }))
+      setTimeout(() => setExecState(prev => ({ ...prev, [stepId]: null })), 3000)
+    }, 2000)
+  }
 
   const toggleStep = (id) => setExpandedSteps(prev => ({ ...prev, [id]: !prev[id] }))
 
@@ -204,8 +231,8 @@ export default function SkyTaskDetail({ task, onBack }) {
                   <div className="sky-step-header" onClick={() => toggleStep(step.id)}>
                     <div className="sky-step-left">
                       <Icon size={20} color={meta.color} />
-                      <span className={`sky-step-type-badge ${step.type === 'AUTO-AGENT' ? 'auto' : 'manual'}`}>
-                        {step.type === 'AUTO-AGENT' ? <><Bot size={11} /> AUTO-AGENT</> : <><User size={11} /> MANUAL</>}
+                      <span className={`sky-step-type-badge ${step.type === 'AUTO-AGENT' ? 'auto' : step.type === 'HYBRID' ? 'hybrid' : 'manual'}`}>
+                        {step.type === 'AUTO-AGENT' ? <><Bot size={11} /> Auto</> : step.type === 'HYBRID' ? <><Workflow size={11} /> Hybrid</> : <><User size={11} /> Manual</>}
                       </span>
                       <span className="sky-step-label">{step.label}</span>
                       {step.skippable && <span className="sky-skippable-badge">SKIPPABLE</span>}
@@ -220,11 +247,11 @@ export default function SkyTaskDetail({ task, onBack }) {
 
                   {expanded && (
                     <div className="sky-step-body">
-                      {(step.agentLog || (isActive && step.hasAgent)) && (
+                      {(step.agentLog || (isActive && step.type === 'HYBRID') || step.type === 'AUTO-AGENT') && (
                         <div className="sky-agent-section">
                           <div className="sky-agent-bar">
-                            <Bot size={14} /> AUTO-AGENT
-                            {isActive && step.hasAgent && (
+                            <Bot size={14} /> Auto
+                            {isActive && (step.type === 'HYBRID' || step.type === 'AUTO-AGENT') && (
                               <button className="sky-btn sky-btn-green sky-btn-sm">
                                 <Play size={12} /> Run Agent
                               </button>
@@ -274,6 +301,42 @@ export default function SkyTaskDetail({ task, onBack }) {
                           <CheckCircle2 size={16} color="#16a34a" /> Step completed successfully.
                         </div>
                       )}
+
+                      <div className="sky-python-section">
+                        <div className="sky-python-bar">
+                          <Code size={14} />
+                          <span>Python Execution</span>
+                          <select
+                            className="sky-python-select"
+                            value={selectedHandler[step.id] || ''}
+                            onChange={e => loadHandler(step.id, e.target.value)}
+                          >
+                            <option value="">Select handler…</option>
+                            {handlers.map(h => (
+                              <option key={h.slug} value={h.slug}>{h.label}</option>
+                            ))}
+                          </select>
+                          {selectedHandler[step.id] && (
+                            <button
+                              className={`sky-btn sky-btn-sm ${execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-green'}`}
+                              onClick={() => executeHandler(step.id)}
+                              disabled={execState[step.id] === 'running'}
+                            >
+                              {execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
+                               execState[step.id] === 'done' ? <><CheckCircle2 size={12} /> Done</> :
+                               <><Terminal size={12} /> Execute</>}
+                            </button>
+                          )}
+                        </div>
+                        {handlerCode[step.id] && (
+                          <pre className="sky-python-code">{handlerCode[step.id]}</pre>
+                        )}
+                        {execState[step.id] === 'done' && (
+                          <div className="sky-python-output">
+                            <div className="sky-console-line highlight">[OK] Handler executed successfully — result: {`{ "status": "completed", "agent": "${selectedHandler[step.id]}" }`}</div>
+                          </div>
+                        )}
+                      </div>
 
                       <div className="sky-step-footer">
                         <button className="sky-btn sky-btn-outline sky-btn-sm">Save Draft</button>

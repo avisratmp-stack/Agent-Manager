@@ -4,7 +4,7 @@ import {
   Menu, LayoutDashboard, ListTodo, Inbox, Activity, FileText, Settings,
   Cloud, Bot, Workflow, Gauge, Rocket, Wrench, ChevronDown, ChevronUp,
   ChevronRightIcon, Copy, Map, List, Server, Eye, Grid3x3, Tag, X,
-  Plug, Zap, LayoutGrid, GitBranchPlus
+  Plug, Zap, LayoutGrid, GitBranchPlus, User, Shield
 } from 'lucide-react'
 import AgentFormDialog from './AgentFormDialog'
 import AgentDetailPanel from './AgentDetailPanel'
@@ -17,6 +17,8 @@ import AgentCardsPanel from './AgentCardsPanel'
 import AgentMapVerticalPanel from './AgentMapVerticalPanel'
 import ConfigurationPanel, { getDefaultConfig } from './ConfigurationPanel'
 import SkyTasksPanel from './SkyTasksPanel'
+import SkyTrackingReport from './SkyTrackingReport'
+import TicketDetails2 from './TicketDetails2'
 import { api } from '../../api'
 import './AgentConfig.css'
 import './SkyTasks.css'
@@ -28,9 +30,11 @@ const SIDEBAR_ITEMS_BASE = [
   { icon: Server, label: 'External MCP', view: 'mcp', sub: true },
   { icon: Grid3x3, label: 'Agent to MCPs', view: 'matrix', sub: true },
   { icon: Zap, label: 'Test', view: 'test', sub: true },
-  { icon: Settings, label: 'Configuration', view: 'config', sub: true },
-  { icon: Cloud, label: 'Sky', highlight: true, section: true },
-  { icon: ListTodo, label: 'Tasks List', view: 'sky-tasks', sub: true },
+  { icon: Cloud, label: 'Resolver: Sky', highlight: true, section: true, sky: true },
+  { icon: ListTodo, label: 'Tasks List', view: 'sky-tasks', sub: true, sky: true },
+  { icon: Workflow, label: 'Ticket Details 2', view: 'sky-ticket2', sub: true, sky: true },
+  { icon: Activity, label: 'Tracking Report', view: 'sky-report', sub: true, sky: true },
+  { icon: Settings, label: 'Configuration', view: 'config' },
 ]
 
 const COLUMNS = [
@@ -51,6 +55,7 @@ const AgentConfig = () => {
   const [consumers, setConsumers] = useState([])
   const [mcpServers, setMcpServers] = useState([])
   const [activeView, setActiveView] = useState(() => getDefaultConfig().defaultView || 'list')
+
   const [selectedId, setSelectedId] = useState(null)
   const [previewId, setPreviewId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -73,6 +78,11 @@ const AgentConfig = () => {
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false)
   const [selectedStages, setSelectedStages] = useState([])
   const [stageDropdownOpen, setStageDropdownOpen] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(true)
+  const [loginError, setLoginError] = useState('')
+  const [configPwOpen, setConfigPwOpen] = useState(false)
+  const [configPwValue, setConfigPwValue] = useState('')
+  const [configPwError, setConfigPwError] = useState(false)
   const importInputRef = useRef(null)
   const tagDropdownRef = useRef(null)
   const stageDropdownRef = useRef(null)
@@ -117,11 +127,13 @@ const AgentConfig = () => {
   }, [])
 
   const SIDEBAR_ITEMS = useMemo(() =>
-    SIDEBAR_ITEMS_BASE.map(item =>
-      item.label === '__SECTION__'
-        ? { ...item, label: appConfig.sectionTitle || 'Observability' }
-        : item
-    ), [appConfig.sectionTitle])
+    SIDEBAR_ITEMS_BASE
+      .filter(item => !item.sky || appConfig.showSkyMenu !== false)
+      .map(item =>
+        item.label === '__SECTION__'
+          ? { ...item, label: appConfig.sectionTitle || 'Observability' }
+          : item
+      ), [appConfig.sectionTitle, appConfig.showSkyMenu])
 
   const visibleColumns = useMemo(() => {
     const visible = appConfig.visibleColumns || ['icon', 'origin', 'name', 'description', 'version', 'url', 'stage', 'public', 'live']
@@ -472,8 +484,69 @@ const AgentConfig = () => {
   const selectedAgent = selectedId ? agents.find(a => a.id === selectedId) : null
   const previewAgent = previewId ? agents.find(a => a.id === previewId) : null
 
+  if (!loggedIn) {
+    return (
+      <div className="ac-login-page">
+        <form className="ac-login-form" onSubmit={e => {
+          e.preventDefault()
+          const u = e.target.user.value
+          const p = e.target.pass.value
+          if (u === '1' && p === '1') { setLoggedIn(true); setLoginError('') }
+          else setLoginError('Invalid username or password')
+        }}>
+          <h2 className="ac-login-title">
+            <div className="ac-login-logo"><Bot size={24} /></div>
+            AOC Sign In
+          </h2>
+          <div className="ac-login-field">
+            <label>Username</label>
+            <input name="user" type="text" autoFocus placeholder="Enter username" />
+          </div>
+          <div className="ac-login-field">
+            <label>Password</label>
+            <input name="pass" type="password" placeholder="Enter password" />
+          </div>
+          {loginError && <div className="ac-login-error">{loginError}</div>}
+          <button type="submit" className="ac-login-btn">Sign In</button>
+          <div className="ac-login-sub">AOC | Diagnostic</div>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className="ac-layout">
+      {configPwOpen && (
+        <div className="dialog-overlay" onClick={() => setConfigPwOpen(false)}>
+          <div className="ac-pw-dialog" onClick={e => e.stopPropagation()}>
+            <h3>Configuration Access</h3>
+            <p>Enter password to access configuration.</p>
+            <form onSubmit={e => {
+              e.preventDefault()
+              if (configPwValue === '00') {
+                setConfigPwOpen(false)
+                setActiveView('config')
+              } else {
+                setConfigPwError(true)
+              }
+            }}>
+              <input
+                type="password"
+                className={configPwError ? 'input-error' : ''}
+                value={configPwValue}
+                onChange={e => { setConfigPwValue(e.target.value); setConfigPwError(false) }}
+                autoFocus
+                placeholder="••••"
+              />
+              {configPwError && <span className="ac-pw-error">Incorrect password</span>}
+              <div className="ac-pw-actions">
+                <button type="button" className="btn btn-cancel" onClick={() => setConfigPwOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-save">Unlock</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="ac-header">
         <div className="ac-header-left">
@@ -481,8 +554,24 @@ const AgentConfig = () => {
             <Menu size={18} />
           </button>
           <span className="ac-logo">{appConfig.appTitle || 'IT Operation'}</span>
-          <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
-          <span className="ac-header-page">{(SIDEBAR_ITEMS.find(i => i.view === activeView) || {}).label || 'Agent Config'}</span>
+          {(() => {
+            let section = ''
+            for (const item of SIDEBAR_ITEMS) {
+              if (item.section) section = item.label
+              if (item.view === activeView) break
+            }
+            const page = (SIDEBAR_ITEMS.find(i => i.view === activeView) || {}).label || 'Agent Config'
+            const currentItem = SIDEBAR_ITEMS.find(i => i.view === activeView)
+            const hasSection = currentItem && currentItem.sub
+            return <>
+              {hasSection && <>
+                <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
+                <span className="ac-header-section">{section}</span>
+              </>}
+              <ChevronRightIcon size={14} style={{ color: '#cbd5e1' }} />
+              <span className="ac-header-page">{page}</span>
+            </>
+          })()}
         </div>
         <div className="ac-header-right">
           <div className="ac-avatar">
@@ -500,7 +589,15 @@ const AgentConfig = () => {
               key={i}
               className={`ac-sidebar-item${item.section ? ' section' : ''}${item.sub ? ' sub' : ''}${item.highlight ? ' active' : ''}${item.view && activeView === item.view ? ' active' : ''}`}
               title={item.label}
-              onClick={item.view ? () => setActiveView(item.view) : undefined}
+              onClick={item.view ? () => {
+                if (item.view === 'config') {
+                  setConfigPwValue('')
+                  setConfigPwError(false)
+                  setConfigPwOpen(true)
+                  return
+                }
+                setActiveView(item.view)
+              } : undefined}
               style={item.view ? { cursor: 'pointer' } : undefined}
             >
               <item.icon size={item.sub ? 15 : 18} />
@@ -639,6 +736,10 @@ const AgentConfig = () => {
 
           {activeView === 'sky-tasks' ? (
             <SkyTasksPanel />
+          ) : activeView === 'sky-ticket2' ? (
+            <TicketDetails2 />
+          ) : activeView === 'sky-report' ? (
+            <SkyTrackingReport />
           ) : activeView === 'config' ? (
             <ConfigurationPanel config={appConfig} onConfigChange={handleConfigChange} />
           ) : activeView === 'test' ? (

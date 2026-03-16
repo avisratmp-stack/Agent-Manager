@@ -1,0 +1,5 @@
+{
+  "$schema": "agent-servers/v1",
+  "agent": "ces-change-order-agent",
+  "servers": []
+}

@@ -1,13 +1,45 @@
 const express = require('express')
 const fs = require('fs')
 const path = require('path')
+const dns = require('dns')
+const os = require('os')
 const multer = require('multer')
 const AdmZip = require('adm-zip')
 
 const app = express()
 app.use(express.json({ limit: '10mb' }))
 
-const DATA_DIR = path.join(__dirname, 'src', 'data')
+const ACCESS_LOG = path.join(__dirname, 'user_access.log')
+const hostnameCache = {}
+
+function resolveHostname(ip) {
+  return new Promise(resolve => {
+    const clean = ip.replace(/^::ffff:/, '')
+    if (clean === '127.0.0.1' || clean === '::1' || clean === '1') {
+      resolve(os.hostname())
+      return
+    }
+    if (hostnameCache[clean]) { resolve(hostnameCache[clean]); return }
+    dns.reverse(clean, (err, hostnames) => {
+      const name = (!err && hostnames && hostnames.length) ? hostnames[0] : null
+      if (name) hostnameCache[clean] = name
+      resolve(name)
+    })
+  })
+}
+
+app.use(async (req, res, next) => {
+  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').replace(/^::ffff:/, '')
+  const hostname = await resolveHostname(ip)
+  const d = new Date()
+  const ts = `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getFullYear()).slice(-2)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  const client = hostname ? `${hostname} (${ip})` : ip
+  const line = `[${ts}] ${req.method} ${req.originalUrl} — ${client}\n`
+  fs.appendFile(ACCESS_LOG, line, () => {})
+  next()
+})
+
+const DATA_DIR = path.join(__dirname, 'src', 'config')
 const AGENTS_DIR = path.join(DATA_DIR, 'agents')
 const REGISTRY_PATH = path.join(DATA_DIR, 'common', 'agents.json')
 const MCP_SERVERS_PATH = path.join(DATA_DIR, 'common', 'mcp-servers.json')
@@ -352,6 +384,34 @@ app.get('/api/sky-tasks', (req, res) => {
   try {
     res.json(JSON.parse(fs.readFileSync(tasksPath, 'utf-8')))
   } catch { res.json({ tasks: [] }) }
+})
+
+// ── GET /api/agent-handlers ──
+app.get('/api/agent-handlers', (req, res) => {
+  const dirs = fs.readdirSync(AGENTS_DIR).filter(d => {
+    const hp = path.join(AGENTS_DIR, d, 'services', 'handler.py')
+    return fs.existsSync(hp)
+  })
+  const handlers = dirs.map(slug => {
+    const content = fs.readFileSync(path.join(AGENTS_DIR, slug, 'services', 'handler.py'), 'utf-8')
+    const nameMatch = content.match(/class\s+(\w+)/)
+    return { slug, className: nameMatch ? nameMatch[1] : slug, label: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }
+  })
+  res.json(handlers)
+})
+
+// ── GET /api/agents/:slug/handler ──
+app.get('/api/agents/:slug/handler', (req, res) => {
+  const handlerPath = path.join(AGENTS_DIR, req.params.slug, 'services', 'handler.py')
+  if (!fs.existsSync(handlerPath)) return res.json({ content: null })
+  res.json({ content: fs.readFileSync(handlerPath, 'utf-8') })
+})
+
+// ── GET /api/agents/:slug/servers-config ──
+app.get('/api/agents/:slug/servers-config', (req, res) => {
+  const cfgPath = path.join(AGENTS_DIR, req.params.slug, 'agent_servers.json')
+  if (!fs.existsSync(cfgPath)) return res.json({ content: null })
+  res.json({ content: fs.readFileSync(cfgPath, 'utf-8') })
 })
 
 // ── GET /api/agents/:slug/logs ──

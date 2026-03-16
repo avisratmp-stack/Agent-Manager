@@ -1,0 +1,5 @@
+{
+  "$schema": "agent-servers/v1",
+  "agent": "production-anomaly-agent",
+  "servers": []
+}

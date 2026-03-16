@@ -4,6 +4,161 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* ---------- Login Page ---------- */
+.ac-login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.ac-login-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #6d28d9;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ac-login-form {
+  width: 300px;
+  text-align: center;
+  animation: login-appear .5s ease-out;
+}
+@keyframes login-appear {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ac-login-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #6d28d9;
+  margin: 0 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ac-login-field {
+  margin-bottom: 18px;
+}
+.ac-login-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+.ac-login-field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e1e1e;
+  background: #fafafa;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+}
+.ac-login-field input::placeholder {
+  color: #bbb;
+}
+.ac-login-field input:focus {
+  outline: none;
+  border-color: #555;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0,0,0,.05);
+}
+.ac-login-error {
+  color: #c00;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.ac-login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #1e1e1e;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 4px;
+}
+.ac-login-btn:hover {
+  background: #333;
+}
+.ac-login-btn:active {
+  background: #111;
+}
+.ac-login-sub {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: #7c3aed;
+  letter-spacing: .8px;
+}
+
+/* ---------- Config Password Dialog ---------- */
+.ac-pw-dialog {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  width: 320px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.2);
+}
+.ac-pw-dialog h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.ac-pw-dialog p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #64748b;
+}
+.ac-pw-dialog input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 18px;
+  letter-spacing: 4px;
+  text-align: center;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+.ac-pw-dialog input:focus {
+  outline: none;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109,40,217,.12);
+}
+.ac-pw-dialog input.input-error {
+  border-color: #dc2626;
+}
+.ac-pw-error {
+  display: block;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 6px;
+}
+.ac-pw-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
 /* ---------- Layout ---------- */
 .ac-layout {
   display: flex;
@@ -72,6 +227,11 @@
   color: #d1d5db;
 }
 
+.ac-header-section {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
 .ac-header-page {
   font-size: 14px;
   font-weight: 600;
@@ -815,6 +975,21 @@
 
 .dlg-extended-tab-body {
   min-height: 300px;
+}
+
+.code-viewer {
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 16px 18px;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 420px;
+  white-space: pre;
+  tab-size: 4;
+  margin: 0;
 }
 
 .dialog-body {

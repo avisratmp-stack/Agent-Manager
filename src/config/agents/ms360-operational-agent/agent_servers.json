@@ -1,0 +1,5 @@
+{
+  "$schema": "agent-servers/v1",
+  "agent": "ms360-operational-agent",
+  "servers": []
+}

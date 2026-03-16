@@ -61,6 +61,7 @@ const DEFAULT_CONFIG = {
   defaultEnvironment: 'AOC',
   environments: ['AOC', 'Sky'],
   activeEnvironment: 'AOC',
+  showSkyMenu: false,
   stagePipeline: ['Draft', 'Design', 'Dev', 'Released'],
   mapShowConnections: true,
   mapLayout: 'horizontal',
@@ -191,6 +192,21 @@ export default function ConfigurationPanel({ config, onConfigChange }) {
                   </label>
                   <span className="cfg-toggle-label">{local.sidebarOpen ? 'Expanded' : 'Collapsed'}</span>
                 </div>
+              </div>
+              <div className="cfg-field">
+                <label>Show Sky Menu</label>
+                <div className="cfg-toggle-row">
+                  <label className="cfg-toggle">
+                    <input
+                      type="checkbox"
+                      checked={local.showSkyMenu !== false}
+                      onChange={e => update('showSkyMenu', e.target.checked)}
+                    />
+                    <span className="cfg-toggle-track" />
+                  </label>
+                  <span className="cfg-toggle-label">{local.showSkyMenu !== false ? 'Visible' : 'Hidden'}</span>
+                </div>
+                <span className="cfg-hint">Show or hide the Sky section in the sidebar</span>
               </div>
             </>
           ))}

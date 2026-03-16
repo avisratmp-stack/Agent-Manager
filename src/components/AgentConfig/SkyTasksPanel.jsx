@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   AlertTriangle, Clock, ChevronRight, Search, User, Bot,
-  CheckCircle2, Circle, Play, Filter
+  CheckCircle2, Circle, Play, Filter, Workflow
 } from 'lucide-react'
 import SkyTaskDetail from './SkyTaskDetail'
 
@@ -18,6 +18,15 @@ const STATUS_COLORS = {
   'DONE': { bg: '#f1f5f9', color: '#64748b' },
 }
 
+function normalizeSteps(task) {
+  const idx = (task.currentStep || 1) - 1
+  return task.steps.map((s, i) => {
+    if (i < idx) return { ...s, status: 'DONE' }
+    if (i === idx) return { ...s, status: 'IN_PROGRESS' }
+    return { ...s, status: 'PENDING' }
+  })
+}
+
 export default function SkyTasksPanel() {
   const [tasks, setTasks] = useState([])
   const [selectedTaskId, setSelectedTaskId] = useState(null)
@@ -25,11 +34,12 @@ export default function SkyTasksPanel() {
   const [priorityFilter, setPriorityFilter] = useState('')
 
   useEffect(() => {
+    const normalize = list => list.map(t => ({ ...t, steps: normalizeSteps(t) }))
     fetch('/api/sky-tasks')
       .then(r => r.json())
-      .then(data => setTasks(data.tasks || data))
+      .then(data => setTasks(normalize(data.tasks || data)))
       .catch(() => {
-        import('../../data/common/sky-tasks.json').then(m => setTasks(m.default.tasks))
+        import('../../config/common/sky-tasks.json').then(m => setTasks(normalize(m.default.tasks)))
       })
   }, [])
 
@@ -98,7 +108,7 @@ export default function SkyTasksPanel() {
           <thead>
             <tr>
               <th style={{ width: 80 }}>Ticket</th>
-              <th>Current Step</th>
+              <th style={{ width: 180 }}>Current Step</th>
               <th style={{ width: 75 }}>Priority</th>
               <th style={{ width: 110 }}>Order</th>
               <th style={{ width: 100 }}>Status</th>
@@ -125,9 +135,22 @@ export default function SkyTasksPanel() {
                     {(() => {
                       const active = task.steps.find(s => s.status === 'IN_PROGRESS')
                       if (!active) return <span className="sky-step-pending">{activeStepLabel(task)}</span>
+                      let effectiveType, typeClass, TypeIcon, typeLabel
+                      if (isAgentAssignee) {
+                        effectiveType = 'AUTO-AGENT'
+                      } else {
+                        effectiveType = (active.type === 'HYBRID' || active.hasAgent) ? 'HYBRID' : 'MANUAL'
+                      }
+                      if (effectiveType === 'AUTO-AGENT') {
+                        typeClass = 'auto'; TypeIcon = Bot; typeLabel = 'Auto'
+                      } else if (effectiveType === 'HYBRID') {
+                        typeClass = 'hybrid'; TypeIcon = Workflow; typeLabel = 'Hybrid'
+                      } else {
+                        typeClass = 'manual'; TypeIcon = User; typeLabel = 'Manual'
+                      }
                       return (
                         <span className="sky-step-active">
-                          {active.type === 'AUTO-AGENT' ? <Bot size={12} /> : <User size={12} />}
+                          <span className={`sky-step-type-mini ${typeClass}`}><TypeIcon size={10} /> {typeLabel}</span>
                           {active.label}
                         </span>
                       )

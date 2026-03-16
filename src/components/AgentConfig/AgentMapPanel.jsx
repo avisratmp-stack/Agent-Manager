@@ -41,7 +41,7 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
 
     const boundServerIds = new Set()
     agents.forEach(a => (a.mcpBindings || []).forEach(b => {
-      const sid = typeof b === 'string' ? b : b.serverId
+      const sid = typeof b === 'string' ? b : (b.serverId || b.mcpId)
       if (sid) boundServerIds.add(sid)
     }))
     const boundLocalMcp = localMcpList.filter(s => boundServerIds.has(s.id))
@@ -66,12 +66,12 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
     pubCol1Slugs.forEach((slug, i) => {
       const a = agentBySlug[slug]
       if (!a) return
-      allNodes.push({ id: `agent-${a.id}`, slug, label: a.agent.name, kind: a.type, col: 1, row: i, agentId: a.id, enabled: a.enabled !== false, role: a.role })
+      allNodes.push({ id: `agent-${a.id}`, slug, label: a.agent.name, kind: a.type, col: 1, row: i, agentId: a.id, enabled: a.enabled !== false, role: a.role, env: a.environment })
     })
     pubCol2Slugs.forEach((slug, i) => {
       const a = agentBySlug[slug]
       if (!a) return
-      allNodes.push({ id: `agent-${a.id}`, slug, label: a.agent.name, kind: a.type, col: 2, row: i, agentId: a.id, enabled: a.enabled !== false, role: a.role })
+      allNodes.push({ id: `agent-${a.id}`, slug, label: a.agent.name, kind: a.type, col: 2, row: i, agentId: a.id, enabled: a.enabled !== false, role: a.role, env: a.environment })
     })
 
     const col1McpStartRow = pubCol1Slugs.length + 1
@@ -93,7 +93,7 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
       privateSlugs.forEach((slug, i) => {
         const a = agentBySlug[slug]
         if (!a) return
-        allNodes.push({ id: `agent-${a.id}`, slug, label: a.agent.name, kind: 'private', col: privateCol, row: i, agentId: a.id, enabled: a.enabled !== false, role: a.role })
+        allNodes.push({ id: `agent-${a.id}`, slug, label: a.agent.name, kind: 'private', col: privateCol, row: i, agentId: a.id, enabled: a.enabled !== false, role: a.role, env: a.environment })
       })
       nextCol++
     }
@@ -110,9 +110,9 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
     const edges = []
     const agentNodes = allNodes.filter(n => n.slug)
 
-    // Consumer -> public agents only (solid direct call). Never to private.
+    // Consumer -> public agents only (solid direct call). Never to private or Sky agents.
     agentNodes.forEach(n => {
-      if (n.kind !== 'private') {
+      if (n.kind !== 'private' && n.env !== 'Sky') {
         edges.push({ from: '__consumer__', to: n.id, type: 'consumer-agent' })
       }
     })
@@ -135,7 +135,7 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
       })
       // Agent -> MCP (mcp-binding style, dashed amber)
       ;(a.mcpBindings || []).forEach(b => {
-        const sid = typeof b === 'string' ? b : b.serverId
+        const sid = typeof b === 'string' ? b : (b.serverId || b.mcpId)
         const target = allNodes.find(n => n.mcpId === sid)
         if (target) edges.push({ from: src.id, to: target.id, type: 'agent-mcp' })
       })
@@ -193,9 +193,9 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
   }, [activeId, edges])
 
   // Private agents & external MCPs get lighter/faded colors
-  const kindColor    = { consumer: '#6366f1', local: '#059669', external: '#2563eb', private: '#94a3b8', mcp: '#d97706', 'mcp-local': '#d97706', 'mcp-ext': '#ca8a04', add: '#6d28d9' }
-  const kindBg       = { consumer: '#f5f3ff', local: '#ecfdf5', external: '#eff6ff', private: '#f8fafc', mcp: '#fffbeb', 'mcp-local': '#fffbeb', 'mcp-ext': '#fefce8', add: '#faf5ff' }
-  const kindBorder   = { consumer: '#c4b5fd', local: '#a7f3d0', external: '#bfdbfe', private: '#e2e8f0', mcp: '#fde68a', 'mcp-local': '#fde68a', 'mcp-ext': '#fef08a', add: '#d8b4fe' }
+  const kindColor    = { consumer: '#6366f1', local: '#059669', external: '#2563eb', private: '#15803d', mcp: '#d97706', 'mcp-local': '#d97706', 'mcp-ext': '#78350f', add: '#6d28d9' }
+  const kindBg       = { consumer: '#f5f3ff', local: '#ecfdf5', external: '#eff6ff', private: '#f0fdf4', mcp: '#fffbeb', 'mcp-local': '#fffbeb', 'mcp-ext': '#fef3c7', add: '#faf5ff' }
+  const kindBorder   = { consumer: '#c4b5fd', local: '#a7f3d0', external: '#bfdbfe', private: '#bbf7d0', mcp: '#fde68a', 'mcp-local': '#fde68a', 'mcp-ext': '#92400e', add: '#d8b4fe' }
   const KindIcon     = { consumer: Monitor, local: Bot, external: Bot, private: Bot, mcp: Plug, 'mcp-local': Plug, 'mcp-ext': Plug, add: Plus }
 
   function edgePath(from, to) {
@@ -348,13 +348,13 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
                 style={{ cursor: 'pointer', opacity: isDim ? 0.2 : isFaded && !isHov && !isLocked ? 0.6 : 1, transition: 'opacity 0.2s' }}
               >
                 {(isHov || isLocked) && (
-                  <rect x={-3} y={-3} width={NODE_W + 6} height={NODE_H + 6} rx={11} fill="none" stroke={color} strokeWidth={isLocked ? 2 : 1} opacity={isLocked ? 0.6 : 0.3} />
+                  <rect x={-3} y={-3} width={NODE_W + 6} height={NODE_H + 6} rx={node.kind === 'mcp-ext' ? 0 : 11} fill="none" stroke={color} strokeWidth={isLocked ? 2 : 1} opacity={isLocked ? 0.6 : 0.3} />
                 )}
                 <rect
-                  width={NODE_W} height={NODE_H} rx={8}
+                  width={NODE_W} height={NODE_H} rx={node.kind === 'mcp-ext' ? 0 : 8}
                   fill={isAdd ? '#faf5ff' : bg}
                   stroke={isHov || isLocked ? color : border}
-                  strokeWidth={isHov || isLocked ? 2 : 1}
+                  strokeWidth={node.kind === 'mcp-ext' ? 2 : (isHov || isLocked ? 2 : 1)}
                   strokeDasharray={isAdd ? '6,4' : 'none'}
                 />
                 {!isAdd && <line x1={34} y1={8} x2={34} y2={NODE_H - 8} stroke={border} strokeWidth={1} />}

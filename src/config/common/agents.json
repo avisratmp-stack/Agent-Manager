@@ -1,0 +1,4261 @@
+{
+  "$schema": "Agent registry — declares all agents (local and external). Local agents have a matching folder under ../agents/<slug>/",
+  "consumers": [
+    {
+      "id": "consumer-1",
+      "name": "Order Service",
+      "calls": [
+        "ensemble-agent",
+        "digital-commerce-agent"
+      ]
+    },
+    {
+      "id": "consumer-2",
+      "name": "Billing Service",
+      "calls": [
+        "log-agent",
+        "apm-agent"
+      ]
+    },
+    {
+      "id": "consumer-3",
+      "name": "CRM Portal",
+      "calls": [
+        "ensemble-agent",
+        "apm-agent"
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "id": 1,
+      "type": "local",
+      "role": "sub-agent",
+      "stage": "Dev",
+      "slug": "log-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "aggregate",
+            "scroll"
+          ],
+          "purpose": "Log storage, full-text search, and anomaly aggregation"
+        },
+        {
+          "serverId": "kafka",
+          "tools": [
+            "consume"
+          ],
+          "purpose": "Real-time log stream ingestion"
+        },
+        {
+          "serverId": "s3",
+          "tools": [
+            "get-object",
+            "list-objects"
+          ],
+          "purpose": "Retrieve archived log batches"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Log Agent",
+        "description": "Mock. Collects, parses, and analyzes application and infrastructure logs. Detects anomalies, correlates events, and surfaces actionable insights from log streams.",
+        "url": "http://localhost:8010",
+        "version": "2.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "log-search",
+            "name": "Log Search",
+            "description": "Full-text search across log indices",
+            "tags": [
+              "search",
+              "logs"
+            ]
+          },
+          {
+            "id": "pattern-detect",
+            "name": "Pattern Detection",
+            "description": "Identify recurring patterns and anomalies in log data",
+            "tags": [
+              "anomaly",
+              "ml"
+            ]
+          },
+          {
+            "id": "log-tail",
+            "name": "Live Tail",
+            "description": "Stream live log output from a service",
+            "tags": [
+              "streaming",
+              "realtime"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "framework.handlers.StreamingRequestHandler",
+          "args": {
+            "agent_executor": "services.log_executor.LogAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [],
+      "environment": "AOC"
+    },
+    {
+      "id": 2,
+      "type": "local",
+      "role": "sub-agent",
+      "stage": "Dev",
+      "slug": "apm-agent",
+      "calls": [
+        "log-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "jaeger",
+          "tools": [
+            "find-traces",
+            "get-trace",
+            "get-services"
+          ],
+          "purpose": "Distributed trace retrieval and analysis"
+        },
+        {
+          "serverId": "prometheus",
+          "tools": [
+            "query",
+            "query-range"
+          ],
+          "purpose": "Metric queries for latency, throughput, and error rates"
+        },
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search"
+          ],
+          "purpose": "Correlated log lookups from trace context"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "APM Agent",
+        "description": "Mock. Monitors application performance metrics — latency, throughput, error rates, and traces. Provides root-cause analysis and performance optimization recommendations.",
+        "url": "http://localhost:8020",
+        "version": "1.5.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "trace-analyze",
+            "name": "Trace Analysis",
+            "description": "Analyze distributed traces to find bottlenecks",
+            "tags": [
+              "tracing",
+              "performance"
+            ]
+          },
+          {
+            "id": "metric-query",
+            "name": "Metric Query",
+            "description": "Query time-series performance metrics",
+            "tags": [
+              "metrics",
+              "query"
+            ]
+          },
+          {
+            "id": "sla-check",
+            "name": "SLA Check",
+            "description": "Validate service-level agreement compliance",
+            "tags": [
+              "sla",
+              "compliance"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "framework.handlers.DefaultRequestHandler",
+          "args": {
+            "agent_executor": "services.apm_executor.ApmAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [],
+      "environment": "AOC"
+    },
+    {
+      "id": 4,
+      "type": "external",
+      "stage": "Draft",
+      "slug": null,
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "datadog",
+          "tools": [
+            "query-metrics",
+            "list-monitors",
+            "get-dashboard"
+          ],
+          "purpose": "Datadog metrics, monitors, and dashboard access"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Datadog Metrics Agent",
+        "description": "Mock. External agent provided by Datadog. Queries infrastructure and custom metrics, manages monitors and dashboards.",
+        "url": "https://api.datadoghq.com/agents/metrics-v1",
+        "version": "2.4.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "query-metrics",
+            "name": "Query Metrics",
+            "description": "Query Datadog metric time series",
+            "tags": [
+              "metrics",
+              "datadog"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "external.datadog.DatadogHandler",
+          "args": {
+            "agent_executor": "external.datadog.MetricsExecutor",
+            "task_store": "framework.task_stores.NoOpTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [],
+      "environment": "AOC"
+    },
+    {
+      "id": 5,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "ensemble-agent",
+      "calls": [
+        "log-agent",
+        "apm-agent",
+        "pagerduty-incident-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "jira",
+          "tools": [
+            "create-issue",
+            "add-comment"
+          ],
+          "purpose": "Create investigation tickets and attach findings"
+        },
+        "aoc-ticket-resolver",
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Ensemble Agent",
+        "description": "Mock. Orchestration agent that coordinates multiple observability agents to perform complex multi-step investigations. Combines log, APM, and incident data for holistic root-cause analysis.",
+        "url": "http://localhost:8050",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "investigate",
+            "name": "Investigate",
+            "description": "Run a multi-agent investigation across logs, traces, and incidents",
+            "tags": [
+              "orchestration",
+              "investigation"
+            ]
+          },
+          {
+            "id": "summarize",
+            "name": "Summarize",
+            "description": "Produce a unified incident summary from all agent outputs",
+            "tags": [
+              "summary",
+              "reporting"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "framework.handlers.OrchestratorHandler",
+          "args": {
+            "agent_executor": "services.ensemble_executor.EnsembleAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [],
+      "environment": "AOC"
+    },
+    {
+      "id": 9,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "trace-agent",
+      "calls": [
+        "log-agent",
+        "apm-agent"
+      ],
+      "mcpBindings": [
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "version": "1.0.0",
+        "name": "Trace Agent",
+        "capabilities": {
+          "async_execution": true,
+          "streaming": true
+        },
+        "description": "Mock. Coordinates distributed tracing across services. Calls Log Agent for correlated log retrieval and APM Agent for trace analysis and latency profiling.",
+        "tools": [
+          {
+            "description": "Search distributed traces by service, operation, or duration",
+            "name": "Trace Search",
+            "id": "trace-search",
+            "tags": [
+              "tracing",
+              "search"
+            ]
+          },
+          {
+            "description": "Analyze individual spans for errors, latency, and dependencies",
+            "name": "Span Analysis",
+            "id": "span-analysis",
+            "tags": [
+              "tracing",
+              "performance"
+            ]
+          },
+          {
+            "description": "Build a dependency map from trace data",
+            "name": "Service Map",
+            "id": "service-map",
+            "tags": [
+              "topology",
+              "visualization"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "framework.handlers.StreamingRequestHandler",
+          "args": {
+            "agent_executor": "services.trace_executor.TraceAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        },
+        "url": "http://localhost:8080"
+      },
+      "enabled": true,
+      "tags": [],
+      "environment": "AOC"
+    },
+    {
+      "id": 10,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "obs-troubleshooting-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "prometheus",
+          "tools": [
+            "query",
+            "query-range",
+            "alerts"
+          ],
+          "purpose": "Metric-based RCA — query error rates, latency, and saturation"
+        },
+        {
+          "serverId": "grafana",
+          "tools": [
+            "query-datasource",
+            "get-dashboard",
+            "get-annotations"
+          ],
+          "purpose": "Dashboard-driven investigation and annotation correlation"
+        },
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "aggregate"
+          ],
+          "purpose": "Log correlation during root-cause analysis"
+        },
+        {
+          "serverId": "jaeger",
+          "tools": [
+            "find-traces",
+            "get-trace"
+          ],
+          "purpose": "Distributed trace analysis for request-level RCA"
+        },
+        {
+          "serverId": "azure-monitor",
+          "tools": [
+            "query-log-analytics",
+            "retrieve-metrics",
+            "get-resource-health"
+          ],
+          "purpose": "Azure Monitor metrics and log queries for RCA"
+        },
+        {
+          "serverId": "azure-log-analytics",
+          "tools": [
+            "query-kql",
+            "natural-language-query"
+          ],
+          "purpose": "KQL-based log investigation on Azure workspaces"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Observability Troubleshooting Agent",
+        "description": "Imported (https://confluence/spaces/MN/pages/707071226/MSFN-59239+Observability+Observability+Troubleshooting+Agent-HLS). Agent-driven RCA across Prometheus, Grafana, Elasticsearch, Jaeger. AI agent troubleshoots app issues automatically replacing manual investigation. HIGH relevance — direct peer to AOC Obs Agent.",
+        "url": "https://msfn-obs-troubleshooting.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "rca-investigate",
+            "name": "RCA Investigate",
+            "description": "Run AI-driven root cause analysis across observability signals",
+            "tags": [
+              "rca",
+              "observability",
+              "ai"
+            ]
+          },
+          {
+            "id": "correlate-signals",
+            "name": "Correlate Signals",
+            "description": "Cross-correlate metrics, logs, and traces for a given incident",
+            "tags": [
+              "correlation",
+              "multi-signal"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.obs_troubleshooting.ObsTroubleshootingHandler",
+          "args": {
+            "agent_executor": "services.obs_troubleshooting.ObsTroubleshootingExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Imported",
+        "Imported-Confluence"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 11,
+      "type": "external",
+      "stage": "Draft",
+      "slug": null,
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "scroll"
+          ],
+          "purpose": "ECK-based log retrieval — fetches app logs per pod from Elastic on K8s"
+        },
+        {
+          "serverId": "kubernetes",
+          "tools": [
+            "get-pods",
+            "get-logs",
+            "describe-resource",
+            "list-events"
+          ],
+          "purpose": "K8s cluster introspection — pod status, events, and container logs"
+        },
+        {
+          "serverId": "azure-log-analytics",
+          "tools": [
+            "query-kql"
+          ],
+          "purpose": "Query AKS container logs via Azure Log Analytics"
+        },
+        {
+          "serverId": "azure-adx",
+          "tools": [
+            "execute-kql",
+            "get-schema"
+          ],
+          "purpose": "Kusto telemetry queries for K8s pod diagnostics"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Kubernetes Troubleshooting Agent",
+        "description": "Imported (https://confluence/spaces/MN/pages/604782079/MSFN-59239+Observability+Kubernetes+Troubleshooting+Agent-HLS). K8s troubleshooting agent with ECK MCP Server. Fetches app logs per service name, queries ES for root cause. HIGH relevance — built ECK MCP Server for log retrieval, reuse candidate for AOC log analytics.",
+        "url": "https://msfn-k8s-troubleshooting.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "pod-diagnose",
+            "name": "Pod Diagnose",
+            "description": "Diagnose pod failures using logs, events, and resource status",
+            "tags": [
+              "k8s",
+              "pods",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "cluster-health",
+            "name": "Cluster Health",
+            "description": "Assess overall cluster health and resource pressure",
+            "tags": [
+              "k8s",
+              "health",
+              "cluster"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.k8s_troubleshooting.K8sTroubleshootingHandler",
+          "args": {
+            "agent_executor": "services.k8s_troubleshooting.K8sTroubleshootingExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Imported",
+        "Imported-Confluence"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 12,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "ms360-operational-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "prometheus",
+          "tools": [
+            "query",
+            "query-range"
+          ],
+          "purpose": "Telemetry and metric queries for operational monitoring"
+        },
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "aggregate"
+          ],
+          "purpose": "Log analysis and operational event search"
+        },
+        {
+          "serverId": "grafana",
+          "tools": [
+            "query-datasource",
+            "list-dashboards"
+          ],
+          "purpose": "Operational dashboard queries and visualization"
+        },
+        {
+          "serverId": "azure-platform",
+          "tools": [
+            "get-resource",
+            "list-resources",
+            "get-app-insights"
+          ],
+          "purpose": "Azure resource discovery and App Insights telemetry"
+        },
+        {
+          "serverId": "azure-monitor",
+          "tools": [
+            "query-log-analytics",
+            "list-activity-logs"
+          ],
+          "purpose": "Operational monitoring across Azure resources"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "MS360 Operational Agent",
+        "description": "Imported (https://confluence/spaces/MN/pages/638131250/MS360+Operational+Agents). ms360ai-observability agent reveals telemetry, logs, metrics. Includes ms360ai-logging, ms360ai-tracing, ms360ai-istio leaf agents. HIGH relevance — operational agent architecture with leaf agents pattern, similar to AOC sub-agent model.",
+        "url": "https://ms360-operational.internal/agent",
+        "version": "2.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "telemetry-reveal",
+            "name": "Telemetry Reveal",
+            "description": "Surface and explain telemetry signals from application stack",
+            "tags": [
+              "telemetry",
+              "observability"
+            ]
+          },
+          {
+            "id": "operational-status",
+            "name": "Operational Status",
+            "description": "Aggregate operational health across services and infrastructure",
+            "tags": [
+              "operations",
+              "health"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ms360_operational.OperationalHandler",
+          "args": {
+            "agent_executor": "services.ms360_operational.OperationalExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Imported",
+        "Imported-Confluence"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 13,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "structured-logging-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "aggregate",
+            "index"
+          ],
+          "purpose": "Structured log storage, search, and contextual attribute indexing"
+        },
+        {
+          "serverId": "azure-log-analytics",
+          "tools": [
+            "query-kql",
+            "list-tables"
+          ],
+          "purpose": "Validate structured log schemas in Azure Log Analytics"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Structured Application Logging Agent",
+        "description": "Imported (https://confluence/spaces/MN/pages/664240983/MSFN-57640+-+Observability+Structured+Application+logging+with+Contextual+and+Error+attributes). Application-level structured logging with contextual + error attributes for faster RCA in app logs. MEDIUM relevance — enables richer log data for AOC Obs Agent to query, improves log-based RCA quality.",
+        "url": "https://structured-logging.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "enrich-logs",
+            "name": "Enrich Logs",
+            "description": "Enrich raw logs with contextual attributes, trace IDs, and error classification",
+            "tags": [
+              "logging",
+              "enrichment"
+            ]
+          },
+          {
+            "id": "validate-schema",
+            "name": "Validate Schema",
+            "description": "Validate log entries against structured logging schema",
+            "tags": [
+              "validation",
+              "schema"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.structured_logging.StructuredLoggingHandler",
+          "args": {
+            "agent_executor": "services.structured_logging.StructuredLoggingExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Imported",
+        "Imported-Confluence"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 14,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "wizai-troubleshooting-agent",
+      "calls": [],
+      "mcpBindings": [],
+      "agent": {
+        "name": "wizAI Troubleshooting Agent",
+        "description": "Imported (https://confluence/spaces/PSUPROFESSIONALSRV/pages/503428336/wizAI+Agentic+Troubleshooting+framework+for+Software+Development). AI-driven agentic RCA tool for software troubleshooting. Streamlines root cause investigation process. By Devendra Thakare, Alexander Shapiro. HIGH relevance — agentic troubleshooting already used by PSU, potential reuse or integration with AOC.",
+        "url": "https://wizai-troubleshooting.internal/agent",
+        "version": "3.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "auto-rca",
+            "name": "Auto RCA",
+            "description": "Autonomous root cause analysis with hypothesis generation and validation",
+            "tags": [
+              "rca",
+              "ai",
+              "autonomous"
+            ]
+          },
+          {
+            "id": "evidence-gather",
+            "name": "Evidence Gather",
+            "description": "Collect and rank evidence from logs, metrics, and tickets",
+            "tags": [
+              "evidence",
+              "investigation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.wizai_troubleshooting.TroubleshootingHandler",
+          "args": {
+            "agent_executor": "services.wizai_troubleshooting.TroubleshootingExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Imported",
+        "Imported-Confluence"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 15,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "observable-items-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-sentinel",
+          "tools": [
+            "list-incidents",
+            "hunt-data"
+          ],
+          "purpose": "Identify unmonitored security interaction points via Sentinel"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Observable Items Agent",
+        "description": "Imported (https://confluence/spaces/DrorShlomo/pages/300502264/Portfolio+View+Non+MS360+Observable+Items). Gap analysis tracking application interaction points NOT yet covered by MS360 observability. LOW relevance — may reveal areas where AOC Obs Agent can add value.",
+        "url": "https://observable-items.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "gap-scan",
+            "name": "Gap Scan",
+            "description": "Scan application topology and identify unmonitored interaction points",
+            "tags": [
+              "gap-analysis",
+              "coverage"
+            ]
+          },
+          {
+            "id": "coverage-report",
+            "name": "Coverage Report",
+            "description": "Generate observability coverage report with recommendations",
+            "tags": [
+              "reporting",
+              "recommendations"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.observable_items.ObservableItemsHandler",
+          "args": {
+            "agent_executor": "services.observable_items.ObservableItemsExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Imported",
+        "Imported-Confluence"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 16,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "production-anomaly-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-monitor",
+          "tools": [
+            "query-log-analytics",
+            "retrieve-metrics"
+          ],
+          "purpose": "Detect anomalies in Azure-hosted TLG production workloads"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Production Anomaly Agent",
+        "description": "ATT Import. Detection of new error messages in production and resolution provider. Owner: Peddi T. Developed by: Peddi & team (Amdocs-ATT Site team). Tool: Cursor/Copilot. Status: In Progress. Uses production stats for TLG applications.",
+        "url": "https://att-production-anomaly.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "anomaly-detect",
+            "name": "Anomaly Detect",
+            "description": "Detect new and unknown error messages in production logs",
+            "tags": [
+              "anomaly",
+              "detection",
+              "production"
+            ]
+          },
+          {
+            "id": "resolution-suggest",
+            "name": "Resolution Suggest",
+            "description": "Provide resolution recommendations for detected anomalies",
+            "tags": [
+              "resolution",
+              "rca",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.production_anomaly.ProductionAnomalyHandler",
+          "args": {
+            "agent_executor": "services.production_anomaly.ProductionAnomalyExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "ATT",
+        "Imported",
+        "Imported-ATT"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 17,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "investigate-now-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-cosmosdb",
+          "tools": [
+            "query",
+            "list-containers"
+          ],
+          "purpose": "Query Cosmos DB for application state during investigation"
+        },
+        {
+          "serverId": "azure-log-analytics",
+          "tools": [
+            "query-kql"
+          ],
+          "purpose": "Log-based evidence gathering from Azure workspaces"
+        }
+      ],
+      "agent": {
+        "name": "Investigate Now",
+        "description": "ATT Import. Assists with issue analysis and determines root cause for LS-OMS. Owner: OMS T1. Developed by: Karan/Mohan Selvakumar (USA). Tool: Cursor. Status: Not Started. Uses non-prod data.",
+        "url": "https://att-investigate-now.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "issue-analyze",
+            "name": "Issue Analyze",
+            "description": "Analyze reported issues by correlating logs, metrics, and ticket history",
+            "tags": [
+              "analysis",
+              "rca",
+              "investigation"
+            ]
+          },
+          {
+            "id": "root-cause-determine",
+            "name": "Root Cause Determine",
+            "description": "Determine root cause from gathered evidence and produce findings report",
+            "tags": [
+              "rca",
+              "determination",
+              "report"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.investigate_now.InvestigateNowHandler",
+          "args": {
+            "agent_executor": "services.investigate_now.InvestigateNowExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "ATT",
+        "Imported",
+        "Imported-ATT"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 18,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "smart-shift-summary-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-servicebus",
+          "tools": [
+            "peek-messages",
+            "peek-dlq",
+            "get-queue-runtime"
+          ],
+          "purpose": "Check Azure Service Bus queues and DLQ for shift events"
+        },
+        "aoc-ticket-resolver"
+      ],
+      "agent": {
+        "name": "Smart Shift Summary Agent",
+        "description": "ATT Import. Automatically gathers all incidents, alerts, chats, calls, and key events from entire shift. Generates clean end-of-shift summary for handover. Owner: Victor Orantes. Developed by: Jared Islas / Victor Orantes (Mexico). Tool: Cursor. Status: In Progress. Target: AMOC.",
+        "url": "https://att-smart-shift-summary.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "shift-collect",
+            "name": "Shift Collect",
+            "description": "Gather all incidents, alerts, chats, calls, and events from a shift window",
+            "tags": [
+              "shift",
+              "collection",
+              "events"
+            ]
+          },
+          {
+            "id": "summary-generate",
+            "name": "Summary Generate",
+            "description": "Generate clean, accurate end-of-shift summary ready for handover",
+            "tags": [
+              "summary",
+              "handover",
+              "report"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.smart_shift_summary.SmartShiftSummaryHandler",
+          "args": {
+            "agent_executor": "services.smart_shift_summary.SmartShiftSummaryExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "ATT",
+        "Imported",
+        "Imported-ATT"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 19,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "first-alert-fixer-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "outlook",
+          "tools": [
+            "search-mail",
+            "get-mail"
+          ],
+          "purpose": "Scan Outlook inbox for production alert emails"
+        }
+      ],
+      "agent": {
+        "name": "FIRST - Alert Fixer",
+        "description": "ATT Import. Scans Outlook for production alerts and takes automated actions. Owner: Pradip. Developed by: Hiral Vyas, Pradip (India). Tool: Cursor. Status: In Progress. Targets T1/T2 production and non-production environments.",
+        "url": "https://att-first-alert-fixer.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "alert-scan",
+            "name": "Alert Scan",
+            "description": "Scan Outlook inbox for production alert emails matching known patterns",
+            "tags": [
+              "alerts",
+              "email",
+              "scan"
+            ]
+          },
+          {
+            "id": "alert-action",
+            "name": "Alert Action",
+            "description": "Take automated remediation actions on detected production alerts",
+            "tags": [
+              "remediation",
+              "automation",
+              "alerts"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.first_alert_fixer.AlertFixerHandler",
+          "args": {
+            "agent_executor": "services.first_alert_fixer.AlertFixerExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "ATT",
+        "Imported",
+        "Imported-ATT"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 20,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "britebill-sanity-agent",
+      "calls": [],
+      "mcpBindings": [
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "BriteBill Sanity Agent",
+        "description": "ATT Import. Auto sanity, health checkup, and error handling from logs in BriteBill and FBF. Owner: Viji Ramalingam. Developed by: Harshini Mandava (India). Tool: Cursor. Status: Completed. Targets production operations.",
+        "url": "https://att-britebill-sanity.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "sanity-check",
+            "name": "Sanity Check",
+            "description": "Run automated sanity and health checks across BriteBill and FBF services",
+            "tags": [
+              "sanity",
+              "health",
+              "monitoring"
+            ]
+          },
+          {
+            "id": "error-handle",
+            "name": "Error Handle",
+            "description": "Detect and handle errors from BriteBill application logs",
+            "tags": [
+              "errors",
+              "logs",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.britebill_sanity.BriteBillSanityHandler",
+          "args": {
+            "agent_executor": "services.britebill_sanity.BriteBillSanityExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "ATT",
+        "Imported",
+        "Imported-ATT"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 21,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "elastic-log-analysis-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "aggregate"
+          ],
+          "purpose": "Query and analyze Elasticsearch log indices for AI-driven RCA"
+        },
+        {
+          "serverId": "azure-log-analytics",
+          "tools": [
+            "query-kql",
+            "natural-language-query"
+          ],
+          "purpose": "Azure Log Analytics as additional log source for AI-driven RCA"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Elastic ChatGPT Log Analysis",
+        "description": "import-web: https://github.com/elastic/chatgpt-log-analysis — ChatGPT-powered automated log analysis and root cause analysis over Elasticsearch. Uses LLM to interpret log patterns, detect anomalies, and produce human-readable RCA summaries from raw log data.",
+        "url": "https://elastic-log-analysis.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "log-rca",
+            "name": "Log RCA",
+            "description": "Run AI-driven root cause analysis over Elasticsearch logs",
+            "tags": [
+              "rca",
+              "logs",
+              "ai"
+            ]
+          },
+          {
+            "id": "anomaly-explain",
+            "name": "Anomaly Explain",
+            "description": "Explain detected log anomalies in natural language",
+            "tags": [
+              "anomaly",
+              "explanation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.elastic_log_analysis.ElasticLogAnalysisHandler",
+          "args": {
+            "agent_executor": "services.elastic_log_analysis.ElasticLogAnalysisExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 22,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "elasticsearch-langchain-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search",
+            "aggregate"
+          ],
+          "purpose": "LangChain ReAct agent queries Elasticsearch for log investigation"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Elasticsearch LangChain Agent",
+        "description": "import-web: https://github.com/onepointconsulting/elasticsearch-agent — LangChain + ChatGPT agent that queries and analyzes Elasticsearch data using the ReAct reasoning pattern. Includes Chainlit UI for interactive log investigation and conversational troubleshooting.",
+        "url": "https://es-langchain-agent.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "react-query",
+            "name": "ReAct Query",
+            "description": "Iterative reason-and-act queries against Elasticsearch",
+            "tags": [
+              "react",
+              "langchain",
+              "query"
+            ]
+          },
+          {
+            "id": "interactive-investigate",
+            "name": "Interactive Investigate",
+            "description": "Conversational log investigation via Chainlit UI",
+            "tags": [
+              "chat",
+              "investigation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.es_langchain.EsLangchainHandler",
+          "args": {
+            "agent_executor": "services.es_langchain.EsLangchainExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 23,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "k8s-cursor-plugin-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "kubernetes",
+          "tools": [
+            "get-pods",
+            "get-logs",
+            "describe-resource",
+            "get-deployments"
+          ],
+          "purpose": "K8s cluster management via Cursor IDE plugin"
+        }
+      ],
+      "agent": {
+        "name": "Kubernetes Cursor Plugin",
+        "description": "import-web: https://cursor.directory/mcp/kubernetes — Kubernetes MCP plugin for Cursor IDE enabling pod, deployment, and service management directly from the editor. Provides natural-language K8s operations without leaving the development environment.",
+        "url": "https://cursor.directory/mcp/kubernetes",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "k8s-manage",
+            "name": "K8s Manage",
+            "description": "Manage pods, deployments, and services via natural language",
+            "tags": [
+              "k8s",
+              "management",
+              "cursor"
+            ]
+          },
+          {
+            "id": "k8s-status",
+            "name": "K8s Status",
+            "description": "Query cluster status and resource health from Cursor",
+            "tags": [
+              "k8s",
+              "status"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.k8s_cursor_plugin.K8sCursorPluginHandler",
+          "args": {
+            "agent_executor": "services.k8s_cursor_plugin.K8sCursorPluginExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 24,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "aws-oasis-agent",
+      "calls": [],
+      "mcpBindings": [
+        "aoc-ticket-resolver",
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "AWS OASIS Operational AI Agent",
+        "description": "import-web: https://github.com/aws-samples/sample-operational-ai-agent — Amazon Bedrock + Strands agent for incident management. Integrates OpenSearch for logs/metrics, anomaly detection, and human-in-the-loop approvals. Full operational AI lifecycle from detection to resolution.",
+        "url": "https://aws-oasis.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "incident-manage",
+            "name": "Incident Manage",
+            "description": "AI-driven incident lifecycle management with human-in-loop approval",
+            "tags": [
+              "incident",
+              "ai",
+              "hitl"
+            ]
+          },
+          {
+            "id": "anomaly-detect",
+            "name": "Anomaly Detect",
+            "description": "Detect anomalies across OpenSearch logs and metrics",
+            "tags": [
+              "anomaly",
+              "detection"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.aws_oasis.AwsOasisHandler",
+          "args": {
+            "agent_executor": "services.aws_oasis.AwsOasisExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 25,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "aws-observability-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-monitor",
+          "tools": [
+            "query-log-analytics",
+            "retrieve-metrics"
+          ],
+          "purpose": "Azure Monitor for cross-cloud observability correlation"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "AWS Observability Agent (Bedrock)",
+        "description": "import-web: https://github.com/aws-samples/sample-observability-agent-bedrock-agentcore — SRE-focused observability agent built on Bedrock AgentCore. Queries OpenSearch Serverless, Prometheus, and distributed traces to reduce MTTR through automated investigation and correlation.",
+        "url": "https://aws-obs-bedrock.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "sre-investigate",
+            "name": "SRE Investigate",
+            "description": "Automated SRE investigation across logs, metrics, and traces",
+            "tags": [
+              "sre",
+              "investigation",
+              "mttr"
+            ]
+          },
+          {
+            "id": "signal-correlate",
+            "name": "Signal Correlate",
+            "description": "Correlate signals from OpenSearch, Prometheus, and tracing backends",
+            "tags": [
+              "correlation",
+              "observability"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.aws_observability.AwsObservabilityHandler",
+          "args": {
+            "agent_executor": "services.aws_observability.AwsObservabilityExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 26,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "opsagent-monitoring",
+      "calls": [],
+      "mcpBindings": [
+        "aoc-ticket-resolver",
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "OpsAgent (AI Monitoring)",
+        "description": "import-web: https://github.com/goshops-com/opsagent — AI-powered system monitoring daemon. Collects NetData metrics, performs AI-driven analysis and remediation, supports multiple AI providers, and sends Discord alerts. Self-healing infrastructure monitoring.",
+        "url": "https://opsagent-monitoring.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "system-monitor",
+            "name": "System Monitor",
+            "description": "Continuous AI-powered system health monitoring via NetData",
+            "tags": [
+              "monitoring",
+              "netdata",
+              "ai"
+            ]
+          },
+          {
+            "id": "auto-remediate",
+            "name": "Auto Remediate",
+            "description": "AI-driven remediation actions based on detected anomalies",
+            "tags": [
+              "remediation",
+              "self-healing"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.opsagent_monitoring.OpsAgentMonitoringHandler",
+          "args": {
+            "agent_executor": "services.opsagent_monitoring.OpsAgentMonitoringExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 27,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "telecom-mas-agent",
+      "calls": [],
+      "mcpBindings": [],
+      "agent": {
+        "name": "Telecom MAS Agent",
+        "description": "import-web: https://github.com/darshanbmehta/telecom-mas-agent — Conversational AI multi-agent system for telco operations. Handles sentiment analysis, intelligent call routing, balance management, and fraud detection across customer interactions.",
+        "url": "https://telecom-mas.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "call-route",
+            "name": "Call Route",
+            "description": "Intelligent call routing based on sentiment and intent analysis",
+            "tags": [
+              "routing",
+              "sentiment",
+              "telco"
+            ]
+          },
+          {
+            "id": "fraud-detect",
+            "name": "Fraud Detect",
+            "description": "Real-time fraud detection across customer interactions",
+            "tags": [
+              "fraud",
+              "detection",
+              "telco"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.telecom_mas.TelecomMasHandler",
+          "args": {
+            "agent_executor": "services.telecom_mas.TelecomMasExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 28,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "dual-layer-observability-agent",
+      "calls": [],
+      "mcpBindings": [
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Dual-Layer Agent Observability",
+        "description": "import-web: https://medium.com/@dinesh707/first-class-observability-stack-for-ai-agents-278d0f6eba74 — Architecture reference for telemetry as first-class agent memory. Implements dual-layer pattern with local buffers and centralized collection, optimized for cost and latency.",
+        "url": "https://dual-layer-obs.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "telemetry-buffer",
+            "name": "Telemetry Buffer",
+            "description": "Local telemetry buffering with cost/latency optimization",
+            "tags": [
+              "telemetry",
+              "buffer",
+              "architecture"
+            ]
+          },
+          {
+            "id": "centralized-collect",
+            "name": "Centralized Collect",
+            "description": "Aggregate local agent telemetry into centralized observability",
+            "tags": [
+              "collection",
+              "centralized"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.dual_layer_obs.DualLayerObsHandler",
+          "args": {
+            "agent_executor": "services.dual_layer_obs.DualLayerObsExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 29,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "elastic-otel-langchain-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "elasticsearch",
+          "tools": [
+            "search"
+          ],
+          "purpose": "Elastic APM backend for OTel trace storage and analysis"
+        },
+        {
+          "serverId": "jaeger",
+          "tools": [
+            "find-traces",
+            "get-trace"
+          ],
+          "purpose": "Distributed trace capture from LangChain via OpenTelemetry"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Elastic OTel LangChain Tracing",
+        "description": "import-web: https://www.elastic.co/observability-labs/blog/elastic-opentelemetry-langchain-tracing-langtrace — Observing LangChain apps with Elastic + OpenTelemetry + Langtrace. Auto-captures traces from LLM calls, vector DB operations, and framework internals for full AI pipeline visibility.",
+        "url": "https://elastic-otel-langchain.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "llm-trace",
+            "name": "LLM Trace",
+            "description": "Auto-capture OpenTelemetry traces from LLM and vector DB calls",
+            "tags": [
+              "otel",
+              "tracing",
+              "llm"
+            ]
+          },
+          {
+            "id": "pipeline-observe",
+            "name": "Pipeline Observe",
+            "description": "End-to-end observability of LangChain AI pipelines",
+            "tags": [
+              "langchain",
+              "observability",
+              "pipeline"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.elastic_otel_langchain.ElasticOtelLangchainHandler",
+          "args": {
+            "agent_executor": "services.elastic_otel_langchain.ElasticOtelLangchainExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 30,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "servicenow-l1-agent",
+      "calls": [],
+      "mcpBindings": [
+        "aoc-ticket-resolver"
+      ],
+      "agent": {
+        "name": "ServiceNow AI (90% L1 Resolution)",
+        "description": "import-web: https://www.theregister.com/2026/02/26/servicenow_ai_bot_helpdesk_tickets/ — ServiceNow AI agent autonomously resolving 90% of L1 help desk tickets. Handles password resets, access requests, VPN issues, and routine IT tasks without human intervention.",
+        "url": "https://servicenow-l1-ai.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "ticket-resolve",
+            "name": "Ticket Resolve",
+            "description": "Autonomously resolve L1 help desk tickets (password, access, VPN)",
+            "tags": [
+              "l1",
+              "resolution",
+              "automation"
+            ]
+          },
+          {
+            "id": "ticket-triage",
+            "name": "Ticket Triage",
+            "description": "Classify and route tickets that require human intervention",
+            "tags": [
+              "triage",
+              "routing"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.servicenow_l1.ServiceNowL1Handler",
+          "args": {
+            "agent_executor": "services.servicenow_l1.ServiceNowL1Executor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 31,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "azure-copilot-obs-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-monitor",
+          "tools": [
+            "query-log-analytics",
+            "retrieve-metrics",
+            "get-resource-health"
+          ],
+          "purpose": "Query Azure Monitor metrics, logs, and resource health for investigation"
+        },
+        {
+          "serverId": "azure-log-analytics",
+          "tools": [
+            "query-kql",
+            "natural-language-query"
+          ],
+          "purpose": "KQL-based log investigation across Azure workspaces"
+        },
+        {
+          "serverId": "azure-platform",
+          "tools": [
+            "get-resource",
+            "get-app-insights"
+          ],
+          "purpose": "Azure resource context and Application Insights correlation"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Azure Copilot Observability Agent",
+        "description": "Imported-web-azure: https://learn.microsoft.com/en-us/azure/copilot/observability-agent — Microsoft AI-powered investigation agent (preview). Detects and correlates anomalies from metrics, logs, and observability signals. Full-stack coverage: App Services, VMs, AKS. Generates actionable findings.",
+        "url": "https://azure-copilot-obs.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "anomaly-investigate",
+            "name": "Anomaly Investigate",
+            "description": "Detect and correlate anomalies across Azure metrics, logs, and traces",
+            "tags": [
+              "anomaly",
+              "azure",
+              "investigation"
+            ]
+          },
+          {
+            "id": "actionable-findings",
+            "name": "Actionable Findings",
+            "description": "Generate actionable findings with root cause and remediation steps",
+            "tags": [
+              "rca",
+              "findings",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.azure_copilot_obs.AzureCopilotObsHandler",
+          "args": {
+            "agent_executor": "services.azure_copilot_obs.AzureCopilotObsExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Azure",
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 32,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "azure-sentinel-ref-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-sentinel",
+          "tools": [
+            "list-incidents",
+            "retrieve-alerts",
+            "hunt-data"
+          ],
+          "purpose": "Sentinel threat hunting and incident triage"
+        },
+        "aoc-log-aggregator"
+      ],
+      "agent": {
+        "name": "Azure Sentinel Reference Agent",
+        "description": "Imported-web-azure: https://github.com/Azure/Azure-Sentinel — Cloud-native SIEM reference with 4000+ community detection rules, playbooks, hunting queries, and workbooks. Provides security analytics patterns applicable to AOC security observability.",
+        "url": "https://azure-sentinel-ref.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "detection-rules",
+            "name": "Detection Rules",
+            "description": "Apply community detection rules for security threat identification",
+            "tags": [
+              "detection",
+              "security",
+              "siem"
+            ]
+          },
+          {
+            "id": "hunting-queries",
+            "name": "Hunting Queries",
+            "description": "Execute KQL-based threat hunting queries across Sentinel data",
+            "tags": [
+              "hunting",
+              "kql",
+              "threat"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.azure_sentinel_ref.AzureSentinelRefHandler",
+          "args": {
+            "agent_executor": "services.azure_sentinel_ref.AzureSentinelRefExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Azure",
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 33,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "azure-container-apps-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-platform",
+          "tools": [
+            "get-resource",
+            "list-resources"
+          ],
+          "purpose": "Azure Container Apps resource management"
+        }
+      ],
+      "agent": {
+        "name": "Azure Container Apps AI+MCP Playground",
+        "description": "Imported-web-azure: https://github.com/Azure-Samples/azure-container-apps-ai-mcp — Sample showing MCP protocol usage with Azure OpenAI on Container Apps. Agent hosting pattern for Azure deployments. Reference architecture for deploying MCP-based agents on Azure.",
+        "url": "https://azure-container-apps.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "deploy-agent",
+            "name": "Deploy Agent",
+            "description": "Deploy MCP-based agents on Azure Container Apps",
+            "tags": [
+              "deployment",
+              "azure",
+              "container-apps"
+            ]
+          },
+          {
+            "id": "mcp-playground",
+            "name": "MCP Playground",
+            "description": "Test MCP protocol integration with Azure OpenAI",
+            "tags": [
+              "mcp",
+              "playground",
+              "openai"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.azure_container_apps.AzureContainerAppsHandler",
+          "args": {
+            "agent_executor": "services.azure_container_apps.AzureContainerAppsExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Azure",
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 34,
+      "type": "local",
+      "stage": "Draft",
+      "slug": "azure-mcp-samples-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "azure-platform",
+          "tools": [
+            "list-resources"
+          ],
+          "purpose": "Azure resource discovery for sample MCP integration"
+        }
+      ],
+      "agent": {
+        "name": "Azure MCP Samples Hub",
+        "description": "Imported-web-azure: https://github.com/Azure-Samples/mcp — Microsoft MCP hub with links to C#/Python/TypeScript/Java SDKs. Plug-and-play servers for Azure CLI, K8s, and infrastructure APIs. Reference for building custom Azure MCP integrations.",
+        "url": "https://azure-mcp-samples.internal/agent",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "sdk-catalog",
+            "name": "SDK Catalog",
+            "description": "Browse available Azure MCP SDKs (C#, Python, TypeScript, Java)",
+            "tags": [
+              "sdk",
+              "catalog",
+              "reference"
+            ]
+          },
+          {
+            "id": "sample-discover",
+            "name": "Sample Discover",
+            "description": "Discover and retrieve plug-and-play MCP server samples",
+            "tags": [
+              "samples",
+              "discovery"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.azure_mcp_samples.AzureMcpSamplesHandler",
+          "args": {
+            "agent_executor": "services.azure_mcp_samples.AzureMcpSamplesExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Azure",
+        "Imported",
+        "Imported-Web"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 35,
+      "type": "local",
+      "role": "public",
+      "stage": "Dev",
+      "slug": "default-observer-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "search-traces",
+            "get-topology",
+            "get-span-detail",
+            "get-service-metrics",
+            "get-endpoint-metrics",
+            "get-alarms"
+          ],
+          "purpose": "Chapter 1 & 3: Trace topology mapping, broken span identification, and infrastructure health correlation"
+        },
+        {
+          "serverId": "mcp-opensearch",
+          "tools": [
+            "search-logs",
+            "get-logs-by-trace",
+            "get-error-logs",
+            "get-stack-trace",
+            "aggregate-log-stats"
+          ],
+          "purpose": "Chapter 2: Technical isolation — log extraction, stack trace analysis, and error context"
+        },
+        {
+          "serverId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "get-consumer-lag",
+            "list-dlq-topics",
+            "get-topic-stats"
+          ],
+          "purpose": "Chapter 3: Message flow audit — DLQ inspection and consumer health"
+        },
+        {
+          "serverId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history",
+            "get-entity-status",
+            "compare-states"
+          ],
+          "purpose": "Chapter 4: Business data truth — entity state verification and discrepancy detection"
+        }
+      ],
+      "agent": {
+        "name": "Default Observer Agent",
+        "description": "Master SRE agent that resolves tickets via a 4-phase investigation: Trace Topology (APM), Technical Isolation (OpenSearch), Message Flow & System Health (Kafka), and Business Data Truth (Digital Mass). Provides Quick RCA summary and correlated findings.",
+        "version": "1.0.0",
+        "url": "http://localhost:9035",
+        "model": "gpt-4o",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "investigate-ticket",
+            "name": "investigate-ticket",
+            "description": "Run the full 4-phase RCA investigation for a ticket or business entity",
+            "tags": [
+              "rca",
+              "investigation",
+              "log",
+              "APM",
+              "Business",
+              "Digital",
+              "D1"
+            ]
+          },
+          {
+            "id": "quick-rca",
+            "name": "quick-rca",
+            "description": "Provide a 2-line Root Cause Analysis summary (Issue, Status, Recommendation)",
+            "tags": [
+              "rca",
+              "summary"
+            ]
+          },
+          {
+            "id": "trace-topology",
+            "name": "trace-topology",
+            "description": "Chapter 1: Locate and map the trace topology for a business entity",
+            "tags": [
+              "tracing",
+              "topology"
+            ]
+          },
+          {
+            "id": "isolate-error",
+            "name": "isolate-error",
+            "description": "Chapter 2: Extract logs and stack traces to identify the smoking gun",
+            "tags": [
+              "logs",
+              "errors"
+            ]
+          },
+          {
+            "id": "audit-message-flow",
+            "name": "audit-message-flow",
+            "description": "Chapter 3: Check DLQ, consumer lag, and infra health at failure time",
+            "tags": [
+              "kafka",
+              "messaging"
+            ]
+          },
+          {
+            "id": "verify-business-state",
+            "name": "verify-business-state",
+            "description": "Chapter 4: Query business DB to validate entity final state vs expected",
+            "tags": [
+              "data",
+              "verification"
+            ]
+          },
+          {
+            "id": "correlate-findings",
+            "name": "correlate-findings",
+            "description": "Cross-correlate data from all 4 chapters and produce a unified incident report",
+            "tags": [
+              "correlation",
+              "report"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "agents.default_observer.DefaultObserverHandler",
+          "args": {
+            "agent_executor": "agents.default_observer.DefaultObserverExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-1",
+        "SRE",
+        "RCA",
+        "Observability"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 36,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-change-offer-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer",
+            "validate-eligibility",
+            "get-pricing"
+          ],
+          "purpose": "Primary data source for Offer change failures, migration errors"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Change Offer Agent",
+        "description": "CES Digital Business Domain agent. Handles: Offer change failures, migration errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9100",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-offer-change",
+            "name": "Diagnose Offer Change",
+            "description": "Analyze offer change failures including migration and catalog mismatch errors",
+            "tags": [
+              "offer",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "validate-offer-state",
+            "name": "Validate Offer State",
+            "description": "Verify offer state consistency across ordering and catalog systems",
+            "tags": [
+              "validation",
+              "offer"
+            ]
+          },
+          {
+            "id": "resolve-migration-error",
+            "name": "Resolve Migration Error",
+            "description": "Identify and resolve offer migration errors with rollback options",
+            "tags": [
+              "migration",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_change_offer_agent.CesChangeOfferAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_change_offer_agent.CesChangeOfferAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 37,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-submit-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order",
+            "list-orders",
+            "get-order-status",
+            "cancel-order"
+          ],
+          "purpose": "Primary data source for Order submission failures, validation errors"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Submit Order Agent",
+        "description": "CES Digital Business Domain agent. Handles: Order submission failures, validation errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9101",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-submission",
+            "name": "Diagnose Submission",
+            "description": "Analyze order submission failures and validation errors",
+            "tags": [
+              "order",
+              "submission"
+            ]
+          },
+          {
+            "id": "validate-order-payload",
+            "name": "Validate Order Payload",
+            "description": "Validate order payload against schema and business rules",
+            "tags": [
+              "validation",
+              "payload"
+            ]
+          },
+          {
+            "id": "retry-submission",
+            "name": "Retry Submission",
+            "description": "Retry failed order submission with corrected parameters",
+            "tags": [
+              "retry",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_submit_order_agent.CesSubmitOrderAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_submit_order_agent.CesSubmitOrderAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 38,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-change-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order",
+            "list-orders",
+            "get-order-status",
+            "cancel-order"
+          ],
+          "purpose": "Primary data source for Order modification failures, in-flight change errors"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Change Order Agent",
+        "description": "CES Digital Business Domain agent. Handles: Order modification failures, in-flight change errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9102",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-order-change",
+            "name": "Diagnose Order Change",
+            "description": "Analyze in-flight order modification failures",
+            "tags": [
+              "order",
+              "change"
+            ]
+          },
+          {
+            "id": "validate-change-eligibility",
+            "name": "Validate Change Eligibility",
+            "description": "Check if order is eligible for modification at current state",
+            "tags": [
+              "eligibility",
+              "validation"
+            ]
+          },
+          {
+            "id": "rollback-change",
+            "name": "Rollback Change",
+            "description": "Roll back failed order changes to previous consistent state",
+            "tags": [
+              "rollback",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_change_order_agent.CesChangeOrderAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_change_order_agent.CesChangeOrderAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 39,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-billing-dispute-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for Invoice mismatches, overcharges, proration errors, credit disputes"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Billing Dispute Agent",
+        "description": "CES Digital Business Domain agent. Handles: Invoice mismatches, overcharges, proration errors, credit disputes. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9103",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "analyze-dispute",
+            "name": "Analyze Dispute",
+            "description": "Analyze billing dispute by comparing invoices, charges, and payment records",
+            "tags": [
+              "dispute",
+              "billing"
+            ]
+          },
+          {
+            "id": "calculate-adjustment",
+            "name": "Calculate Adjustment",
+            "description": "Calculate credit/debit adjustments for valid disputes",
+            "tags": [
+              "adjustment",
+              "credit"
+            ]
+          },
+          {
+            "id": "resolve-proration",
+            "name": "Resolve Proration",
+            "description": "Identify and fix proration calculation errors",
+            "tags": [
+              "proration",
+              "fix"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_billing_dispute_agent.CesBillingDisputeAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_billing_dispute_agent.CesBillingDisputeAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 40,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-provisioning-failure-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order",
+            "list-orders",
+            "get-order-status",
+            "cancel-order"
+          ],
+          "purpose": "Primary data source for Activation failures, NE sync errors, workflow stuck states"
+        },
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Provisioning Failure Agent",
+        "description": "CES Digital Business Domain agent. Handles: Activation failures, NE sync errors, workflow stuck states. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9104",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-provisioning",
+            "name": "Diagnose Provisioning",
+            "description": "Analyze provisioning failures including NE sync and activation errors",
+            "tags": [
+              "provisioning",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "retry-activation",
+            "name": "Retry Activation",
+            "description": "Retry failed service activation with corrected parameters",
+            "tags": [
+              "activation",
+              "retry"
+            ]
+          },
+          {
+            "id": "check-workflow-state",
+            "name": "Check Workflow State",
+            "description": "Inspect and unstick provisioning workflow states",
+            "tags": [
+              "workflow",
+              "state"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_provisioning_failure_agent.CesProvisioningFailureAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_provisioning_failure_agent.CesProvisioningFailureAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 41,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-number-porting-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions",
+            "update-customer",
+            "get-account"
+          ],
+          "purpose": "Primary data source for MNP rejections, port-in/out failures, clearinghouse timeouts"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Number Porting Agent",
+        "description": "CES Digital Business Domain agent. Handles: MNP rejections, port-in/out failures, clearinghouse timeouts. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9105",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-porting",
+            "name": "Diagnose Porting",
+            "description": "Analyze MNP porting failures and clearinghouse rejections",
+            "tags": [
+              "porting",
+              "MNP"
+            ]
+          },
+          {
+            "id": "validate-porting-request",
+            "name": "Validate Porting Request",
+            "description": "Validate porting request against donor/recipient network rules",
+            "tags": [
+              "validation",
+              "porting"
+            ]
+          },
+          {
+            "id": "retry-port-request",
+            "name": "Retry Port Request",
+            "description": "Resubmit failed port-in/out requests",
+            "tags": [
+              "retry",
+              "porting"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_number_porting_agent.CesNumberPortingAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_number_porting_agent.CesNumberPortingAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 42,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-payment-processing-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for Payment gateway failures, retry exhaustion, dunning cycle errors"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Payment Processing Agent",
+        "description": "CES Digital Business Domain agent. Handles: Payment gateway failures, retry exhaustion, dunning cycle errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9106",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-payment",
+            "name": "Diagnose Payment",
+            "description": "Analyze payment gateway failures and transaction errors",
+            "tags": [
+              "payment",
+              "diagnosis"
+            ]
+          },
+          {
+            "id": "retry-payment",
+            "name": "Retry Payment",
+            "description": "Retry failed payment with alternative gateway or parameters",
+            "tags": [
+              "retry",
+              "payment"
+            ]
+          },
+          {
+            "id": "check-dunning-cycle",
+            "name": "Check Dunning Cycle",
+            "description": "Inspect dunning cycle state and escalation status",
+            "tags": [
+              "dunning",
+              "collections"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_payment_processing_agent.CesPaymentProcessingAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_payment_processing_agent.CesPaymentProcessingAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 43,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-sim-esim-activation-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config",
+            "list-configs",
+            "get-config-history"
+          ],
+          "purpose": "Primary data source for SIM swap failures, eSIM profile push errors, HLR/HSS sync"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: SIM/eSIM Activation Agent",
+        "description": "CES Digital Business Domain agent. Handles: SIM swap failures, eSIM profile push errors, HLR/HSS sync. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9107",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-sim-activation",
+            "name": "Diagnose SIM Activation",
+            "description": "Analyze SIM swap and eSIM profile push failures",
+            "tags": [
+              "SIM",
+              "eSIM"
+            ]
+          },
+          {
+            "id": "check-hlr-sync",
+            "name": "Check HLR/HSS Sync",
+            "description": "Verify HLR/HSS synchronization status for subscriber",
+            "tags": [
+              "HLR",
+              "HSS",
+              "sync"
+            ]
+          },
+          {
+            "id": "repush-esim-profile",
+            "name": "Repush eSIM Profile",
+            "description": "Re-trigger eSIM profile download to device",
+            "tags": [
+              "eSIM",
+              "remediation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_sim_esim_activation_agent.CesSimEsimActivationAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_sim_esim_activation_agent.CesSimEsimActivationAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 44,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-rating-charging-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for CDR rejection, zero-rating anomalies, balance depletion errors"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Rating & Charging Agent",
+        "description": "CES Digital Business Domain agent. Handles: CDR rejection, zero-rating anomalies, balance depletion errors. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9108",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-rating",
+            "name": "Diagnose Rating",
+            "description": "Analyze CDR rejection and rating anomalies",
+            "tags": [
+              "CDR",
+              "rating"
+            ]
+          },
+          {
+            "id": "validate-zero-rating",
+            "name": "Validate Zero Rating",
+            "description": "Verify zero-rating rules and detect misapplication",
+            "tags": [
+              "zero-rating",
+              "validation"
+            ]
+          },
+          {
+            "id": "check-balance-depletion",
+            "name": "Check Balance Depletion",
+            "description": "Investigate unexpected balance depletion events",
+            "tags": [
+              "balance",
+              "investigation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_rating_charging_agent.CesRatingChargingAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_rating_charging_agent.CesRatingChargingAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 45,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-network-service-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history",
+            "get-diff",
+            "list-repositories"
+          ],
+          "purpose": "Primary data source for Connectivity degradation, cell site alarms, capacity breaches"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Network Service Agent",
+        "description": "CES Digital Business Domain agent. Handles: Connectivity degradation, cell site alarms, capacity breaches. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9109",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-connectivity",
+            "name": "Diagnose Connectivity",
+            "description": "Analyze network connectivity degradation and service outages",
+            "tags": [
+              "network",
+              "connectivity"
+            ]
+          },
+          {
+            "id": "check-cell-site",
+            "name": "Check Cell Site",
+            "description": "Monitor cell site alarms and capacity thresholds",
+            "tags": [
+              "cell-site",
+              "alarms"
+            ]
+          },
+          {
+            "id": "capacity-analysis",
+            "name": "Capacity Analysis",
+            "description": "Analyze network capacity utilization and predict breaches",
+            "tags": [
+              "capacity",
+              "planning"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_network_service_agent.CesNetworkServiceAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_network_service_agent.CesNetworkServiceAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 46,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-product-catalog-agent",
+      "calls": [],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "create-order",
+            "update-order"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-catalog",
+          "tools": [
+            "get-product",
+            "search-products",
+            "get-offer",
+            "validate-eligibility",
+            "get-pricing"
+          ],
+          "purpose": "Primary data source for Offer eligibility failures, bundle conflicts, price plan mismatches"
+        },
+        {
+          "serverId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Product Catalog Agent",
+        "description": "CES Digital Business Domain agent. Handles: Offer eligibility failures, bundle conflicts, price plan mismatches. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9110",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "diagnose-eligibility",
+            "name": "Diagnose Eligibility",
+            "description": "Analyze offer eligibility failures and rule conflicts",
+            "tags": [
+              "eligibility",
+              "catalog"
+            ]
+          },
+          {
+            "id": "resolve-bundle-conflict",
+            "name": "Resolve Bundle Conflict",
+            "description": "Identify and resolve product bundle compatibility issues",
+            "tags": [
+              "bundle",
+              "conflict"
+            ]
+          },
+          {
+            "id": "validate-price-plan",
+            "name": "Validate Price Plan",
+            "description": "Validate price plan configuration and detect mismatches",
+            "tags": [
+              "pricing",
+              "validation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_product_catalog_agent.CesProductCatalogAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_product_catalog_agent.CesProductCatalogAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 47,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-customer-data-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions",
+            "update-customer",
+            "get-account"
+          ],
+          "purpose": "Primary data source for Duplicate records, KYC failures, address validation, consent discrepancies"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Customer Data Agent",
+        "description": "CES Digital Business Domain agent. Handles: Duplicate records, KYC failures, address validation, consent discrepancies. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9111",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "detect-duplicates",
+            "name": "Detect Duplicates",
+            "description": "Identify duplicate customer records across systems",
+            "tags": [
+              "dedup",
+              "data-quality"
+            ]
+          },
+          {
+            "id": "validate-kyc",
+            "name": "Validate KYC",
+            "description": "Run KYC validation and identity verification checks",
+            "tags": [
+              "KYC",
+              "identity"
+            ]
+          },
+          {
+            "id": "fix-address-validation",
+            "name": "Fix Address Validation",
+            "description": "Resolve address validation failures and normalize addresses",
+            "tags": [
+              "address",
+              "validation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_customer_data_agent.CesCustomerDataAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_customer_data_agent.CesCustomerDataAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 48,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "slug": "ces-revenue-assurance-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "serverId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "search-customers",
+            "get-interactions"
+          ],
+          "purpose": "Supporting data for investigation"
+        },
+        {
+          "serverId": "ces-mcp-billing",
+          "tools": [
+            "get-invoice",
+            "get-balance",
+            "get-charges",
+            "get-payment-history",
+            "apply-credit",
+            "validate-rating"
+          ],
+          "purpose": "Primary data source for Usage-vs-billing gaps, unbilled CDRs, interconnect discrepancies"
+        },
+        {
+          "serverId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "get-ticket",
+            "update-ticket"
+          ],
+          "purpose": "Supporting data for investigation"
+        }
+      ],
+      "agent": {
+        "name": "CES 2.X: Revenue Assurance Agent",
+        "description": "CES Digital Business Domain agent. Handles: Usage-vs-billing gaps, unbilled CDRs, interconnect discrepancies. Integrates with CES suite MCPs for automated investigation and resolution.",
+        "url": "http://localhost:9112",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "detect-leakage",
+            "name": "Detect Leakage",
+            "description": "Identify usage-vs-billing gaps and revenue leakage",
+            "tags": [
+              "leakage",
+              "revenue"
+            ]
+          },
+          {
+            "id": "audit-cdrs",
+            "name": "Audit CDRs",
+            "description": "Audit unbilled CDRs and interconnect records",
+            "tags": [
+              "CDR",
+              "audit"
+            ]
+          },
+          {
+            "id": "reconcile-interconnect",
+            "name": "Reconcile Interconnect",
+            "description": "Reconcile interconnect billing discrepancies with partners",
+            "tags": [
+              "interconnect",
+              "reconciliation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.ces_revenue_assurance_agent.CesRevenueAssuranceAgentHandler",
+          "args": {
+            "agent_executor": "services.ces_revenue_assurance_agent.CesRevenueAssuranceAgentExecutor",
+            "task_store": "framework.task_stores.RedisTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Feature-3",
+        "Digital-Business-Domain"
+      ],
+      "environment": "AOC"
+    },
+    {
+      "id": 49,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-analyze-issue-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "get-ticket",
+            "search-tickets"
+          ]
+        },
+        {
+          "mcpId": "mcp-opensearch",
+          "tools": [
+            "search-logs",
+            "get-error-logs",
+            "get-stack-trace"
+          ]
+        },
+        {
+          "mcpId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "list-dlq-topics"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "search-traces",
+            "get-span-detail"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Analyze Issue - Agent",
+        "description": "AI agent that reads incoming fallout tickets - error code, stack trace, order context, affected entity - classifies issue type, root cause category and confidence score. Groups similar DLQ events to reduce redundant classification calls.",
+        "url": "http://localhost:10049",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "classify-issue",
+            "name": "Classify Issue",
+            "description": "Classifies fallout ticket by type, root cause and confidence",
+            "tags": [
+              "classification",
+              "ai"
+            ]
+          },
+          {
+            "id": "group-dlq-events",
+            "name": "Group DLQ Events",
+            "description": "Groups similar DLQ events to deduplicate classification",
+            "tags": [
+              "dlq",
+              "grouping"
+            ]
+          },
+          {
+            "id": "extract-context",
+            "name": "Extract Context",
+            "description": "Extracts error code, stack trace and entity context from ticket",
+            "tags": [
+              "parsing",
+              "context"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_analyze_issue.AnalyzeIssueExecutor",
+          "args": {
+            "agent_executor": "services.sky_analyze_issue.AnalyzeIssueExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 50,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-update-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "update-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "update-customer",
+            "get-account"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history",
+            "get-entity-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Update Order - Agent",
+        "description": "Applies pre-defined or AI-suggested order field updates to upstream systems (OMS, CRM). Uses M&P-defined action set. Executes only when confidence is above threshold or after human approval. Logs every field change with before/after values for audit.",
+        "url": "http://localhost:10050",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "apply-order-fix",
+            "name": "Apply Order Fix",
+            "description": "Applies field-level update to order in upstream system",
+            "tags": [
+              "order",
+              "update"
+            ]
+          },
+          {
+            "id": "audit-change",
+            "name": "Audit Change",
+            "description": "Logs before/after values for every field change",
+            "tags": [
+              "audit",
+              "logging"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_update_order.UpdateOrderExecutor",
+          "args": {
+            "agent_executor": "services.sky_update_order.UpdateOrderExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": false,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 51,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-update-config-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-suit-config",
+          "tools": [
+            "get-config",
+            "update-config",
+            "validate-config",
+            "get-config-history"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Update Configuration - Agent",
+        "description": "Modifies system or service configuration parameters as part of a known fix - resetting flags, updating provisioning attributes. Runs against controlled change set from M&P. Includes pre-check validation and rollback trigger if post-test fails.",
+        "url": "http://localhost:10051",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "apply-config-change",
+            "name": "Apply Config Change",
+            "description": "Applies configuration parameter update from controlled change set",
+            "tags": [
+              "config",
+              "update"
+            ]
+          },
+          {
+            "id": "validate-pre-check",
+            "name": "Validate Pre-Check",
+            "description": "Validates preconditions before applying configuration change",
+            "tags": [
+              "validation",
+              "pre-check"
+            ]
+          },
+          {
+            "id": "rollback-config",
+            "name": "Rollback Config",
+            "description": "Reverts configuration change if post-test fails",
+            "tags": [
+              "rollback",
+              "safety"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_update_config.UpdateConfigExecutor",
+          "args": {
+            "agent_executor": "services.sky_update_config.UpdateConfigExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 52,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-test-order-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status",
+            "list-orders"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-status",
+            "compare-states"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket",
+            "close-ticket",
+            "escalate-ticket"
+          ]
+        },
+        {
+          "mcpId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "get-span-detail"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Test Order after Handling - Agent",
+        "description": "After a fix is applied, automatically validates the order state by querying relevant systems. Checks expected field values, status transitions and downstream acknowledgment. Returns pass/fail result - pass closes the ticket, fail triggers escalation or re-run.",
+        "url": "http://localhost:10052",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "validate-order-state",
+            "name": "Validate Order State",
+            "description": "Checks expected field values and status transitions post-fix",
+            "tags": [
+              "validation",
+              "testing"
+            ]
+          },
+          {
+            "id": "check-downstream",
+            "name": "Check Downstream",
+            "description": "Verifies downstream system acknowledgment of the fix",
+            "tags": [
+              "verification",
+              "downstream"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_test_order.TestOrderExecutor",
+          "args": {
+            "agent_executor": "services.sky_test_order.TestOrderExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 53,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-handle-rerun-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "update-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "peek-messages"
+          ]
+        },
+        {
+          "mcpId": "mcp-apm",
+          "tools": [
+            "get-trace",
+            "search-traces",
+            "get-service-metrics"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Handle Re-run - Agent",
+        "description": "Triggers re-execution of the failed order or flow from the point of failure using the same input payload. Applies after a configuration or order fix. Monitors execution result and feeds outcome back to the workflow for decision on close or escalate.",
+        "url": "http://localhost:10053",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "trigger-rerun",
+            "name": "Trigger Re-run",
+            "description": "Re-executes failed flow from point of failure with same payload",
+            "tags": [
+              "rerun",
+              "retry"
+            ]
+          },
+          {
+            "id": "monitor-execution",
+            "name": "Monitor Execution",
+            "description": "Monitors re-run execution result and reports outcome",
+            "tags": [
+              "monitoring",
+              "status"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_handle_rerun.HandleRerunExecutor",
+          "args": {
+            "agent_executor": "services.sky_handle_rerun.HandleRerunExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 54,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-handle-reprocess-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "mcp-kafka",
+          "tools": [
+            "search-dlq",
+            "get-message-by-key",
+            "list-dlq-topics",
+            "peek-messages"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "get-order-status"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-status"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Handle Reprocess - Agent",
+        "description": "Pushes the order or message back into the processing pipeline from the beginning or a specified checkpoint. Used when re-run is not sufficient - e.g. corrupted or needs enrichment before retry. Manages DLQ removal and queue re-injection.",
+        "url": "http://localhost:10054",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "reprocess-message",
+            "name": "Reprocess Message",
+            "description": "Re-injects message into processing pipeline from checkpoint",
+            "tags": [
+              "reprocess",
+              "dlq"
+            ]
+          },
+          {
+            "id": "manage-dlq",
+            "name": "Manage DLQ",
+            "description": "Removes message from DLQ and handles queue re-injection",
+            "tags": [
+              "dlq",
+              "queue"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_handle_reprocess.HandleReprocessExecutor",
+          "args": {
+            "agent_executor": "services.sky_handle_reprocess.HandleReprocessExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 55,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-capture-outcome-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "get-ticket",
+            "update-ticket",
+            "search-tickets"
+          ]
+        },
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history"
+          ]
+        },
+        {
+          "mcpId": "mcp-opensearch",
+          "tools": [
+            "search-logs",
+            "aggregate-log-stats"
+          ]
+        },
+        {
+          "mcpId": "postgresql",
+          "tools": [
+            "query",
+            "execute"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Capture Outcome - Agent",
+        "description": "Logs the full resolution path - classification, actions taken, test result, time to resolve - into the Sky data store. Structured output trains and improves AI classifiers. Flags cases where AI suggestion was overridden by human for model feedback loops.",
+        "url": "http://localhost:10055",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": false
+        },
+        "tools": [
+          {
+            "id": "log-resolution",
+            "name": "Log Resolution",
+            "description": "Stores full resolution path with classification, actions and timing",
+            "tags": [
+              "logging",
+              "audit"
+            ]
+          },
+          {
+            "id": "flag-override",
+            "name": "Flag Override",
+            "description": "Flags human overrides of AI suggestions for feedback loops",
+            "tags": [
+              "feedback",
+              "ml"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_capture_outcome.CaptureOutcomeExecutor",
+          "args": {
+            "agent_executor": "services.sky_capture_outcome.CaptureOutcomeExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 56,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-route-to-handler-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "create-ticket",
+            "update-ticket",
+            "escalate-ticket",
+            "search-tickets"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-crm",
+          "tools": [
+            "get-customer",
+            "get-account"
+          ]
+        },
+        {
+          "mcpId": "pagerduty",
+          "tools": [
+            "create-incident",
+            "escalate",
+            "list-oncall"
+          ]
+        },
+        {
+          "mcpId": "jira",
+          "tools": [
+            "create-issue",
+            "update-issue",
+            "search-issues"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Route to Handler - Agent",
+        "description": "Based on issue classification and account context, assigns the ticket to the correct queue, team or automated handler. Routing rules combine static logic (account tier, domain) with AI-ranked priority score. Supports fallback to manual queue when no confident auto-route is found.",
+        "url": "http://localhost:10056",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "route-ticket",
+            "name": "Route Ticket",
+            "description": "Routes ticket to queue, team or automated handler based on rules + AI priority",
+            "tags": [
+              "routing",
+              "assignment"
+            ]
+          },
+          {
+            "id": "fallback-manual",
+            "name": "Fallback Manual",
+            "description": "Assigns to manual queue when no confident automated route exists",
+            "tags": [
+              "fallback",
+              "escalation"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_route_handler.RouteToHandlerExecutor",
+          "args": {
+            "agent_executor": "services.sky_route_handler.RouteToHandlerExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 57,
+      "type": "local",
+      "role": "public",
+      "stage": "Draft",
+      "environment": "Sky",
+      "slug": "sky-update-entity-python-agent",
+      "calls": [
+        "default-observer-agent"
+      ],
+      "mcpBindings": [
+        {
+          "mcpId": "mcp-digital-mass",
+          "tools": [
+            "query-entity",
+            "get-entity-history",
+            "get-entity-status",
+            "compare-states"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-ordering",
+          "tools": [
+            "get-order",
+            "update-order"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-suit-source-code",
+          "tools": [
+            "get-source",
+            "search-code",
+            "get-commit-history"
+          ]
+        },
+        {
+          "mcpId": "ces-mcp-tickets",
+          "tools": [
+            "update-ticket"
+          ]
+        },
+        {
+          "mcpId": "postgresql",
+          "tools": [
+            "query",
+            "execute"
+          ]
+        }
+      ],
+      "agent": {
+        "name": "Update Entity (Python) - Agent",
+        "description": "Executes a Python script to update a target entity (order, service, resource) via direct API or DB call. Used for complex or non-standard updates not covered by standard connectors. Script defined in M&P, versioned, executed in sandboxed runtime with I/O validation.",
+        "url": "http://localhost:10057",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": false,
+          "async_execution": true
+        },
+        "tools": [
+          {
+            "id": "execute-script",
+            "name": "Execute Script",
+            "description": "Runs versioned Python script in sandboxed runtime with I/O validation",
+            "tags": [
+              "python",
+              "scripting"
+            ]
+          },
+          {
+            "id": "validate-io",
+            "name": "Validate I/O",
+            "description": "Validates input parameters and output results of entity update script",
+            "tags": [
+              "validation",
+              "safety"
+            ]
+          }
+        ],
+        "handler": {
+          "class": "services.sky_update_entity_python.UpdateEntityPythonExecutor",
+          "args": {
+            "agent_executor": "services.sky_update_entity_python.UpdateEntityPythonExecutor",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      },
+      "enabled": true,
+      "tags": [
+        "Sky",
+        "Fallout-Management"
+      ]
+    },
+    {
+      "id": 58,
+      "type": "local",
+      "role": null,
+      "stage": "Draft",
+      "environment": "AOC",
+      "tags": [],
+      "slug": "omagent",
+      "calls": [],
+      "mcpBindings": [],
+      "agent": {
+        "name": "Om Agent",
+        "description": "Om Agent",
+        "url": "xxx",
+        "version": "1.0.0",
+        "capabilities": {
+          "streaming": true,
+          "async_execution": false
+        },
+        "tools": [],
+        "handler": {
+          "class": "framework.handlers.DefaultRequestHandler",
+          "args": {
+            "agent_executor": "xxx.amdocs.com",
+            "task_store": "framework.task_stores.InMemoryTaskStore"
+          }
+        }
+      }
+    }
+  ]
+}
