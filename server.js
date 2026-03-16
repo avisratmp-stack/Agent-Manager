@@ -345,6 +345,15 @@ app.patch('/api/mcp-servers/:id/enabled', (req, res) => {
   res.json(servers[idx])
 })
 
+// ── GET /api/sky-tasks ──
+app.get('/api/sky-tasks', (req, res) => {
+  const tasksPath = path.join(DATA_DIR, 'common', 'sky-tasks.json')
+  if (!fs.existsSync(tasksPath)) return res.json({ tasks: [] })
+  try {
+    res.json(JSON.parse(fs.readFileSync(tasksPath, 'utf-8')))
+  } catch { res.json({ tasks: [] }) }
+})
+
 // ── GET /api/agents/:slug/logs ──
 app.get('/api/agents/:slug/logs', (req, res) => {
   const logFile = path.join(LOGGER_DIR, `${req.params.slug}.json`)

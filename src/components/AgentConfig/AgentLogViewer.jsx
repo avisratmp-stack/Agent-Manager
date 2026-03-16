@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { X, Activity, Clock, Hash, MessageSquare, Cpu, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, Activity, Clock, Hash, MessageSquare, Bot, ChevronDown, ChevronUp } from 'lucide-react'
 import { api } from '../../api'
 
 const AgentLogViewer = ({ agentSlug, agentName, onClose }) => {
@@ -141,7 +141,7 @@ const AgentLogViewer = ({ agentSlug, agentName, onClose }) => {
                 <div className="logv-detail-reasoning">{selected.reasoning}</div>
               </div>
               <div className="logv-detail-block">
-                <div className="logv-detail-label"><Cpu size={11} /> Request Object</div>
+                <div className="logv-detail-label"><Bot size={11} /> Request Object</div>
                 <pre className="logv-detail-json">{JSON.stringify(selected.request, null, 2)}</pre>
               </div>
               <div className="logv-detail-block">

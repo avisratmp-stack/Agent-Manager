@@ -4,7 +4,7 @@ import {
   Menu, LayoutDashboard, ListTodo, Inbox, Activity, FileText, Settings,
   Cloud, Bot, Workflow, Gauge, Rocket, Wrench, ChevronDown, ChevronUp,
   ChevronRightIcon, Copy, Map, List, Server, Eye, Grid3x3, Tag, X,
-  Cpu, Plug, Zap, LayoutGrid, GitBranchPlus
+  Plug, Zap, LayoutGrid, GitBranchPlus
 } from 'lucide-react'
 import AgentFormDialog from './AgentFormDialog'
 import AgentDetailPanel from './AgentDetailPanel'
@@ -16,8 +16,10 @@ import AgentTestPanel from './AgentTestPanel'
 import AgentCardsPanel from './AgentCardsPanel'
 import AgentMapVerticalPanel from './AgentMapVerticalPanel'
 import ConfigurationPanel, { getDefaultConfig } from './ConfigurationPanel'
+import SkyTasksPanel from './SkyTasksPanel'
 import { api } from '../../api'
 import './AgentConfig.css'
+import './SkyTasks.css'
 
 const SIDEBAR_ITEMS_BASE = [
   { icon: Bot, label: '__SECTION__', highlight: true, section: true },
@@ -27,6 +29,8 @@ const SIDEBAR_ITEMS_BASE = [
   { icon: Grid3x3, label: 'Agent to MCPs', view: 'matrix', sub: true },
   { icon: Zap, label: 'Test', view: 'test', sub: true },
   { icon: Settings, label: 'Configuration', view: 'config', sub: true },
+  { icon: Cloud, label: 'Sky', highlight: true, section: true },
+  { icon: ListTodo, label: 'Tasks List', view: 'sky-tasks', sub: true },
 ]
 
 const COLUMNS = [
@@ -633,7 +637,9 @@ const AgentConfig = () => {
             </div>
           )}
 
-          {activeView === 'config' ? (
+          {activeView === 'sky-tasks' ? (
+            <SkyTasksPanel />
+          ) : activeView === 'config' ? (
             <ConfigurationPanel config={appConfig} onConfigChange={handleConfigChange} />
           ) : activeView === 'test' ? (
             <AgentTestPanel agents={agents} />
@@ -747,7 +753,7 @@ const AgentConfig = () => {
                                 return (
                                   <td key="icon" className="ac-col-icon">
                                     {isAgent
-                                      ? <Cpu size={15} className="ac-row-icon ac-row-icon-agent" />
+                                      ? <Bot size={15} className="ac-row-icon ac-row-icon-agent" />
                                       : <Plug size={15} className="ac-row-icon ac-row-icon-mcp" />}
                                   </td>
                                 )

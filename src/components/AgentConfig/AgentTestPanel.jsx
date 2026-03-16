@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
-import { Play, Cpu, Plug, Monitor, ArrowRight, CheckCircle2, Loader2, ChevronDown, ChevronRight, Clock, Zap, ToggleLeft, ToggleRight, FlaskConical } from 'lucide-react'
+import { Play, Bot, Plug, Monitor, ArrowRight, CheckCircle2, Loader2, ChevronDown, ChevronRight, Clock, Zap, ToggleLeft, ToggleRight, FlaskConical } from 'lucide-react'
 import { api } from '../../api'
 
 const STEP_ICONS = {
   request:        { icon: Monitor,  color: '#6366f1', label: 'Request' },
-  'agent-call':   { icon: Cpu,      color: '#059669', label: 'Agent Call' },
-  'agent-response':{ icon: Cpu,     color: '#059669', label: 'Agent Response' },
+  'agent-call':   { icon: Bot,      color: '#059669', label: 'Agent Call' },
+  'agent-response':{ icon: Bot,     color: '#059669', label: 'Agent Response' },
   'mcp-call':     { icon: Plug,     color: '#d97706', label: 'MCP Call' },
   'mcp-response': { icon: Plug,     color: '#d97706', label: 'MCP Response' },
   response:       { icon: CheckCircle2, color: '#6366f1', label: 'Response' },
@@ -149,7 +149,7 @@ const AgentTestPanel = ({ agents }) => {
         <div className="test-trace" ref={traceRef}>
           <div className="test-trace-header">
             <span className="test-trace-id">{trace.traceId}</span>
-            <span className="test-trace-agent"><Cpu size={12} /> {trace.agentName}</span>
+            <span className="test-trace-agent"><Bot size={12} /> {trace.agentName}</span>
             <span className="test-trace-time"><Clock size={12} /> {trace.totalMs}ms total</span>
             <span className="test-trace-steps">{trace.steps.length} steps</span>
             {trace.stubMode && (

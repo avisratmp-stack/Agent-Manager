@@ -1,0 +1,388 @@
+{
+  "tasks": [
+    {
+      "id": "87342",
+      "priority": "HIGH",
+      "summary": "Order activation failed — delivery date conflict in downstream provisioning system.",
+      "account": "AT&T",
+      "orderId": "ORD-2291-XK",
+      "slaDeadline": "2026-02-20T13:43:00Z",
+      "created": "2026-02-20",
+      "reporter": "System (auto)",
+      "assignee": "David Cohen",
+      "status": "IN PROGRESS",
+      "workflowName": "Fix Order",
+      "workflowDesc": "Resolve data conflicts and re-trigger activation.",
+      "currentStep": 2,
+      "errorSnippet": "{\n  \"error_code\": \"PROV_409\",\n  \"msg\": \"DateConflict\",\n  \"expected\": \"2026-03-01\",\n  \"actual\": \"2026-02-15\"\n}",
+      "relatedTickets": [
+        "87340",
+        "87341",
+        "87345"
+      ],
+      "history": [
+        {
+          "date": "Feb 20, 09:15",
+          "text": "Ticket created by System"
+        },
+        {
+          "date": "Feb 20, 09:20",
+          "text": "Assigned to Support Team"
+        },
+        {
+          "date": "Feb 20, 09:21",
+          "text": "Step 1: Validate Order completed",
+          "active": true
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "AUTO-AGENT",
+          "label": "Validate Order Integrity",
+          "status": "DONE",
+          "agentLog": [
+            "[09:21:01] Starting order validation...",
+            "[09:21:03] Checking order fields against schema...",
+            "[09:21:04] All required fields present. Validating downstream status...",
+            "[09:21:05] Order integrity check passed."
+          ]
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Edit Order & Review Conflicts",
+          "status": "IN_PROGRESS",
+          "hasAgent": true,
+          "agentLog": [
+            "[09:21:04] Starting conflict analysis...",
+            "[09:21:05] Querying database for valid slots...",
+            "[09:21:07] Conflict found: Provisioning date prior to creation.",
+            "[09:21:08] PROPOSAL: Shift date to 2026-03-01.",
+            "[09:21:09] Waiting for human approval."
+          ],
+          "manualReview": {
+            "type": "DATE_ADJUSTMENT",
+            "fromValue": "2026-02-15",
+            "toValue": "2026-03-01",
+            "notesPlaceholder": "Explain why this change is necessary..."
+          }
+        },
+        {
+          "id": 3,
+          "type": "MANUAL",
+          "label": "Notify Customer of Delay",
+          "status": "PENDING"
+        },
+        {
+          "id": 4,
+          "type": "MANUAL",
+          "label": "Final Approval Fix",
+          "status": "PENDING",
+          "skippable": true
+        }
+      ],
+      "assigneeGroup": "Support Team"
+    },
+    {
+      "id": "87350",
+      "priority": "CRITICAL",
+      "summary": "Billing cycle mismatch — customer charged twice for same service period.",
+      "account": "XL",
+      "orderId": "ORD-4410-BZ",
+      "slaDeadline": "2026-02-20T11:00:00Z",
+      "created": "2026-02-20",
+      "reporter": "System (auto)",
+      "assignee": "Sarah Martinez",
+      "status": "IN PROGRESS",
+      "workflowName": "Fix Billing",
+      "workflowDesc": "Correct duplicate charge and issue credit note.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"BILL_DUP_201\",\n  \"msg\": \"DuplicateCharge\",\n  \"amount\": 49.99,\n  \"currency\": \"USD\",\n  \"period\": \"2026-01\"\n}",
+      "relatedTickets": [
+        "87348",
+        "87349"
+      ],
+      "history": [
+        {
+          "date": "Feb 20, 08:30",
+          "text": "Ticket created by System"
+        },
+        {
+          "date": "Feb 20, 08:32",
+          "text": "Assigned to Billing Team"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "AUTO-AGENT",
+          "label": "Analyze Duplicate Charges",
+          "status": "IN_PROGRESS",
+          "agentLog": [
+            "[08:33:01] Fetching billing records for period 2026-01...",
+            "[08:33:04] Found 2 charge entries for same service ID.",
+            "[08:33:06] Analyzing charge timestamps..."
+          ]
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Approve Credit Note",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "AUTO-AGENT",
+          "label": "Apply Billing Correction",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "Billing Team"
+    },
+    {
+      "id": "87355",
+      "priority": "MEDIUM",
+      "summary": "Service provisioning timeout — downstream system did not respond within SLA window.",
+      "account": "TMO",
+      "orderId": "ORD-7723-MN",
+      "slaDeadline": "2026-02-21T16:00:00Z",
+      "created": "2026-02-20",
+      "reporter": "Monitoring Agent",
+      "assignee": "Update Configuration - Agent",
+      "status": "OPEN",
+      "workflowName": "Re-provision Service",
+      "workflowDesc": "Re-trigger provisioning after timeout fix.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"PROV_TIMEOUT\",\n  \"msg\": \"DownstreamTimeout\",\n  \"service\": \"VoLTE\",\n  \"timeout_ms\": 30000\n}",
+      "relatedTickets": [
+        "87354"
+      ],
+      "history": [
+        {
+          "date": "Feb 20, 14:10",
+          "text": "Ticket created by Monitoring Agent"
+        },
+        {
+          "date": "Feb 20, 14:12",
+          "text": "Assigned to Provisioning Team"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "AUTO-AGENT",
+          "label": "Check System Health",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Verify Configuration",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "AUTO-AGENT",
+          "label": "Re-trigger Provisioning",
+          "status": "PENDING"
+        },
+        {
+          "id": 4,
+          "type": "AUTO-AGENT",
+          "label": "Validate Service Active",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "Agents"
+    },
+    {
+      "id": "87360",
+      "priority": "HIGH",
+      "summary": "CRM entity update failed — customer address format rejected by validation engine.",
+      "account": "AT&T",
+      "orderId": "ORD-1155-QR",
+      "slaDeadline": "2026-02-21T10:30:00Z",
+      "created": "2026-02-20",
+      "reporter": "System (auto)",
+      "assignee": "Michael Chen",
+      "status": "IN PROGRESS",
+      "workflowName": "Fix CRM Entity",
+      "workflowDesc": "Correct address format and retry entity update.",
+      "currentStep": 2,
+      "errorSnippet": "{\n  \"error_code\": \"CRM_VAL_102\",\n  \"msg\": \"AddressFormatInvalid\",\n  \"field\": \"street_line_2\",\n  \"max_length\": 50,\n  \"actual_length\": 73\n}",
+      "relatedTickets": [
+        "87358",
+        "87359"
+      ],
+      "history": [
+        {
+          "date": "Feb 20, 16:00",
+          "text": "Ticket created by System"
+        },
+        {
+          "date": "Feb 20, 16:02",
+          "text": "Assigned to CRM Team"
+        },
+        {
+          "date": "Feb 20, 16:05",
+          "text": "Step 1: Validate Entity completed"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "AUTO-AGENT",
+          "label": "Validate Entity Structure",
+          "status": "DONE"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Review & Fix Address Data",
+          "status": "IN_PROGRESS",
+          "hasAgent": true,
+          "agentLog": [
+            "[16:06:01] Analyzing address field constraints...",
+            "[16:06:03] Field street_line_2 exceeds 50 char limit (73 chars).",
+            "[16:06:04] PROPOSAL: Truncate and move overflow to street_line_3.",
+            "[16:06:05] Waiting for human approval."
+          ],
+          "manualReview": {
+            "type": "FIELD_CORRECTION",
+            "fromValue": "123 Enterprise Boulevard, Suite 400, Building C, Floor 12, Wing East",
+            "toValue": "123 Enterprise Blvd, Suite 400, Bldg C",
+            "notesPlaceholder": "Confirm address correction is acceptable..."
+          }
+        },
+        {
+          "id": 3,
+          "type": "AUTO-AGENT",
+          "label": "Retry CRM Update",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "CRM Team"
+    },
+    {
+      "id": "87365",
+      "priority": "LOW",
+      "summary": "Catalog sync warning — product offer price not matching upstream catalog entry.",
+      "account": "XL",
+      "orderId": "ORD-9901-DF",
+      "slaDeadline": "2026-02-22T18:00:00Z",
+      "created": "2026-02-20",
+      "reporter": "Sync Monitor",
+      "assignee": "Test Order after Handling - Agent",
+      "status": "OPEN",
+      "workflowName": "Sync Catalog",
+      "workflowDesc": "Reconcile pricing between local and upstream catalog.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"CAT_SYNC_301\",\n  \"msg\": \"PriceMismatch\",\n  \"local_price\": 29.99,\n  \"upstream_price\": 24.99\n}",
+      "relatedTickets": [],
+      "history": [
+        {
+          "date": "Feb 20, 17:00",
+          "text": "Ticket created by Sync Monitor"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "AUTO-AGENT",
+          "label": "Compare Catalog Entries",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Approve Price Update",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "AUTO-AGENT",
+          "label": "Apply Catalog Sync",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "Agents"
+    },
+    {
+      "id": "87370",
+      "priority": "CRITICAL",
+      "summary": "DLQ overflow — Kafka consumer group lag exceeding threshold on order-events topic.",
+      "account": "TMO",
+      "orderId": "ORD-6688-WX",
+      "slaDeadline": "2026-02-20T10:00:00Z",
+      "created": "2026-02-20",
+      "reporter": "System (auto)",
+      "assignee": "Update Configuration - Agent",
+      "status": "IN PROGRESS",
+      "workflowName": "DLQ Recovery",
+      "workflowDesc": "Drain DLQ, reprocess viable messages, discard poison pills.",
+      "currentStep": 2,
+      "errorSnippet": "{\n  \"error_code\": \"DLQ_OVERFLOW\",\n  \"msg\": \"ConsumerLagExceeded\",\n  \"topic\": \"order-events-dlq\",\n  \"lag\": 14502,\n  \"threshold\": 5000\n}",
+      "relatedTickets": [
+        "87368",
+        "87369"
+      ],
+      "history": [
+        {
+          "date": "Feb 20, 07:00",
+          "text": "Ticket created by System"
+        },
+        {
+          "date": "Feb 20, 07:02",
+          "text": "Assigned to Platform Team"
+        },
+        {
+          "date": "Feb 20, 07:10",
+          "text": "Step 1: Analyze DLQ completed"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "AUTO-AGENT",
+          "label": "Analyze DLQ Messages",
+          "status": "DONE"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Approve Reprocess Plan",
+          "status": "IN_PROGRESS",
+          "hasAgent": true,
+          "agentLog": [
+            "[07:11:01] Classifying 14,502 DLQ messages...",
+            "[07:11:15] 12,340 messages: retryable (timeout errors).",
+            "[07:11:16] 2,102 messages: fixable (schema mismatch).",
+            "[07:11:17] 60 messages: poison pill (unrecoverable).",
+            "[07:11:18] PROPOSAL: Reprocess 12,340, transform 2,102, discard 60.",
+            "[07:11:19] Waiting for human approval."
+          ],
+          "manualReview": {
+            "type": "REPROCESS_PLAN",
+            "fromValue": "14,502 messages in DLQ",
+            "toValue": "Reprocess: 12,340 | Transform: 2,102 | Discard: 60",
+            "notesPlaceholder": "Confirm reprocess plan or adjust numbers..."
+          }
+        },
+        {
+          "id": 3,
+          "type": "AUTO-AGENT",
+          "label": "Execute Reprocess",
+          "status": "PENDING"
+        },
+        {
+          "id": 4,
+          "type": "AUTO-AGENT",
+          "label": "Verify Consumer Lag Normal",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "Agents"
+    }
+  ]
+}

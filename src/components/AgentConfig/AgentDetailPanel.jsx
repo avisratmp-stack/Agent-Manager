@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Cpu, Copy, Info, Zap, BookOpen, Plug, FolderOpen, Globe } from 'lucide-react'
+import { Bot, Copy, Info, Zap, BookOpen, Plug, FolderOpen, Globe } from 'lucide-react'
 import SkillsPanel from './SkillsPanel'
 import KnowledgePanel from './KnowledgePanel'
 import McpBindingsPanel from './McpBindingsPanel'
@@ -26,7 +26,7 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
     <div className="ac-detail-panel">
       <div className="ac-detail-header">
         <div className="ac-detail-title">
-          <Cpu size={15} />
+          <Bot size={15} />
           <span>{agent.name}</span>
           <span className="ac-detail-version">v{agent.version}</span>
           <span className={`ac-type-badge ac-type-${agentRecord.type}`}>

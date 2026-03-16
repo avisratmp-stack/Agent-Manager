@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react'
-import { Monitor, Cpu, Plug, Plus, Link2 } from 'lucide-react'
+import { Monitor, Bot, Plug, Plus, Link2 } from 'lucide-react'
 
 const NODE_W = 190
 const NODE_H = 52
@@ -196,7 +196,7 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
   const kindColor    = { consumer: '#6366f1', local: '#059669', external: '#2563eb', private: '#94a3b8', mcp: '#d97706', 'mcp-local': '#d97706', 'mcp-ext': '#ca8a04', add: '#6d28d9' }
   const kindBg       = { consumer: '#f5f3ff', local: '#ecfdf5', external: '#eff6ff', private: '#f8fafc', mcp: '#fffbeb', 'mcp-local': '#fffbeb', 'mcp-ext': '#fefce8', add: '#faf5ff' }
   const kindBorder   = { consumer: '#c4b5fd', local: '#a7f3d0', external: '#bfdbfe', private: '#e2e8f0', mcp: '#fde68a', 'mcp-local': '#fde68a', 'mcp-ext': '#fef08a', add: '#d8b4fe' }
-  const KindIcon     = { consumer: Monitor, local: Cpu, external: Cpu, private: Cpu, mcp: Plug, 'mcp-local': Plug, 'mcp-ext': Plug, add: Plus }
+  const KindIcon     = { consumer: Monitor, local: Bot, external: Bot, private: Bot, mcp: Plug, 'mcp-local': Plug, 'mcp-ext': Plug, add: Plus }
 
   function edgePath(from, to) {
     const sameCol = from.col === to.col

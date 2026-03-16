@@ -236,6 +236,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
               {/* Agent Type */}
               <div className="form-section">
                 <h3 className="form-section-title">Agent Type</h3>
+                <span className="sk-field-hint">Determines how this agent is hosted and managed. Local agents have a dedicated skills folder on disk. External agents are remote references.</span>
                 <div className="ac-type-selector">
                   <button
                     className={`ac-type-option ${formData.type === 'local' ? 'active' : ''}`}
@@ -293,6 +294,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       placeholder="e.g. Calculator Agent"
                       className={errors.name ? 'input-error' : ''}
                     />
+                    <span className="sk-field-hint">Human-readable display name. Used in lists, graphs and logs.</span>
                     {errors.name && <span className="error-text">{errors.name}</span>}
                   </div>
                   <div className="form-group">
@@ -304,6 +306,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       placeholder="e.g. 1.0.0"
                       className={errors.version ? 'input-error' : ''}
                     />
+                    <span className="sk-field-hint">Semantic version (major.minor.patch). Increment on behavior changes.</span>
                     {errors.version && <span className="error-text">{errors.version}</span>}
                   </div>
                   <div className="form-group">
@@ -317,15 +320,17 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       <option value="Dev">Dev</option>
                       <option value="Released">Released</option>
                     </select>
+                    <span className="sk-field-hint">Lifecycle stage: Draft → Design → Dev → Released.</span>
                   </div>
                   <div className="form-group full-width">
                     <label>Description</label>
                     <textarea
                       value={agent.description}
                       onChange={e => updateAgent('description', e.target.value)}
-                      placeholder="Describe what this agent does..."
+                      placeholder="Describe what this agent does and when to use it..."
                       rows={2}
                     />
+                    <span className="sk-field-hint">Explain what the agent does and when it should be activated. Include trigger keywords per agentskills.io spec.</span>
                   </div>
                   <div className="form-group full-width">
                     <label>URL <span className="required">*</span></label>
@@ -336,6 +341,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       placeholder="e.g. http://localhost:8000"
                       className={errors.url ? 'input-error' : ''}
                     />
+                    <span className="sk-field-hint">The agent's A2A endpoint. For local agents, typically http://localhost:PORT.</span>
                     {errors.url && <span className="error-text">{errors.url}</span>}
                   </div>
                 </div>
@@ -344,6 +350,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
               {/* Capabilities */}
               <div className="form-section">
                 <h3 className="form-section-title">Capabilities</h3>
+                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>Declare what communication patterns this agent supports.</span>
                 <div className="form-grid">
                   <div className="form-group checkbox-group">
                     <label className="checkbox-label">
@@ -355,6 +362,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       <span className="checkbox-custom"></span>
                       Streaming
                     </label>
+                    <span className="sk-field-hint">Agent can stream partial responses (SSE / WebSocket).</span>
                   </div>
                   <div className="form-group checkbox-group">
                     <label className="checkbox-label">
@@ -366,6 +374,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       <span className="checkbox-custom"></span>
                       Async Execution
                     </label>
+                    <span className="sk-field-hint">Agent runs tasks in background and returns results via callback/polling.</span>
                   </div>
                 </div>
               </div>
@@ -373,6 +382,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
               {/* Handler */}
               <div className="form-section">
                 <h3 className="form-section-title">Handler</h3>
+                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>Runtime configuration — the Python class that processes incoming requests and the executor that implements agent logic.</span>
                 <div className="form-grid">
                   <div className="form-group full-width">
                     <label>Handler Class <span className="required">*</span></label>
@@ -383,6 +393,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       placeholder="e.g. framework.handlers.DefaultRequestHandler"
                       className={errors.handlerClass ? 'input-error' : ''}
                     />
+                    <span className="sk-field-hint">Fully-qualified Python class that handles HTTP requests for this agent.</span>
                     {errors.handlerClass && <span className="error-text">{errors.handlerClass}</span>}
                   </div>
                   <div className="form-group">
@@ -394,6 +405,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       placeholder="e.g. services.calculator_executor.CalculatorAgentExecutor"
                       className={errors.agentExecutor ? 'input-error' : ''}
                     />
+                    <span className="sk-field-hint">The executor class that implements the agent's core logic and tool orchestration.</span>
                     {errors.agentExecutor && <span className="error-text">{errors.agentExecutor}</span>}
                   </div>
                   <div className="form-group">
@@ -404,6 +416,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       onChange={e => updateHandlerArg('task_store', e.target.value)}
                       placeholder="e.g. framework.task_stores.InMemoryTaskStore"
                     />
+                    <span className="sk-field-hint">Where async task state is persisted. InMemoryTaskStore for dev, RedisTaskStore for production.</span>
                   </div>
                 </div>
               </div>
@@ -416,6 +429,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                     <Plus size={14} /> Add Tool
                   </button>
                 </div>
+                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>Tools are capabilities this agent exposes to callers. Each tool needs an ID, name, description, and optional tags for discovery.</span>
                 {agent.tools.length === 0 && (
                   <p className="empty-skills">No tools configured. Click "Add Tool" to add one.</p>
                 )}

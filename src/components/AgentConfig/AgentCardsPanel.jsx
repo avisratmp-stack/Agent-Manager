@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Cpu, Plug, Eye, Globe, HardDrive, Zap, Shield, ShieldOff, ChevronRight, Search, ExternalLink, Layers, Link2 } from 'lucide-react'
+import { Bot, Plug, Eye, Globe, HardDrive, Zap, Shield, ShieldOff, ChevronRight, Search, ExternalLink, Layers, Link2 } from 'lucide-react'
 
 const STAGE_COLORS = {
   Released: { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
@@ -45,7 +45,7 @@ const AgentCardsPanel = ({ items, onSelect, onPreview, selectedId, previewId, on
       >
         <div className="cards-item-top">
           <div className={`cards-item-icon ${isAgent ? 'agent' : 'mcp'}`}>
-            {isAgent ? <Cpu size={16} /> : <Plug size={16} />}
+            {isAgent ? <Bot size={16} /> : <Plug size={16} />}
           </div>
           <div className="cards-item-meta">
             <span className="cards-item-origin" style={{ background: row._type === 'local' ? '#f0fdf4' : '#fff7ed', color: row._type === 'local' ? '#15803d' : '#c2410c', borderColor: row._type === 'local' ? '#bbf7d0' : '#fed7aa' }}>
@@ -133,7 +133,7 @@ const AgentCardsPanel = ({ items, onSelect, onPreview, selectedId, previewId, on
       {agents.length > 0 && (
         <div className="cards-section">
           <div className="cards-section-header">
-            <Cpu size={15} />
+            <Bot size={15} />
             <span>Agents</span>
             <span className="cards-section-count">{agents.length}</span>
           </div>

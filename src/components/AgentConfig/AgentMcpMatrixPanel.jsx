@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Plug, Cpu, Check, Wrench } from 'lucide-react'
+import { Plug, Bot, Check, Wrench } from 'lucide-react'
 
 const AgentMcpMatrixPanel = ({ agents, mcpServers }) => {
   const [hoveredCell, setHoveredCell] = useState(null)
@@ -81,7 +81,7 @@ const AgentMcpMatrixPanel = ({ agents, mcpServers }) => {
               <tr key={agent.id}>
                 <td className="mx-row-header">
                   <div className="mx-row-header-inner">
-                    <Cpu size={13} className="mx-row-icon" />
+                    <Bot size={13} className="mx-row-icon" />
                     <span className="mx-row-name">{agent.agent.name}</span>
                     <span className="mx-row-count">
                       {(agent.mcpBindings || []).length}
