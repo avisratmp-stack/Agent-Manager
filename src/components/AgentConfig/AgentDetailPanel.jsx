@@ -4,7 +4,7 @@ import SkillsPanel from './SkillsPanel'
 import KnowledgePanel from './KnowledgePanel'
 import McpBindingsPanel from './McpBindingsPanel'
 
-const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledge, onUpdateMcpBindings, agentSlug, mcpServers }) => {
+const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateReference, onUpdateMcpBindings, agentSlug, mcpServers }) => {
   const [activeTab, setActiveTab] = useState('overview')
 
   if (!agent || !agentRecord) return null
@@ -14,12 +14,12 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Info },
-    ...(isLocal ? [{ id: 'skills-knowledge', label: 'Skills & Knowledge', icon: Zap }] : []),
+    ...(isLocal ? [{ id: 'skills-references', label: 'Skills & References', icon: Zap }] : []),
     ...(isLocal ? [{ id: 'mcp-bindings', label: 'MCP Bindings', icon: Plug }] : []),
   ]
 
   const skillCount = (agentRecord.managedSkills || []).length
-  const kbCount = (agentRecord.knowledge || []).length
+  const kbCount = (agentRecord.references || []).length
   const activeSkills = (agentRecord.managedSkills || []).filter(s => s.status === 'active').length
 
   return (
@@ -40,8 +40,8 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
               <span className="ac-detail-count" title="Active skills">
                 <Zap size={12} /> {activeSkills} skill{activeSkills !== 1 ? 's' : ''}
               </span>
-              <span className="ac-detail-count" title="Knowledge documents">
-                <BookOpen size={12} /> {kbCount} doc{kbCount !== 1 ? 's' : ''}
+              <span className="ac-detail-count" title="Reference documents">
+                <BookOpen size={12} /> {kbCount} ref{kbCount !== 1 ? 's' : ''}
               </span>
             </div>
           )}
@@ -69,7 +69,7 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
           >
             <tab.icon size={14} />
             {tab.label}
-            {tab.id === 'skills-knowledge' && (skillCount + kbCount) > 0 && (
+            {tab.id === 'skills-references' && (skillCount + kbCount) > 0 && (
               <span className="ac-tab-count">{skillCount + kbCount}</span>
             )}
             {tab.id === 'mcp-bindings' && mcpCount > 0 && (
@@ -96,7 +96,7 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
                 <span className="ac-detail-label">Source</span>
                 <span className="ac-detail-value">
                   <Globe size={13} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                  External — no local folder. Skills and knowledge managed remotely.
+                  External — no local folder. Skills and references managed remotely.
                 </span>
               </div>
             )}
@@ -134,7 +134,7 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
           </div>
         )}
 
-        {activeTab === 'skills-knowledge' && isLocal && (
+        {activeTab === 'skills-references' && isLocal && (
           <div className="ac-sk-container">
             <SkillsPanel
               skills={agentRecord.managedSkills || []}
@@ -143,8 +143,8 @@ const AgentDetailPanel = ({ agent, agentRecord, onUpdateSkills, onUpdateKnowledg
             />
             <div className="ac-sk-divider" />
             <KnowledgePanel
-              knowledge={agentRecord.knowledge || []}
-              onUpdate={onUpdateKnowledge}
+              knowledge={agentRecord.references || []}
+              onUpdate={onUpdateReference}
               agentSlug={agentSlug}
             />
           </div>

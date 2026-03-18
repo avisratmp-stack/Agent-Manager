@@ -32,6 +32,8 @@ export default function SkyTasksPanel() {
   const [selectedTaskId, setSelectedTaskId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
+  const [showAgentTasks, setShowAgentTasks] = useState(true)
+  const [pocMode, setPocMode] = useState(false)
 
   useEffect(() => {
     const normalize = list => list.map(t => ({ ...t, steps: normalizeSteps(t) }))
@@ -47,6 +49,7 @@ export default function SkyTasksPanel() {
 
   const filtered = tasks.filter(t => {
     if (priorityFilter && t.priority !== priorityFilter) return false
+    if (!showAgentTasks && (t.assigneeGroup || '').toLowerCase() === 'agents') return false
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
     return (
@@ -101,6 +104,22 @@ export default function SkyTasksPanel() {
             <option value="LOW">Low</option>
           </select>
         </div>
+        <button
+          className={`sky-agent-toggle ${showAgentTasks ? 'active' : ''}`}
+          onClick={() => setShowAgentTasks(v => !v)}
+          title={showAgentTasks ? 'Hide agent-assigned tasks' : 'Show agent-assigned tasks'}
+        >
+          <Bot size={14} />
+          <span>Agents</span>
+        </button>
+        <button
+          className={`sky-agent-toggle ${pocMode ? 'poc' : ''}`}
+          onClick={() => setPocMode(v => !v)}
+          title={pocMode ? 'Exit POC Mode' : 'Enter POC Mode'}
+        >
+          <Workflow size={14} />
+          <span>POC Mode</span>
+        </button>
       </div>
 
       <div className="sky-tasks-grid">

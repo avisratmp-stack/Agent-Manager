@@ -31,11 +31,11 @@ export const api = {
   deleteSkill: (slug, skillName) =>
     request(`/api/agents/${slug}/skills/${skillName}`, { method: 'DELETE' }),
 
-  addKnowledge: (slug, item) =>
-    request(`/api/agents/${slug}/knowledge`, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(item) }),
+  addReference: (slug, item) =>
+    request(`/api/agents/${slug}/references`, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(item) }),
 
-  deleteKnowledge: (slug, itemId) =>
-    request(`/api/agents/${slug}/knowledge/${itemId}`, { method: 'DELETE' }),
+  deleteReference: (slug, itemId) =>
+    request(`/api/agents/${slug}/references/${itemId}`, { method: 'DELETE' }),
 
   getMcpServers: () => request('/api/mcp-servers'),
 

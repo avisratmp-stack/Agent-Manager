@@ -116,8 +116,8 @@ function loadSkillsForAgent(slug) {
   return skills
 }
 
-function loadKnowledgeForAgent(slug) {
-  const manifestPath = path.join(AGENTS_DIR, slug, 'knowledge', 'manifest.json')
+function loadReferenceForAgent(slug) {
+  const manifestPath = path.join(AGENTS_DIR, slug, 'references', 'manifest.json')
   if (!fs.existsSync(manifestPath)) return []
   try { return JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) }
   catch { return [] }
@@ -137,11 +137,11 @@ function buildAgentRecord(entry) {
     enabled: entry.enabled !== false,
     agent: entry.agent,
     managedSkills: [],
-    knowledge: [],
+    reference: [],
   }
   if (entry.type === 'local' && entry.slug) {
     record.managedSkills = loadSkillsForAgent(entry.slug)
-    record.knowledge = loadKnowledgeForAgent(entry.slug)
+    record.references = loadReferenceForAgent(entry.slug)
   }
   return record
 }
@@ -153,10 +153,10 @@ function ensureDir(dir) {
 function scaffoldAgentDir(slug) {
   const agentDir = path.join(AGENTS_DIR, slug)
   const skillsDir = path.join(agentDir, 'skills')
-  const knowledgeDir = path.join(agentDir, 'knowledge')
+  const referenceDir = path.join(agentDir, 'references')
 
   ensureDir(skillsDir)
-  ensureDir(knowledgeDir)
+  ensureDir(referenceDir)
 
   const skillsReadme = path.join(skillsDir, 'README.optional.md')
   if (!fs.existsSync(skillsReadme)) {
@@ -164,13 +164,13 @@ function scaffoldAgentDir(slug) {
       `# Skills\n\nEach subdirectory is one skill. Every skill folder must contain a \`SKILL.md\` file\nwith YAML frontmatter (name, description) and markdown instructions.\n\nOptional subdirectories per skill: \`scripts/\`, \`references/\`, \`assets/\`.\n\nSee https://agentskills.io/specification for the full spec.\n`)
   }
 
-  const knowledgeReadme = path.join(knowledgeDir, 'README.optional.md')
-  if (!fs.existsSync(knowledgeReadme)) {
-    fs.writeFileSync(knowledgeReadme,
-      `# Knowledge Base\n\nPlace reference documents here (PDF, DOCX, TXT, MD).\nThe \`manifest.json\` file tracks all entries and their indexing status.\n`)
+  const referenceReadme = path.join(referenceDir, 'README.optional.md')
+  if (!fs.existsSync(referenceReadme)) {
+    fs.writeFileSync(referenceReadme,
+      `# Reference\n\nPlace reference documents here (PDF, DOCX, TXT, MD).\nThe \`manifest.json\` file tracks all entries.\n`)
   }
 
-  const manifestPath = path.join(knowledgeDir, 'manifest.json')
+  const manifestPath = path.join(referenceDir, 'manifest.json')
   if (!fs.existsSync(manifestPath)) {
     fs.writeFileSync(manifestPath, '[]\n')
   }
@@ -284,11 +284,11 @@ app.delete('/api/agents/:slug/skills/:skillName', (req, res) => {
   res.json({ skills: loadSkillsForAgent(slug) })
 })
 
-// ── POST /api/agents/:slug/knowledge ──
-app.post('/api/agents/:slug/knowledge', (req, res) => {
+// ── POST /api/agents/:slug/reference ──
+app.post('/api/agents/:slug/references', (req, res) => {
   const { slug } = req.params
   const item = req.body
-  const manifestPath = path.join(AGENTS_DIR, slug, 'knowledge', 'manifest.json')
+  const manifestPath = path.join(AGENTS_DIR, slug, 'references', 'manifest.json')
   ensureDir(path.dirname(manifestPath))
   let manifest = []
   if (fs.existsSync(manifestPath)) {
@@ -296,19 +296,56 @@ app.post('/api/agents/:slug/knowledge', (req, res) => {
   }
   manifest.push(item)
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-  res.json({ knowledge: manifest })
+  res.json({ reference: manifest })
 })
 
-// ── DELETE /api/agents/:slug/knowledge/:id ──
-app.delete('/api/agents/:slug/knowledge/:id', (req, res) => {
+// ── DELETE /api/agents/:slug/references/:id ──
+app.delete('/api/agents/:slug/references/:id', (req, res) => {
   const { slug, id } = req.params
-  const manifestPath = path.join(AGENTS_DIR, slug, 'knowledge', 'manifest.json')
-  if (!fs.existsSync(manifestPath)) return res.json({ knowledge: [] })
+  const manifestPath = path.join(AGENTS_DIR, slug, 'references', 'manifest.json')
+  if (!fs.existsSync(manifestPath)) return res.json({ reference: [] })
   let manifest = []
   try { manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) } catch {}
   manifest = manifest.filter(k => k.id !== id)
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-  res.json({ knowledge: manifest })
+  res.json({ reference: manifest })
+})
+
+// ── GET /api/agents/:slug/references/files ──
+app.get('/api/agents/:slug/references/files', (req, res) => {
+  const refDir = path.join(AGENTS_DIR, req.params.slug, 'references')
+  if (!fs.existsSync(refDir)) return res.json([])
+  const files = fs.readdirSync(refDir)
+    .filter(f => !f.startsWith('README') && f !== 'manifest.json')
+    .map(f => {
+      const stat = fs.statSync(path.join(refDir, f))
+      return { name: f, size: stat.size, modified: stat.mtime.toISOString() }
+    })
+  res.json(files)
+})
+
+// ── POST /api/agents/:slug/references/upload ──
+const refUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } })
+app.post('/api/agents/:slug/references/upload', refUpload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file' })
+  const refDir = path.join(AGENTS_DIR, req.params.slug, 'references')
+  ensureDir(refDir)
+  fs.writeFileSync(path.join(refDir, req.file.originalname), req.file.buffer)
+  res.json({ ok: true, name: req.file.originalname })
+})
+
+// ── GET /api/agents/:slug/references/download/:filename ──
+app.get('/api/agents/:slug/references/download/:filename', (req, res) => {
+  const filePath = path.join(AGENTS_DIR, req.params.slug, 'references', req.params.filename)
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' })
+  res.download(filePath)
+})
+
+// ── DELETE /api/agents/:slug/references/files/:filename ──
+app.delete('/api/agents/:slug/references/files/:filename', (req, res) => {
+  const filePath = path.join(AGENTS_DIR, req.params.slug, 'references', req.params.filename)
+  if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
+  res.json({ ok: true })
 })
 
 // ── GET /api/mcp-servers ──
@@ -502,8 +539,8 @@ function finalizeImport(buffer, agentDef, slug) {
   }
 
   ensureDir(path.join(agentDir, 'skills'))
-  ensureDir(path.join(agentDir, 'knowledge'))
-  const manifestPath = path.join(agentDir, 'knowledge', 'manifest.json')
+  ensureDir(path.join(agentDir, 'references'))
+  const manifestPath = path.join(agentDir, 'references', 'manifest.json')
   if (!fs.existsSync(manifestPath)) fs.writeFileSync(manifestPath, '[]\n')
 
   registry.agents.push(entry)
@@ -692,6 +729,6 @@ app.post('/api/test/execute', (req, res) => {
 })
 
 const PORT = 3001
-app.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`)
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API server running on http://0.0.0.0:${PORT}`)
 })

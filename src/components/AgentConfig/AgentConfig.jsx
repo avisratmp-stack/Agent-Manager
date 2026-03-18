@@ -447,9 +447,9 @@ const AgentConfig = () => {
     ))
   }
 
-  const handleUpdateKnowledge = (updatedKnowledge) => {
+  const handleUpdateReference = (updatedReference) => {
     setAgents(prev => prev.map(a =>
-      a.id === previewId ? { ...a, knowledge: updatedKnowledge } : a
+      a.id === previewId ? { ...a, references: updatedReference } : a
     ))
   }
 
@@ -763,7 +763,7 @@ const AgentConfig = () => {
                   agent={previewAgent.agent}
                   agentRecord={previewAgent}
                   onUpdateSkills={handleUpdateSkills}
-                  onUpdateKnowledge={handleUpdateKnowledge}
+                  onUpdateReference={handleUpdateReference}
                   onUpdateMcpBindings={handleUpdateMcpBindings}
                   agentSlug={previewAgent.slug}
                   mcpServers={mcpServers}
@@ -968,7 +968,7 @@ const AgentConfig = () => {
                   agent={previewAgent.agent}
                   agentRecord={previewAgent}
                   onUpdateSkills={handleUpdateSkills}
-                  onUpdateKnowledge={handleUpdateKnowledge}
+                  onUpdateReference={handleUpdateReference}
                   onUpdateMcpBindings={handleUpdateMcpBindings}
                   agentSlug={previewAgent.slug}
                   mcpServers={mcpServers}

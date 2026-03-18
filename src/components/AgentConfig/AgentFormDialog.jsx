@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Plus, Trash2, Globe, HardDrive, Settings, Zap, Server, FileCode, FileJson } from 'lucide-react'
+import { X, Plus, Trash2, Globe, HardDrive, Settings, Zap, Server, FileCode, FileJson, BookOpen, Upload, Download } from 'lucide-react'
 import SkillsPanel from './SkillsPanel'
 import McpBindingsPanel from './McpBindingsPanel'
 
@@ -34,6 +34,8 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
   const [activeTab, setActiveTab] = useState('general')
   const [handlerCode, setHandlerCode] = useState(null)
   const [serversConfig, setServersConfig] = useState(null)
+  const [refFiles, setRefFiles] = useState([])
+  const [refUploading, setRefUploading] = useState(false)
 
   useEffect(() => {
     if (editData && (mode === 'edit' || mode === 'import')) {
@@ -55,9 +57,11 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
     setActiveTab('general')
     setHandlerCode(null)
     setServersConfig(null)
+    setRefFiles([])
     if (editData?.slug && (mode === 'edit')) {
       fetch(`/api/agents/${editData.slug}/handler`).then(r => r.json()).then(d => setHandlerCode(d.content)).catch(() => {})
       fetch(`/api/agents/${editData.slug}/servers-config`).then(r => r.json()).then(d => setServersConfig(d.content)).catch(() => {})
+      fetch(`/api/agents/${editData.slug}/references/files`).then(r => r.json()).then(setRefFiles).catch(() => {})
     }
   }, [editData, mode, isOpen])
 
@@ -73,6 +77,7 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
     { id: 'general', label: 'General', icon: Settings },
     ...(showExtendedTabs ? [{ id: 'skills', label: 'Skills', icon: Zap }] : []),
     ...(showExtendedTabs ? [{ id: 'mcp', label: 'MCP Bindings', icon: Server }] : []),
+    ...(showExtendedTabs ? [{ id: 'references', label: 'References', icon: BookOpen }] : []),
     ...(showExtendedTabs ? [{ id: 'handler', label: 'Handler', icon: FileCode }] : []),
     ...(showExtendedTabs ? [{ id: 'contract', label: 'Contract', icon: FileJson }] : []),
   ]
@@ -523,6 +528,85 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                 mcpServers={mcpServers || []}
                 onUpdate={onUpdateMcpBindings}
               />
+            </div>
+          )}
+
+          {activeTab === 'references' && showExtendedTabs && (
+            <div className="dlg-extended-tab-body">
+              <div className="form-section">
+                <div className="form-section-header">
+                  <h3 className="form-section-title">Reference Files</h3>
+                  <label className="btn-add-skill" style={{ cursor: 'pointer' }}>
+                    <Upload size={14} /> Upload File
+                    <input
+                      type="file"
+                      hidden
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file || !editData?.slug) return
+                        setRefUploading(true)
+                        const fd = new FormData()
+                        fd.append('file', file)
+                        try {
+                          await fetch(`/api/agents/${editData.slug}/references/upload`, { method: 'POST', body: fd })
+                          const updated = await fetch(`/api/agents/${editData.slug}/references/files`).then(r => r.json())
+                          setRefFiles(updated)
+                        } catch {}
+                        setRefUploading(false)
+                        e.target.value = ''
+                      }}
+                    />
+                  </label>
+                </div>
+                <span className="sk-field-hint" style={{ marginBottom: 12, display: 'block' }}>
+                  Reference documents for this agent. Located at <code>agents/{editData?.slug}/references/</code>
+                </span>
+                {refUploading && <p className="empty-skills">Uploading...</p>}
+                {refFiles.length === 0 && !refUploading && (
+                  <p className="empty-skills">No reference files. Click "Upload File" to add one.</p>
+                )}
+                {refFiles.length > 0 && (
+                  <table className="ref-files-table">
+                    <thead>
+                      <tr>
+                        <th>File</th>
+                        <th style={{ width: 90 }}>Size</th>
+                        <th style={{ width: 150 }}>Modified</th>
+                        <th style={{ width: 80 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {refFiles.map(f => (
+                        <tr key={f.name}>
+                          <td className="ref-file-name">{f.name}</td>
+                          <td className="ref-file-size">{f.size < 1024 ? f.size + ' B' : (f.size / 1024).toFixed(1) + ' KB'}</td>
+                          <td className="ref-file-date">{new Date(f.modified).toLocaleString()}</td>
+                          <td className="ref-file-actions">
+                            <a
+                              href={`/api/agents/${editData?.slug}/references/download/${f.name}`}
+                              download
+                              className="ref-action-btn"
+                              title="Download"
+                            >
+                              <Download size={14} />
+                            </a>
+                            <button
+                              className="ref-action-btn ref-action-delete"
+                              title="Delete"
+                              onClick={async () => {
+                                await fetch(`/api/agents/${editData?.slug}/references/files/${f.name}`, { method: 'DELETE' })
+                                setRefFiles(prev => prev.filter(rf => rf.name !== f.name))
+                              }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           )}
 
