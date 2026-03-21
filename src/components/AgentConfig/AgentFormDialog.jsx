@@ -3,10 +3,13 @@ import { X, Plus, Trash2, Globe, HardDrive, Settings, Zap, Server, FileCode, Fil
 import SkillsPanel from './SkillsPanel'
 import McpBindingsPanel from './McpBindingsPanel'
 
+const SUITE_OPTIONS = ['CES 2.X', 'Classic', 'Ensemble', 'Cross', 'TBD']
+
 const emptyFormData = {
   type: 'external',
   stage: 'Draft',
   environment: 'AOC',
+  suite: [],
   slug: null,
   agent: {
     name: '',
@@ -336,6 +339,28 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                       <option value="Released">Released</option>
                     </select>
                     <span className="sk-field-hint">Lifecycle stage: Draft → Design → Dev → Released.</span>
+                  </div>
+                  <div className="form-group">
+                    <label>Suite</label>
+                    <div className="suite-multi-select">
+                      {SUITE_OPTIONS.map(opt => {
+                        const active = (formData.suite || []).includes(opt)
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            className={`suite-chip ${active ? 'active' : ''}`}
+                            onClick={() => setFormData(prev => {
+                              const cur = prev.suite || []
+                              return { ...prev, suite: active ? cur.filter(s => s !== opt) : [...cur, opt] }
+                            })}
+                          >
+                            {opt}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <span className="sk-field-hint">Product suite(s) this agent belongs to. Multi-select.</span>
                   </div>
                   <div className="form-group full-width">
                     <label>Description</label>

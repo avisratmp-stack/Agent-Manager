@@ -704,6 +704,263 @@
         }
       ],
       "assigneeGroup": "OH Fallouts Team"
+    },
+    {
+      "id": "87400",
+      "priority": "HIGH",
+      "summary": "Offer configuration mismatch — product bundle price not reflecting promotional discount in checkout flow.",
+      "account": "AT&T",
+      "orderId": "ORD-3310-AC",
+      "slaDeadline": "2026-02-22T15:00:00Z",
+      "created": "2026-02-22",
+      "reporter": "System (auto)",
+      "assignee": "Unassigned",
+      "status": "OPEN",
+      "workflowName": "Fix Offer Config",
+      "workflowDesc": "Correct promotional pricing in catalog and re-validate checkout.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"OFFER_CFG_400\",\n  \"msg\": \"PriceDiscrepancy\",\n  \"expected_discount\": \"25%\",\n  \"applied_discount\": \"0%\",\n  \"bundle_id\": \"BDL-8820\"\n}",
+      "relatedTickets": [],
+      "history": [
+        {
+          "date": "Feb 22, 10:05",
+          "text": "Ticket created by System"
+        },
+        {
+          "date": "Feb 22, 10:07",
+          "text": "Assigned to ACE Group"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "MANUAL",
+          "label": "Review Offer Configuration",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Apply Promotional Discount Fix",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "MANUAL",
+          "label": "Validate Checkout Flow",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "ACE Group"
+    },
+    {
+      "id": "87405",
+      "priority": "MEDIUM",
+      "summary": "Service qualification failure — address validation rejected for new fiber installation request.",
+      "account": "TMO",
+      "orderId": "ORD-5521-FS",
+      "slaDeadline": "2026-02-23T12:00:00Z",
+      "created": "2026-02-22",
+      "reporter": "CRM Portal",
+      "assignee": "Unassigned",
+      "status": "OPEN",
+      "workflowName": "Fix Service Qualification",
+      "workflowDesc": "Correct address data and re-run service qualification engine.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"SQ_ADDR_422\",\n  \"msg\": \"AddressValidationFailed\",\n  \"field\": \"postal_code\",\n  \"reason\": \"Format mismatch: expected 5-digit, got alphanumeric\"\n}",
+      "relatedTickets": [
+        "87403"
+      ],
+      "history": [
+        {
+          "date": "Feb 22, 14:30",
+          "text": "Ticket created by CRM Portal"
+        },
+        {
+          "date": "Feb 22, 14:32",
+          "text": "Assigned to ACS Group"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "MANUAL",
+          "label": "Verify Address Format",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Correct Postal Code",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "MANUAL",
+          "label": "Re-run Service Qualification",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "ACS Group"
+    },
+    {
+      "id": "87410",
+      "priority": "LOW",
+      "summary": "Scheduled maintenance window overlap — two change requests targeting same network element in same window.",
+      "account": "XL",
+      "orderId": "ORD-6632-MW",
+      "slaDeadline": "2026-02-24T09:00:00Z",
+      "created": "2026-02-22",
+      "reporter": "Monitoring Agent",
+      "assignee": "Unassigned",
+      "status": "OPEN",
+      "workflowName": "Resolve Maintenance Conflict",
+      "workflowDesc": "Reschedule one of the overlapping change requests to avoid conflict.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"MAINT_OVERLAP_409\",\n  \"msg\": \"WindowConflict\",\n  \"element\": \"NE-CORE-07\",\n  \"window_a\": \"2026-02-23 02:00–04:00\",\n  \"window_b\": \"2026-02-23 03:00–05:00\"\n}",
+      "relatedTickets": [],
+      "history": [
+        {
+          "date": "Feb 22, 16:45",
+          "text": "Ticket created by Monitoring Agent"
+        },
+        {
+          "date": "Feb 22, 16:47",
+          "text": "Assigned to RTB Group"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "MANUAL",
+          "label": "Review Overlapping Windows",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Reschedule Change Request",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "MANUAL",
+          "label": "Confirm Updated Schedule",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "RTB Group"
+    },
+    {
+      "id": "87415",
+      "priority": "CRITICAL",
+      "summary": "Invoice generation failure — bill run aborted due to tax engine timeout for enterprise customer batch.",
+      "account": "AT&T",
+      "orderId": "ORD-9903-BL",
+      "slaDeadline": "2026-02-22T08:00:00Z",
+      "created": "2026-02-22",
+      "reporter": "System (auto)",
+      "assignee": "Unassigned",
+      "status": "OPEN",
+      "workflowName": "Fix Invoice Generation",
+      "workflowDesc": "Resolve tax engine timeout and re-trigger bill run for affected batch.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"BILL_RUN_504\",\n  \"msg\": \"TaxEngineTimeout\",\n  \"batch_id\": \"BATCH-ENT-2026-02\",\n  \"affected_accounts\": 342,\n  \"timeout_ms\": 30000\n}",
+      "relatedTickets": [
+        "87412",
+        "87413"
+      ],
+      "history": [
+        {
+          "date": "Feb 22, 05:30",
+          "text": "Ticket created by System"
+        },
+        {
+          "date": "Feb 22, 05:32",
+          "text": "Assigned to Brite Bill Group"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "MANUAL",
+          "label": "Investigate Tax Engine Timeout",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Adjust Batch Size or Timeout",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "MANUAL",
+          "label": "Re-trigger Bill Run",
+          "status": "PENDING"
+        },
+        {
+          "id": 4,
+          "type": "MANUAL",
+          "label": "Validate Invoices Generated",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "Brite Bill Group"
+    },
+    {
+      "id": "87420",
+      "priority": "HIGH",
+      "summary": "TLS certificate expiry — API gateway certificate expires in 48h, blocking secure service calls.",
+      "account": "TMO",
+      "orderId": "ORD-1180-SC",
+      "slaDeadline": "2026-02-23T06:00:00Z",
+      "created": "2026-02-22",
+      "reporter": "Monitoring Agent",
+      "assignee": "Unassigned",
+      "status": "OPEN",
+      "workflowName": "Security Config",
+      "workflowDesc": "Renew TLS certificate and apply updated config to API gateway.",
+      "currentStep": 1,
+      "errorSnippet": "{\n  \"error_code\": \"SEC_CERT_EXPIRY\",\n  \"msg\": \"CertificateExpiringIn48h\",\n  \"cn\": \"api-gw.prod.tmo.amdocs.com\",\n  \"expires\": \"2026-02-24T06:00:00Z\",\n  \"issuer\": \"DigiCert SHA2 Extended Validation\"\n}",
+      "relatedTickets": [],
+      "history": [
+        {
+          "date": "Feb 22, 18:10",
+          "text": "Ticket created by Monitoring Agent"
+        },
+        {
+          "date": "Feb 22, 18:12",
+          "text": "Assigned to Security Group"
+        }
+      ],
+      "steps": [
+        {
+          "id": 1,
+          "type": "MANUAL",
+          "label": "Review Certificate Status",
+          "status": "PENDING"
+        },
+        {
+          "id": 2,
+          "type": "MANUAL",
+          "label": "Generate & Sign New Certificate",
+          "status": "PENDING"
+        },
+        {
+          "id": 3,
+          "type": "MANUAL",
+          "label": "Apply Security Config",
+          "status": "PENDING"
+        },
+        {
+          "id": 4,
+          "type": "MANUAL",
+          "label": "Validate Secure Connectivity",
+          "status": "PENDING"
+        }
+      ],
+      "assigneeGroup": "Security Group"
     }
   ]
 }

@@ -4,7 +4,7 @@ import {
   Menu, LayoutDashboard, ListTodo, Inbox, Activity, FileText, Settings,
   Cloud, Bot, Workflow, Gauge, Rocket, Wrench, ChevronDown, ChevronUp,
   ChevronRightIcon, Copy, Map, List, Server, Eye, Grid3x3, Tag, X,
-  Plug, Zap, LayoutGrid, GitBranchPlus, User, Shield
+  Plug, Zap, LayoutGrid, GitBranchPlus, User, Shield, Layers
 } from 'lucide-react'
 import AgentFormDialog from './AgentFormDialog'
 import AgentDetailPanel from './AgentDetailPanel'
@@ -45,6 +45,7 @@ const COLUMNS = [
   { key: 'version', label: 'Version', width: '100px' },
   { key: 'url', label: 'URL', width: '1.2fr' },
   { key: 'stage', label: 'Stage', width: '90px' },
+  { key: 'suite', label: 'Suite', width: '120px' },
   { key: 'public', label: 'Public', width: '80px' },
   { key: 'live', label: 'Live', width: '64px' },
 ]
@@ -78,6 +79,8 @@ const AgentConfig = () => {
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false)
   const [selectedStages, setSelectedStages] = useState([])
   const [stageDropdownOpen, setStageDropdownOpen] = useState(false)
+  const [selectedSuites, setSelectedSuites] = useState([])
+  const [suiteDropdownOpen, setSuiteDropdownOpen] = useState(false)
   const [loggedIn, setLoggedIn] = useState(true)
   const [loginError, setLoginError] = useState('')
   const [configPwOpen, setConfigPwOpen] = useState(false)
@@ -86,6 +89,7 @@ const AgentConfig = () => {
   const importInputRef = useRef(null)
   const tagDropdownRef = useRef(null)
   const stageDropdownRef = useRef(null)
+  const suiteDropdownRef = useRef(null)
 
   const refreshAgents = useCallback(async () => {
     try {
@@ -118,6 +122,15 @@ const AgentConfig = () => {
     return () => document.removeEventListener('mousedown', handler)
   }, [stageDropdownOpen])
 
+  useEffect(() => {
+    if (!suiteDropdownOpen) return
+    const handler = (e) => {
+      if (suiteDropdownRef.current && !suiteDropdownRef.current.contains(e.target)) setSuiteDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [suiteDropdownOpen])
+
   const handleConfigChange = useCallback((newConfig) => {
     setAppConfig(newConfig)
     setPageSize(newConfig.pageSize || 50)
@@ -136,14 +149,21 @@ const AgentConfig = () => {
       ), [appConfig.sectionTitle, appConfig.showSkyMenu])
 
   const visibleColumns = useMemo(() => {
-    const visible = appConfig.visibleColumns || ['icon', 'origin', 'name', 'description', 'version', 'url', 'stage', 'public', 'live']
+    const visible = appConfig.visibleColumns || ['icon', 'origin', 'name', 'description', 'version', 'url', 'stage', 'suite', 'public', 'live']
     return COLUMNS.filter(col => visible.includes(col.key))
   }, [appConfig.visibleColumns])
 
   const ALL_STAGES = appConfig.stagePipeline || ['Draft', 'Design', 'Dev', 'Released']
 
+  const SUITE_OPTIONS = ['CES 2.X', 'Classic', 'Ensemble', 'Cross', 'TBD']
+
   const toggleStage = (stage) => {
     setSelectedStages(prev => prev.includes(stage) ? prev.filter(s => s !== stage) : [...prev, stage])
+    setCurrentPage(1)
+  }
+
+  const toggleSuite = (suite) => {
+    setSelectedSuites(prev => prev.includes(suite) ? prev.filter(s => s !== suite) : [...prev, suite])
     setCurrentPage(1)
   }
 
@@ -171,6 +191,9 @@ const AgentConfig = () => {
     if (selectedStages.length > 0) {
       result = result.filter(s => selectedStages.includes(s.stage || 'Draft'))
     }
+    if (selectedSuites.length > 0) {
+      result = result.filter(s => selectedSuites.some(su => (s.suite || []).includes(su)))
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       result = result.filter(s =>
@@ -182,7 +205,7 @@ const AgentConfig = () => {
       )
     }
     return result
-  }, [mcpServers, selectedTags, selectedStages, searchQuery, appConfig.activeEnvironment])
+  }, [mcpServers, selectedTags, selectedStages, selectedSuites, searchQuery, appConfig.activeEnvironment])
 
   const filteredAgents = useMemo(() => {
     return agents.filter(a => {
@@ -193,6 +216,9 @@ const AgentConfig = () => {
       }
       if (selectedStages.length > 0) {
         if (!selectedStages.includes(a.stage || 'Draft')) return false
+      }
+      if (selectedSuites.length > 0) {
+        if (!selectedSuites.some(su => (a.suite || []).includes(su))) return false
       }
       if (!searchQuery) return true
       const q = searchQuery.toLowerCase()
@@ -206,7 +232,7 @@ const AgentConfig = () => {
         String(a.id).includes(q)
       )
     })
-  }, [agents, searchQuery, selectedTags, selectedStages, appConfig.activeEnvironment])
+  }, [agents, searchQuery, selectedTags, selectedStages, selectedSuites, appConfig.activeEnvironment])
 
   const localMcpServers = useMemo(() => mcpServers.filter(s => s.type === 'local'), [mcpServers])
 
@@ -224,6 +250,7 @@ const AgentConfig = () => {
       _role: a.role,
       _enabled: a.enabled !== false,
       _tags: a.tags || [],
+      _suite: a.suite || [],
       _env: a.environment || 'AOC',
       raw: a,
     }))
@@ -241,6 +268,7 @@ const AgentConfig = () => {
       _role: s.role || 'public',
       _enabled: s.enabled !== false,
       _tags: s.tags || [],
+      _suite: s.suite || [],
       _env: s.environment || 'AOC',
       raw: s,
     }))
@@ -258,6 +286,10 @@ const AgentConfig = () => {
 
     if (selectedStages.length > 0) {
       result = result.filter(r => selectedStages.includes(r._stage))
+    }
+
+    if (selectedSuites.length > 0) {
+      result = result.filter(r => selectedSuites.some(su => r._suite.includes(su)))
     }
 
     if (searchQuery) {
@@ -283,6 +315,7 @@ const AgentConfig = () => {
           case 'version': valA = a._version; valB = b._version; break
           case 'url': valA = a._url; valB = b._url; break
           case 'stage': valA = a._stage; valB = b._stage; break
+          case 'suite': valA = (a._suite || []).join(','); valB = (b._suite || []).join(','); break
           case 'public': valA = a._role === 'sub-agent' || a._role === 'private' ? 1 : 0; valB = b._role === 'sub-agent' || b._role === 'private' ? 1 : 0; break
           case 'live': valA = a._enabled ? 1 : 0; valB = b._enabled ? 1 : 0; break
           case 'icon': valA = a._kind; valB = b._kind; break
@@ -296,7 +329,7 @@ const AgentConfig = () => {
     }
 
     return result
-  }, [agents, localMcpServers, selectedTags, selectedStages, searchQuery, sortColumn, sortDirection, appConfig.activeEnvironment])
+  }, [agents, localMcpServers, selectedTags, selectedStages, selectedSuites, searchQuery, sortColumn, sortDirection, appConfig.activeEnvironment])
 
   const totalPages = Math.max(1, Math.ceil(listItems.length / pageSize))
   const pagedItems = listItems.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -373,6 +406,7 @@ const AgentConfig = () => {
           slug: formData.slug || null,
           stage: formData.stage || appConfig.defaultAgentStage || 'Draft',
           environment: formData.environment || appConfig.defaultEnvironment || 'AOC',
+          suite: formData.suite || [],
           agent: formData.agent,
         })
         setAgents(prev => [...prev, record])
@@ -383,6 +417,7 @@ const AgentConfig = () => {
           slug: formData.slug,
           stage: formData.stage || appConfig.defaultAgentStage || 'Draft',
           environment: formData.environment || appConfig.defaultEnvironment || 'AOC',
+          suite: formData.suite || [],
           agent: formData.agent,
         })
         setAgents(prev => prev.map(a => a.id === selectedId ? updated : a))
@@ -718,12 +753,45 @@ const AgentConfig = () => {
                 </div>
               )}
             </div>
+            <div className="ac-suite-filter" ref={suiteDropdownRef}>
+              <button
+                className={`ac-btn ac-btn-tag ${selectedSuites.length > 0 ? 'active' : ''}`}
+                onClick={() => setSuiteDropdownOpen(v => !v)}
+              >
+                <Layers size={14} />
+                Suite{selectedSuites.length > 0 && <span className="ac-tag-count">{selectedSuites.length}</span>}
+              </button>
+              {selectedSuites.length > 0 && (
+                <button className="ac-tag-clear" onClick={() => { setSelectedSuites([]); setCurrentPage(1) }} title="Clear suite filter">
+                  <X size={12} />
+                </button>
+              )}
+              {suiteDropdownOpen && (
+                <div className="ac-suite-dropdown">
+                  {SUITE_OPTIONS.map(suite => (
+                    <label key={suite} className={`ac-suite-option ${selectedSuites.includes(suite) ? 'selected' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={selectedSuites.includes(suite)}
+                        onChange={() => toggleSuite(suite)}
+                      />
+                      <span>{suite}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          {(selectedTags.length > 0 || selectedStages.length > 0) && (
+          {(selectedTags.length > 0 || selectedStages.length > 0 || selectedSuites.length > 0) && (
             <div className="ac-tag-chips">
               {selectedStages.map(stage => (
                 <span key={`s-${stage}`} className="ac-tag-chip ac-stage-chip" onClick={() => toggleStage(stage)}>
                   {stage} <X size={10} />
+                </span>
+              ))}
+              {selectedSuites.map(suite => (
+                <span key={`su-${suite}`} className="ac-tag-chip" style={{ background: '#ede9fe', color: '#7c3aed', borderColor: '#c4b5fd' }} onClick={() => toggleSuite(suite)}>
+                  {suite} <X size={10} />
                 </span>
               ))}
               {selectedTags.map(tag => (
@@ -891,6 +959,16 @@ const AgentConfig = () => {
                                         </div>
                                       )
                                     })()}
+                                  </td>
+                                )
+                              case 'suite':
+                                return (
+                                  <td key="suite">
+                                    <div className="ac-suite-badges">
+                                      {(row._suite || []).map(s => (
+                                        <span key={s} className="ac-suite-badge">{s}</span>
+                                      ))}
+                                    </div>
                                   </td>
                                 )
                               case 'public':

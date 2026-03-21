@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import {
   ArrowLeft, Copy, CheckCircle2, Circle, Clock, Play, User, Bot,
   ChevronDown, ChevronUp, AlertTriangle, SkipForward, Mail, Shield,
-  Pencil, FileText, Workflow, Code, Terminal, Loader
+  Pencil, FileText, Workflow, Code, Terminal, Loader, Sparkles,
+  FlaskConical, RotateCcw
 } from 'lucide-react'
 
 const PRIORITY_COLORS = {
@@ -30,6 +31,28 @@ function getStepMeta(step) {
   return STEP_ICONS[`${base}_${state}`] || STEP_ICONS.AUTO_PENDING
 }
 
+const STEP_HANDLER_SUGGESTIONS = {
+  'Validate Order Integrity': 'obs-troubleshooting-agent',
+  'Edit Order & Review Conflicts': 'log-agent',
+  'Notify Customer of Delay': 'servicenow-l1-agent',
+  'Resubmit Provisioning': 'k8s-troubleshooting-agent',
+  'Analyze Duplicate Charges': 'log-agent',
+  'Apply Billing Correction': 'obs-troubleshooting-agent',
+  'Check System Health': 'k8s-troubleshooting-agent',
+  'Validate Entity Structure': 'obs-troubleshooting-agent',
+  'Review & Fix Address Data': 'log-agent',
+  'Retry CRM Update': 'obs-troubleshooting-agent',
+  'Compare Catalog Entries': 'log-agent',
+  'Analyze DLQ Messages': 'log-agent',
+  'Execute Reprocess': 'k8s-troubleshooting-agent',
+  'Detect Loop Pattern': 'log-agent',
+  'Execute State Reset': 'k8s-troubleshooting-agent',
+  'Validate Payment Data': 'obs-troubleshooting-agent',
+  'Execute Payment Retry': 'obs-troubleshooting-agent',
+  'Analyze Rejection Reason': 'log-agent',
+  'Resubmit Port Request': 'obs-troubleshooting-agent',
+}
+
 export default function SkyTaskDetail({ task, onBack }) {
   const [expandedSteps, setExpandedSteps] = useState(() => {
     const map = {}
@@ -46,17 +69,45 @@ export default function SkyTaskDetail({ task, onBack }) {
   const [handlers, setHandlers] = useState([])
   const [selectedHandler, setSelectedHandler] = useState({})
   const [handlerCode, setHandlerCode] = useState({})
+  const [editedCode, setEditedCode] = useState({})
+  const [sandboxMode, setSandboxMode] = useState({})
+  const [sandboxOutput, setSandboxOutput] = useState({})
   const [execState, setExecState] = useState({})
 
   useEffect(() => {
-    fetch('/api/agent-handlers').then(r => r.json()).then(setHandlers).catch(() => {})
+    fetch('/api/agent-handlers').then(r => r.json()).then(h => {
+      setHandlers(h)
+      const initial = {}
+      task.steps.forEach(s => {
+        const suggested = STEP_HANDLER_SUGGESTIONS[s.label]
+        if (suggested && h.find(hh => hh.slug === suggested)) {
+          initial[s.id] = suggested
+        }
+      })
+      if (Object.keys(initial).length > 0) {
+        setSelectedHandler(initial)
+        Object.entries(initial).forEach(([stepId, slug]) => {
+          fetch(`/api/agents/${slug}/handler`).then(r => r.json()).then(d => {
+            setHandlerCode(prev => ({ ...prev, [stepId]: d.content }))
+            setEditedCode(prev => ({ ...prev, [stepId]: d.content }))
+          }).catch(() => {})
+        })
+      }
+    }).catch(() => {})
   }, [])
 
   const loadHandler = (stepId, slug) => {
     setSelectedHandler(prev => ({ ...prev, [stepId]: slug }))
-    if (!slug) { setHandlerCode(prev => ({ ...prev, [stepId]: null })); return }
+    setSandboxMode(prev => ({ ...prev, [stepId]: false }))
+    setSandboxOutput(prev => ({ ...prev, [stepId]: null }))
+    if (!slug) {
+      setHandlerCode(prev => ({ ...prev, [stepId]: null }))
+      setEditedCode(prev => ({ ...prev, [stepId]: null }))
+      return
+    }
     fetch(`/api/agents/${slug}/handler`).then(r => r.json()).then(d => {
       setHandlerCode(prev => ({ ...prev, [stepId]: d.content }))
+      setEditedCode(prev => ({ ...prev, [stepId]: d.content }))
     }).catch(() => {})
   }
 
@@ -66,6 +117,31 @@ export default function SkyTaskDetail({ task, onBack }) {
       setExecState(prev => ({ ...prev, [stepId]: 'done' }))
       setTimeout(() => setExecState(prev => ({ ...prev, [stepId]: null })), 3000)
     }, 2000)
+  }
+
+  const executeSandbox = (stepId) => {
+    setExecState(prev => ({ ...prev, [stepId]: 'running' }))
+    setSandboxOutput(prev => ({ ...prev, [stepId]: null }))
+    setTimeout(() => {
+      const lines = (editedCode[stepId] || '').split('\n').length
+      setSandboxOutput(prev => ({
+        ...prev,
+        [stepId]: [
+          `[sandbox] Executing ${lines} lines of Python...`,
+          `[sandbox] Agent: ${selectedHandler[stepId]}`,
+          `[sandbox] ✓ Syntax OK`,
+          `[sandbox] ✓ Execution completed — no errors`,
+          `[sandbox] Result: { "status": "success", "sandbox": true }`,
+        ]
+      }))
+      setExecState(prev => ({ ...prev, [stepId]: 'sandbox-done' }))
+      setTimeout(() => setExecState(prev => ({ ...prev, [stepId]: null })), 5000)
+    }, 2500)
+  }
+
+  const resetCode = (stepId) => {
+    setEditedCode(prev => ({ ...prev, [stepId]: handlerCode[stepId] }))
+    setSandboxOutput(prev => ({ ...prev, [stepId]: null }))
   }
 
   const toggleStep = (id) => setExpandedSteps(prev => ({ ...prev, [id]: !prev[id] }))
@@ -312,28 +388,90 @@ export default function SkyTaskDetail({ task, onBack }) {
                             onChange={e => loadHandler(step.id, e.target.value)}
                           >
                             <option value="">Select handler…</option>
-                            {handlers.map(h => (
-                              <option key={h.slug} value={h.slug}>{h.label}</option>
-                            ))}
+                            {handlers.map(h => {
+                              const isSuggested = STEP_HANDLER_SUGGESTIONS[step.label] === h.slug
+                              return (
+                                <option key={h.slug} value={h.slug}>
+                                  {h.label}{isSuggested ? ' ★ Suggested' : ''}
+                                </option>
+                              )
+                            })}
                           </select>
-                          {selectedHandler[step.id] && (
-                            <button
-                              className={`sky-btn sky-btn-sm ${execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-green'}`}
-                              onClick={() => executeHandler(step.id)}
-                              disabled={execState[step.id] === 'running'}
-                            >
-                              {execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
-                               execState[step.id] === 'done' ? <><CheckCircle2 size={12} /> Done</> :
-                               <><Terminal size={12} /> Execute</>}
-                            </button>
+                          {selectedHandler[step.id] && STEP_HANDLER_SUGGESTIONS[step.label] === selectedHandler[step.id] && (
+                            <span className="sky-suggested-badge"><Sparkles size={11} /> Suggested</span>
                           )}
                         </div>
-                        {handlerCode[step.id] && (
-                          <pre className="sky-python-code">{handlerCode[step.id]}</pre>
+
+                        {selectedHandler[step.id] && handlerCode[step.id] && (
+                          <>
+                            <div className="sky-python-toolbar">
+                              <div className="sky-python-toolbar-left">
+                                <button
+                                  className={`sky-python-mode-btn ${!sandboxMode[step.id] ? 'active' : ''}`}
+                                  onClick={() => setSandboxMode(prev => ({ ...prev, [step.id]: false }))}
+                                >
+                                  <Terminal size={12} /> Execute
+                                </button>
+                                <button
+                                  className={`sky-python-mode-btn ${sandboxMode[step.id] ? 'active' : ''}`}
+                                  onClick={() => setSandboxMode(prev => ({ ...prev, [step.id]: true }))}
+                                >
+                                  <FlaskConical size={12} /> Sandbox
+                                </button>
+                              </div>
+                              <div className="sky-python-toolbar-right">
+                                {sandboxMode[step.id] && editedCode[step.id] !== handlerCode[step.id] && (
+                                  <button className="sky-btn sky-btn-outline sky-btn-xs" onClick={() => resetCode(step.id)}>
+                                    <RotateCcw size={11} /> Reset
+                                  </button>
+                                )}
+                                {!sandboxMode[step.id] ? (
+                                  <button
+                                    className={`sky-btn sky-btn-sm ${execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-green'}`}
+                                    onClick={() => executeHandler(step.id)}
+                                    disabled={execState[step.id] === 'running'}
+                                  >
+                                    {execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
+                                     execState[step.id] === 'done' ? <><CheckCircle2 size={12} /> Done</> :
+                                     <><Play size={12} /> Run</>}
+                                  </button>
+                                ) : (
+                                  <button
+                                    className={`sky-btn sky-btn-sm ${execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-sandbox'}`}
+                                    onClick={() => executeSandbox(step.id)}
+                                    disabled={execState[step.id] === 'running'}
+                                  >
+                                    {execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
+                                     execState[step.id] === 'sandbox-done' ? <><CheckCircle2 size={12} /> Done</> :
+                                     <><FlaskConical size={12} /> Run in Sandbox</>}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {sandboxMode[step.id] ? (
+                              <textarea
+                                className="sky-python-editor"
+                                value={editedCode[step.id] || ''}
+                                onChange={e => setEditedCode(prev => ({ ...prev, [step.id]: e.target.value }))}
+                                spellCheck={false}
+                              />
+                            ) : (
+                              <pre className="sky-python-code">{handlerCode[step.id]}</pre>
+                            )}
+                          </>
                         )}
+
                         {execState[step.id] === 'done' && (
                           <div className="sky-python-output">
-                            <div className="sky-console-line highlight">[OK] Handler executed successfully — result: {`{ "status": "completed", "agent": "${selectedHandler[step.id]}" }`}</div>
+                            <div className="sky-console-line highlight">[OK] Handler executed — result: {`{ "status": "completed", "agent": "${selectedHandler[step.id]}" }`}</div>
+                          </div>
+                        )}
+                        {sandboxOutput[step.id] && (
+                          <div className="sky-python-output sky-sandbox-output">
+                            {sandboxOutput[step.id].map((line, i) => (
+                              <div key={i} className={`sky-console-line ${line.includes('✓') ? 'highlight' : ''}`}>{line}</div>
+                            ))}
                           </div>
                         )}
                       </div>

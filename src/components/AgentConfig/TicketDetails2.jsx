@@ -7,7 +7,7 @@ import '@xyflow/react/dist/style.css'
 import {
   ArrowLeft, Copy, CheckCircle2, Circle, Clock, Play, User, Bot,
   ChevronDown, ChevronUp, AlertTriangle, SkipForward, Pencil,
-  Workflow, Code, Terminal, Loader, X
+  Workflow, Code, Terminal, Loader, X, Sparkles, FlaskConical, RotateCcw
 } from 'lucide-react'
 
 const PRIORITY_COLORS = {
@@ -96,6 +96,13 @@ function normalizeSteps(task) {
   })
 }
 
+const STEP_HANDLER_SUGGESTIONS = {
+  'Validate Order Integrity': 'obs-troubleshooting-agent',
+  'Edit Order & Review Conflicts': 'log-agent',
+  'Notify Customer of Delay': 'servicenow-l1-agent',
+  'Resubmit Provisioning': 'k8s-troubleshooting-agent',
+}
+
 export default function TicketDetails2() {
   const [task, setTask] = useState(null)
   const [selectedStep, setSelectedStep] = useState(null)
@@ -104,6 +111,9 @@ export default function TicketDetails2() {
   const [handlers, setHandlers] = useState([])
   const [selectedHandler, setSelectedHandler] = useState({})
   const [handlerCode, setHandlerCode] = useState({})
+  const [editedCode, setEditedCode] = useState({})
+  const [sandboxMode, setSandboxMode] = useState({})
+  const [sandboxOutput, setSandboxOutput] = useState({})
   const [execState, setExecState] = useState({})
 
   useEffect(() => {
@@ -211,14 +221,29 @@ export default function TicketDetails2() {
   const onNodeClick = useCallback((_, node) => {
     if (!task) return
     const step = task.steps.find(s => `step-${s.id}` === node.id)
-    if (step) setSelectedStep(step)
-  }, [task])
+    if (step) {
+      setSelectedStep(step)
+      if (!selectedHandler[step.id] && handlers.length > 0) {
+        const suggested = STEP_HANDLER_SUGGESTIONS[step.label]
+        if (suggested && handlers.find(h => h.slug === suggested)) {
+          loadHandler(step.id, suggested)
+        }
+      }
+    }
+  }, [task, handlers, selectedHandler])
 
   const loadHandler = (stepId, slug) => {
     setSelectedHandler(prev => ({ ...prev, [stepId]: slug }))
-    if (!slug) { setHandlerCode(prev => ({ ...prev, [stepId]: null })); return }
+    setSandboxMode(prev => ({ ...prev, [stepId]: false }))
+    setSandboxOutput(prev => ({ ...prev, [stepId]: null }))
+    if (!slug) {
+      setHandlerCode(prev => ({ ...prev, [stepId]: null }))
+      setEditedCode(prev => ({ ...prev, [stepId]: null }))
+      return
+    }
     fetch(`/api/agents/${slug}/handler`).then(r => r.json()).then(d => {
       setHandlerCode(prev => ({ ...prev, [stepId]: d.content }))
+      setEditedCode(prev => ({ ...prev, [stepId]: d.content }))
     }).catch(() => {})
   }
 
@@ -228,6 +253,31 @@ export default function TicketDetails2() {
       setExecState(prev => ({ ...prev, [stepId]: 'done' }))
       setTimeout(() => setExecState(prev => ({ ...prev, [stepId]: null })), 3000)
     }, 2000)
+  }
+
+  const executeSandbox = (stepId) => {
+    setExecState(prev => ({ ...prev, [stepId]: 'running' }))
+    setSandboxOutput(prev => ({ ...prev, [stepId]: null }))
+    setTimeout(() => {
+      const lines = (editedCode[stepId] || '').split('\n').length
+      setSandboxOutput(prev => ({
+        ...prev,
+        [stepId]: [
+          `[sandbox] Executing ${lines} lines of Python...`,
+          `[sandbox] Agent: ${selectedHandler[stepId]}`,
+          `[sandbox] ✓ Syntax OK`,
+          `[sandbox] ✓ Execution completed — no errors`,
+          `[sandbox] Result: { "status": "success", "sandbox": true }`,
+        ]
+      }))
+      setExecState(prev => ({ ...prev, [stepId]: 'sandbox-done' }))
+      setTimeout(() => setExecState(prev => ({ ...prev, [stepId]: null })), 5000)
+    }, 2500)
+  }
+
+  const resetCode = (stepId) => {
+    setEditedCode(prev => ({ ...prev, [stepId]: handlerCode[stepId] }))
+    setSandboxOutput(prev => ({ ...prev, [stepId]: null }))
   }
 
   const copySnippet = () => {
@@ -356,7 +406,9 @@ export default function TicketDetails2() {
             <div className="td2-drawer-body">
               {renderStepCard(selectedStep, {
                 notes, setNotes, handlers, selectedHandler, handlerCode,
-                execState, loadHandler, executeHandler
+                editedCode, setEditedCode, sandboxMode, setSandboxMode,
+                sandboxOutput, execState, loadHandler, executeHandler,
+                executeSandbox, resetCode
               })}
             </div>
           </div>
@@ -448,28 +500,90 @@ function renderStepCard(step, ctx) {
             onChange={e => ctx.loadHandler(step.id, e.target.value)}
           >
             <option value="">Select handler…</option>
-            {ctx.handlers.map(h => (
-              <option key={h.slug} value={h.slug}>{h.label}</option>
-            ))}
+            {ctx.handlers.map(h => {
+              const isSuggested = STEP_HANDLER_SUGGESTIONS[step.label] === h.slug
+              return (
+                <option key={h.slug} value={h.slug}>
+                  {h.label}{isSuggested ? ' ★ Suggested' : ''}
+                </option>
+              )
+            })}
           </select>
-          {ctx.selectedHandler[step.id] && (
-            <button
-              className={`sky-btn sky-btn-sm ${ctx.execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-green'}`}
-              onClick={() => ctx.executeHandler(step.id)}
-              disabled={ctx.execState[step.id] === 'running'}
-            >
-              {ctx.execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
-               ctx.execState[step.id] === 'done' ? <><CheckCircle2 size={12} /> Done</> :
-               <><Terminal size={12} /> Execute</>}
-            </button>
+          {ctx.selectedHandler[step.id] && STEP_HANDLER_SUGGESTIONS[step.label] === ctx.selectedHandler[step.id] && (
+            <span className="sky-suggested-badge"><Sparkles size={11} /> Suggested</span>
           )}
         </div>
-        {ctx.handlerCode[step.id] && (
-          <pre className="sky-python-code">{ctx.handlerCode[step.id]}</pre>
+
+        {ctx.selectedHandler[step.id] && ctx.handlerCode[step.id] && (
+          <>
+            <div className="sky-python-toolbar">
+              <div className="sky-python-toolbar-left">
+                <button
+                  className={`sky-python-mode-btn ${!ctx.sandboxMode[step.id] ? 'active' : ''}`}
+                  onClick={() => ctx.setSandboxMode(prev => ({ ...prev, [step.id]: false }))}
+                >
+                  <Terminal size={12} /> Execute
+                </button>
+                <button
+                  className={`sky-python-mode-btn ${ctx.sandboxMode[step.id] ? 'active' : ''}`}
+                  onClick={() => ctx.setSandboxMode(prev => ({ ...prev, [step.id]: true }))}
+                >
+                  <FlaskConical size={12} /> Sandbox
+                </button>
+              </div>
+              <div className="sky-python-toolbar-right">
+                {ctx.sandboxMode[step.id] && ctx.editedCode[step.id] !== ctx.handlerCode[step.id] && (
+                  <button className="sky-btn sky-btn-outline sky-btn-xs" onClick={() => ctx.resetCode(step.id)}>
+                    <RotateCcw size={11} /> Reset
+                  </button>
+                )}
+                {!ctx.sandboxMode[step.id] ? (
+                  <button
+                    className={`sky-btn sky-btn-sm ${ctx.execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-green'}`}
+                    onClick={() => ctx.executeHandler(step.id)}
+                    disabled={ctx.execState[step.id] === 'running'}
+                  >
+                    {ctx.execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
+                     ctx.execState[step.id] === 'done' ? <><CheckCircle2 size={12} /> Done</> :
+                     <><Play size={12} /> Run</>}
+                  </button>
+                ) : (
+                  <button
+                    className={`sky-btn sky-btn-sm ${ctx.execState[step.id] === 'running' ? 'sky-btn-outline' : 'sky-btn-sandbox'}`}
+                    onClick={() => ctx.executeSandbox(step.id)}
+                    disabled={ctx.execState[step.id] === 'running'}
+                  >
+                    {ctx.execState[step.id] === 'running' ? <><Loader size={12} className="sky-spin" /> Running…</> :
+                     ctx.execState[step.id] === 'sandbox-done' ? <><CheckCircle2 size={12} /> Done</> :
+                     <><FlaskConical size={12} /> Run in Sandbox</>}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {ctx.sandboxMode[step.id] ? (
+              <textarea
+                className="sky-python-editor"
+                value={ctx.editedCode[step.id] || ''}
+                onChange={e => ctx.setEditedCode(prev => ({ ...prev, [step.id]: e.target.value }))}
+                spellCheck={false}
+              />
+            ) : (
+              <pre className="sky-python-code">{ctx.handlerCode[step.id]}</pre>
+            )}
+          </>
         )}
+
         {ctx.execState[step.id] === 'done' && (
           <div className="sky-python-output">
             <div className="sky-console-line highlight">[OK] Handler executed — result: {`{ "status": "completed", "agent": "${ctx.selectedHandler[step.id]}" }`}</div>
+          </div>
+        )}
+        {ctx.sandboxOutput[step.id] && (
+          <div className="sky-python-output sky-sandbox-output">
+            {ctx.sandboxOutput[step.id].map((line, i) => (
+              <div key={i} className={`sky-console-line ${line.includes('✓') ? 'highlight' : ''}`}>{line}</div>
+            ))}
           </div>
         )}
       </div>

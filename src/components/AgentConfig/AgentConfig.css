@@ -2955,6 +2955,88 @@
   font-weight: 600;
 }
 
+/* Suite multi-select chips */
+.suite-multi-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.suite-chip {
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.suite-chip:hover {
+  border-color: #a78bfa;
+  color: #7c3aed;
+}
+.suite-chip.active {
+  background: #ede9fe;
+  border-color: #7c3aed;
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+/* Suite filter dropdown (toolbar) */
+.ac-suite-filter {
+  position: relative;
+}
+.ac-suite-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  z-index: 100;
+  min-width: 170px;
+  padding: 6px 0;
+}
+.ac-suite-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #334155;
+  transition: background 0.12s;
+}
+.ac-suite-option:hover {
+  background: #f1f5f9;
+}
+.ac-suite-option.selected {
+  color: #7c3aed;
+  font-weight: 600;
+}
+.ac-suite-option input[type="checkbox"] {
+  accent-color: #7c3aed;
+}
+
+/* Suite badge (table cell) */
+.ac-suite-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.ac-suite-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #ede9fe;
+  color: #7c3aed;
+  white-space: nowrap;
+}
+
 /* =========================================================
    MCP Bindings Panel (inside agent detail)
    ========================================================= */

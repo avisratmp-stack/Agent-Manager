@@ -109,7 +109,8 @@
       },
       "enabled": false,
       "tags": [],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 2,
@@ -195,7 +196,8 @@
       },
       "enabled": false,
       "tags": [],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 4,
@@ -245,7 +247,8 @@
       },
       "enabled": true,
       "tags": [],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 5,
@@ -308,7 +311,8 @@
       },
       "enabled": true,
       "tags": [],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 9,
@@ -370,112 +374,8 @@
       },
       "enabled": true,
       "tags": [],
-      "environment": "AOC"
-    },
-    {
-      "id": 10,
-      "type": "local",
-      "stage": "Draft",
-      "slug": "obs-troubleshooting-agent",
-      "calls": [],
-      "mcpBindings": [
-        {
-          "serverId": "prometheus",
-          "tools": [
-            "query",
-            "query-range",
-            "alerts"
-          ],
-          "purpose": "Metric-based RCA — query error rates, latency, and saturation"
-        },
-        {
-          "serverId": "grafana",
-          "tools": [
-            "query-datasource",
-            "get-dashboard",
-            "get-annotations"
-          ],
-          "purpose": "Dashboard-driven investigation and annotation correlation"
-        },
-        {
-          "serverId": "elasticsearch",
-          "tools": [
-            "search",
-            "aggregate"
-          ],
-          "purpose": "Log correlation during root-cause analysis"
-        },
-        {
-          "serverId": "jaeger",
-          "tools": [
-            "find-traces",
-            "get-trace"
-          ],
-          "purpose": "Distributed trace analysis for request-level RCA"
-        },
-        {
-          "serverId": "azure-monitor",
-          "tools": [
-            "query-log-analytics",
-            "retrieve-metrics",
-            "get-resource-health"
-          ],
-          "purpose": "Azure Monitor metrics and log queries for RCA"
-        },
-        {
-          "serverId": "azure-log-analytics",
-          "tools": [
-            "query-kql",
-            "natural-language-query"
-          ],
-          "purpose": "KQL-based log investigation on Azure workspaces"
-        },
-        "aoc-log-aggregator"
-      ],
-      "agent": {
-        "name": "Observability Troubleshooting Agent",
-        "description": "Imported (https://confluence/spaces/MN/pages/707071226/MSFN-59239+Observability+Observability+Troubleshooting+Agent-HLS). Agent-driven RCA across Prometheus, Grafana, Elasticsearch, Jaeger. AI agent troubleshoots app issues automatically replacing manual investigation. HIGH relevance — direct peer to AOC Obs Agent.",
-        "url": "https://msfn-obs-troubleshooting.internal/agent",
-        "version": "1.0.0",
-        "capabilities": {
-          "streaming": true,
-          "async_execution": true
-        },
-        "tools": [
-          {
-            "id": "rca-investigate",
-            "name": "RCA Investigate",
-            "description": "Run AI-driven root cause analysis across observability signals",
-            "tags": [
-              "rca",
-              "observability",
-              "ai"
-            ]
-          },
-          {
-            "id": "correlate-signals",
-            "name": "Correlate Signals",
-            "description": "Cross-correlate metrics, logs, and traces for a given incident",
-            "tags": [
-              "correlation",
-              "multi-signal"
-            ]
-          }
-        ],
-        "handler": {
-          "class": "services.obs_troubleshooting.ObsTroubleshootingHandler",
-          "args": {
-            "agent_executor": "services.obs_troubleshooting.ObsTroubleshootingExecutor",
-            "task_store": "framework.task_stores.RedisTaskStore"
-          }
-        }
-      },
-      "enabled": false,
-      "tags": [
-        "Imported",
-        "Imported-Confluence"
-      ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 11,
@@ -563,7 +463,8 @@
         "Imported",
         "Imported-Confluence"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 12,
@@ -657,7 +558,8 @@
         "Imported",
         "Imported-Confluence"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 13,
@@ -727,7 +629,8 @@
         "Imported",
         "Imported-Confluence"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 14,
@@ -779,7 +682,8 @@
         "Imported",
         "Imported-Confluence"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 15,
@@ -840,7 +744,8 @@
         "Imported",
         "Imported-Confluence"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 16,
@@ -904,7 +809,8 @@
         "Imported",
         "Imported-ATT"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 17,
@@ -974,7 +880,8 @@
         "Imported",
         "Imported-ATT"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 18,
@@ -1039,7 +946,8 @@
         "Imported",
         "Imported-ATT"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 19,
@@ -1102,7 +1010,8 @@
         "Imported",
         "Imported-ATT"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 20,
@@ -1158,7 +1067,8 @@
         "Imported",
         "Imported-ATT"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 21,
@@ -1228,7 +1138,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 22,
@@ -1290,7 +1201,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 23,
@@ -1353,7 +1265,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 24,
@@ -1408,7 +1321,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 25,
@@ -1470,7 +1384,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 26,
@@ -1525,7 +1440,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 27,
@@ -1578,7 +1494,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 28,
@@ -1632,7 +1549,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 29,
@@ -1702,7 +1620,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 30,
@@ -1756,7 +1675,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 31,
@@ -1837,7 +1757,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 32,
@@ -1902,7 +1823,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 33,
@@ -1965,7 +1887,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 34,
@@ -2026,7 +1949,8 @@
         "Imported",
         "Imported-Web"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 35,
@@ -2177,7 +2101,8 @@
         "RCA",
         "Observability"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": []
     },
     {
       "id": 36,
@@ -2297,7 +2222,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 37,
@@ -2400,7 +2328,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 38,
@@ -2503,7 +2434,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 39,
@@ -2588,7 +2522,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 40,
@@ -2691,7 +2628,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 41,
@@ -2775,7 +2715,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 42,
@@ -2869,7 +2812,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 43,
@@ -2972,7 +2918,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 44,
@@ -3075,7 +3024,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 45,
@@ -3157,7 +3109,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 46,
@@ -3257,7 +3212,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 47,
@@ -3341,7 +3299,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 48,
@@ -3435,7 +3396,10 @@
         "Feature-3",
         "Digital-Business-Domain"
       ],
-      "environment": "AOC"
+      "environment": "AOC",
+      "suite": [
+        "CES 2.X"
+      ]
     },
     {
       "id": 49,
@@ -3537,7 +3501,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 50,
@@ -3622,7 +3587,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 51,
@@ -3708,7 +3674,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 52,
@@ -3794,7 +3761,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 53,
@@ -3879,7 +3847,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 54,
@@ -3963,7 +3932,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 55,
@@ -4047,7 +4017,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 56,
@@ -4134,7 +4105,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 57,
@@ -4226,7 +4198,8 @@
       "tags": [
         "Sky",
         "Fallout-Management"
-      ]
+      ],
+      "suite": []
     },
     {
       "id": 58,
@@ -4255,7 +4228,8 @@
             "task_store": "framework.task_stores.InMemoryTaskStore"
           }
         }
-      }
+      },
+      "suite": []
     }
   ]
 }

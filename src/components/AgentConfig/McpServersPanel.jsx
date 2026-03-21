@@ -229,6 +229,8 @@ const McpServersPanel = ({ mcpServers, onServersChange, addTrigger, onToggleMcp 
   )
 }
 
+const SUITE_OPTIONS = ['CES 2.X', 'Classic', 'Ensemble', 'Cross', 'TBD']
+
 const McpServerDialog = ({ mode, server, onSave, onClose }) => {
   const toolsToStr = (tools) => (tools || []).map(t => typeof t === 'string' ? t : t.name || '').filter(Boolean).join(', ')
 
@@ -242,6 +244,7 @@ const McpServerDialog = ({ mode, server, onSave, onClose }) => {
     role: server?.role || 'public',
     stage: server?.stage || 'Design',
     environment: server?.environment || 'AOC',
+    suite: server?.suite || [],
     tools: toolsToStr(server?.tools),
     tags: (server?.tags || []).join(', '),
   })
@@ -339,6 +342,27 @@ const McpServerDialog = ({ mode, server, onSave, onClose }) => {
                 <option value="Dev">Dev</option>
                 <option value="Released">Released</option>
               </select>
+            </div>
+            <div className="form-group">
+              <label>Suite</label>
+              <div className="suite-multi-select">
+                {SUITE_OPTIONS.map(opt => {
+                  const active = (form.suite || []).includes(opt)
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      className={`suite-chip ${active ? 'active' : ''}`}
+                      onClick={() => {
+                        const cur = form.suite || []
+                        set('suite', active ? cur.filter(s => s !== opt) : [...cur, opt])
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             {form.type === 'external' && (
               <>

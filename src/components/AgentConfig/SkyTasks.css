@@ -490,6 +490,117 @@
   font-family: 'SF Mono', 'Consolas', monospace;
   font-size: 11px;
 }
+
+/* Suggested badge */
+.sky-suggested-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Python toolbar (Execute / Sandbox tabs + run button) */
+.sky-python-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 12px;
+  background: #f1f5f9;
+  border-top: 1px solid #e0e7ff;
+}
+.sky-python-toolbar-left {
+  display: flex;
+  gap: 2px;
+}
+.sky-python-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sky-python-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sky-python-mode-btn:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+.sky-python-mode-btn.active {
+  background: #fff;
+  color: #1e293b;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Sandbox run button */
+.sky-btn-sandbox {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+}
+.sky-btn-sandbox:hover {
+  background: #6d28d9;
+}
+
+/* Extra-small button */
+.sky-btn-xs {
+  padding: 2px 8px !important;
+  font-size: 10px !important;
+}
+
+/* Editable Python editor (sandbox mode) */
+.sky-python-editor {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  max-height: 340px;
+  padding: 12px 14px;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  border: none;
+  border-top: 2px solid #7c3aed;
+  resize: vertical;
+  outline: none;
+  tab-size: 4;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+.sky-python-editor:focus {
+  border-top-color: #a78bfa;
+}
+
+/* Sandbox output */
+.sky-sandbox-output {
+  border-top: 2px solid #7c3aed;
+}
+.sky-sandbox-output .sky-console-line {
+  color: #c4b5fd;
+}
+.sky-sandbox-output .sky-console-line.highlight {
+  color: #22c55e;
+}
+
 @keyframes sky-spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
 .sky-spin { animation: sky-spin 1s linear infinite; }
 

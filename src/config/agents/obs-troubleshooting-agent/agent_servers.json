@@ -1,5 +1,0 @@
-{
-  "$schema": "agent-servers/v1",
-  "agent": "obs-troubleshooting-agent",
-  "servers": []
-}
