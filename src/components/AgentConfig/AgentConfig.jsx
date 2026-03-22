@@ -18,6 +18,7 @@ import AgentMapVerticalPanel from './AgentMapVerticalPanel'
 import ConfigurationPanel, { getDefaultConfig } from './ConfigurationPanel'
 import SkyTasksPanel from './SkyTasksPanel'
 import SkyTrackingReport from './SkyTrackingReport'
+import SkyLiveStatus from './SkyLiveStatus'
 import TicketDetails2 from './TicketDetails2'
 import { api } from '../../api'
 import './AgentConfig.css'
@@ -32,8 +33,10 @@ const SIDEBAR_ITEMS_BASE = [
   { icon: Zap, label: 'Test', view: 'test', sub: true },
   { icon: Cloud, label: 'Resolver: Sky', highlight: true, section: true, sky: true },
   { icon: ListTodo, label: 'Tasks List', view: 'sky-tasks', sub: true, sky: true },
+  { icon: ListTodo, label: 'Tasks List (ATT)', view: 'sky-tasks-att', sub: true, sky: true },
   { icon: Workflow, label: 'Ticket Details 2', view: 'sky-ticket2', sub: true, sky: true },
   { icon: Activity, label: 'Tracking Report', view: 'sky-report', sub: true, sky: true },
+  { icon: Gauge, label: 'Live Status', view: 'sky-live-status', sub: true, sky: true },
   { icon: Settings, label: 'Configuration', view: 'config' },
 ]
 
@@ -81,6 +84,7 @@ const AgentConfig = () => {
   const [stageDropdownOpen, setStageDropdownOpen] = useState(false)
   const [selectedSuites, setSelectedSuites] = useState([])
   const [suiteDropdownOpen, setSuiteDropdownOpen] = useState(false)
+  const [skyDetailsMode, setSkyDetailsMode] = useState('regular')
   const [loggedIn, setLoggedIn] = useState(true)
   const [loginError, setLoginError] = useState('')
   const [configPwOpen, setConfigPwOpen] = useState(false)
@@ -696,93 +700,122 @@ const AgentConfig = () => {
                 onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1) }}
               />
             </div>
-            <div className="ac-tag-filter" ref={tagDropdownRef}>
-              <button
-                className={`ac-btn ac-btn-tag ${selectedTags.length > 0 ? 'active' : ''}`}
-                onClick={() => setTagDropdownOpen(v => !v)}
-              >
-                <Tag size={14} />
-                Tags{selectedTags.length > 0 && <span className="ac-tag-count">{selectedTags.length}</span>}
-              </button>
-              {selectedTags.length > 0 && (
-                <button className="ac-tag-clear" onClick={() => { setSelectedTags([]); setCurrentPage(1) }} title="Clear all tags">
-                  <X size={12} />
-                </button>
-              )}
-              {tagDropdownOpen && (
-                <div className="ac-tag-dropdown">
-                  {allTags.map(tag => (
-                    <label key={tag} className={`ac-tag-option ${selectedTags.includes(tag) ? 'selected' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedTags.includes(tag)}
-                        onChange={() => toggleTag(tag)}
-                      />
-                      <span>{tag}</span>
-                    </label>
-                  ))}
-                  {allTags.length === 0 && <div className="ac-tag-empty">No tags</div>}
+            {!activeView.startsWith('sky-') && (
+              <>
+                <div className="ac-tag-filter" ref={tagDropdownRef}>
+                  <button
+                    className={`ac-btn ac-btn-tag ${selectedTags.length > 0 ? 'active' : ''}`}
+                    onClick={() => setTagDropdownOpen(v => !v)}
+                  >
+                    <Tag size={14} />
+                    Tags{selectedTags.length > 0 && <span className="ac-tag-count">{selectedTags.length}</span>}
+                  </button>
+                  {selectedTags.length > 0 && (
+                    <button className="ac-tag-clear" onClick={() => { setSelectedTags([]); setCurrentPage(1) }} title="Clear all tags">
+                      <X size={12} />
+                    </button>
+                  )}
+                  {tagDropdownOpen && (
+                    <div className="ac-tag-dropdown">
+                      {allTags.map(tag => (
+                        <label key={tag} className={`ac-tag-option ${selectedTags.includes(tag) ? 'selected' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedTags.includes(tag)}
+                            onChange={() => toggleTag(tag)}
+                          />
+                          <span>{tag}</span>
+                        </label>
+                      ))}
+                      {allTags.length === 0 && <div className="ac-tag-empty">No tags</div>}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="ac-tag-filter" ref={stageDropdownRef}>
-              <button
-                className={`ac-btn ac-btn-tag ${selectedStages.length > 0 ? 'active' : ''}`}
-                onClick={() => setStageDropdownOpen(v => !v)}
-              >
-                <Gauge size={14} />
-                Stage{selectedStages.length > 0 && <span className="ac-tag-count">{selectedStages.length}</span>}
-              </button>
-              {selectedStages.length > 0 && (
-                <button className="ac-tag-clear" onClick={() => { setSelectedStages([]); setCurrentPage(1) }} title="Clear stage filter">
-                  <X size={12} />
-                </button>
-              )}
-              {stageDropdownOpen && (
-                <div className="ac-tag-dropdown">
-                  {ALL_STAGES.map(stage => (
-                    <label key={stage} className={`ac-tag-option ${selectedStages.includes(stage) ? 'selected' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedStages.includes(stage)}
-                        onChange={() => toggleStage(stage)}
-                      />
-                      <span>{stage}</span>
-                    </label>
-                  ))}
+                <div className="ac-tag-filter" ref={stageDropdownRef}>
+                  <button
+                    className={`ac-btn ac-btn-tag ${selectedStages.length > 0 ? 'active' : ''}`}
+                    onClick={() => setStageDropdownOpen(v => !v)}
+                  >
+                    <Gauge size={14} />
+                    Stage{selectedStages.length > 0 && <span className="ac-tag-count">{selectedStages.length}</span>}
+                  </button>
+                  {selectedStages.length > 0 && (
+                    <button className="ac-tag-clear" onClick={() => { setSelectedStages([]); setCurrentPage(1) }} title="Clear stage filter">
+                      <X size={12} />
+                    </button>
+                  )}
+                  {stageDropdownOpen && (
+                    <div className="ac-tag-dropdown">
+                      {ALL_STAGES.map(stage => (
+                        <label key={stage} className={`ac-tag-option ${selectedStages.includes(stage) ? 'selected' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedStages.includes(stage)}
+                            onChange={() => toggleStage(stage)}
+                          />
+                          <span>{stage}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="ac-suite-filter" ref={suiteDropdownRef}>
-              <button
-                className={`ac-btn ac-btn-tag ${selectedSuites.length > 0 ? 'active' : ''}`}
-                onClick={() => setSuiteDropdownOpen(v => !v)}
-              >
-                <Layers size={14} />
-                Suite{selectedSuites.length > 0 && <span className="ac-tag-count">{selectedSuites.length}</span>}
-              </button>
-              {selectedSuites.length > 0 && (
-                <button className="ac-tag-clear" onClick={() => { setSelectedSuites([]); setCurrentPage(1) }} title="Clear suite filter">
-                  <X size={12} />
-                </button>
-              )}
-              {suiteDropdownOpen && (
-                <div className="ac-suite-dropdown">
-                  {SUITE_OPTIONS.map(suite => (
-                    <label key={suite} className={`ac-suite-option ${selectedSuites.includes(suite) ? 'selected' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedSuites.includes(suite)}
-                        onChange={() => toggleSuite(suite)}
-                      />
-                      <span>{suite}</span>
-                    </label>
-                  ))}
+                <div className="ac-suite-filter" ref={suiteDropdownRef}>
+                  <button
+                    className={`ac-btn ac-btn-tag ${selectedSuites.length > 0 ? 'active' : ''}`}
+                    onClick={() => setSuiteDropdownOpen(v => !v)}
+                  >
+                    <Layers size={14} />
+                    Suite{selectedSuites.length > 0 && <span className="ac-tag-count">{selectedSuites.length}</span>}
+                  </button>
+                  {selectedSuites.length > 0 && (
+                    <button className="ac-tag-clear" onClick={() => { setSelectedSuites([]); setCurrentPage(1) }} title="Clear suite filter">
+                      <X size={12} />
+                    </button>
+                  )}
+                  {suiteDropdownOpen && (
+                    <div className="ac-suite-dropdown">
+                      {SUITE_OPTIONS.map(suite => (
+                        <label key={suite} className={`ac-suite-option ${selectedSuites.includes(suite) ? 'selected' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={selectedSuites.includes(suite)}
+                            onChange={() => toggleSuite(suite)}
+                          />
+                          <span>{suite}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
+            {activeView.startsWith('sky-') && (
+              <div className="sky-mode-toggle">
+                <button
+                  className={`sky-mode-btn ${skyDetailsMode === 'regular' ? 'active' : ''}`}
+                  onClick={() => setSkyDetailsMode('regular')}
+                >
+                  <List size={13} />
+                  Regular
+                </button>
+                <button
+                  className={`sky-mode-btn ${skyDetailsMode === 'hybrid' ? 'active' : ''}`}
+                  onClick={() => setSkyDetailsMode('hybrid')}
+                >
+                  <GitBranchPlus size={13} />
+                  Hybrid
+                </button>
+                <button
+                  className={`sky-mode-btn ${skyDetailsMode === 'workflow' ? 'active' : ''}`}
+                  onClick={() => setSkyDetailsMode('workflow')}
+                >
+                  <Workflow size={13} />
+                  Workflow
+                </button>
+              </div>
+            )}
           </div>
-          {(selectedTags.length > 0 || selectedStages.length > 0 || selectedSuites.length > 0) && (
+          {!activeView.startsWith('sky-') && (selectedTags.length > 0 || selectedStages.length > 0 || selectedSuites.length > 0) && (
             <div className="ac-tag-chips">
               {selectedStages.map(stage => (
                 <span key={`s-${stage}`} className="ac-tag-chip ac-stage-chip" onClick={() => toggleStage(stage)}>
@@ -803,11 +836,15 @@ const AgentConfig = () => {
           )}
 
           {activeView === 'sky-tasks' ? (
-            <SkyTasksPanel />
+            <SkyTasksPanel detailsMode={skyDetailsMode} />
+          ) : activeView === 'sky-tasks-att' ? (
+            <SkyTasksPanel detailsMode={skyDetailsMode} dataUrl="/api/sky-tasks-att" panelTitle="Sky — Fallout Tasks (AT&T)" />
           ) : activeView === 'sky-ticket2' ? (
             <TicketDetails2 />
           ) : activeView === 'sky-report' ? (
             <SkyTrackingReport />
+          ) : activeView === 'sky-live-status' ? (
+            <SkyLiveStatus />
           ) : activeView === 'config' ? (
             <ConfigurationPanel config={appConfig} onConfigChange={handleConfigChange} />
           ) : activeView === 'test' ? (

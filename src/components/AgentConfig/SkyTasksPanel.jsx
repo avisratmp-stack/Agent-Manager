@@ -4,6 +4,7 @@ import {
   CheckCircle2, Circle, Play, Filter, Workflow
 } from 'lucide-react'
 import SkyTaskDetail from './SkyTaskDetail'
+import TicketDetails2 from './TicketDetails2'
 
 const PRIORITY_COLORS = {
   CRITICAL: { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' },
@@ -27,7 +28,7 @@ function normalizeSteps(task) {
   })
 }
 
-export default function SkyTasksPanel() {
+export default function SkyTasksPanel({ detailsMode = 'regular', dataUrl = '/api/sky-tasks', panelTitle = 'Sky — Fallout Tasks' }) {
   const [tasks, setTasks] = useState([])
   const [selectedTaskId, setSelectedTaskId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -37,13 +38,17 @@ export default function SkyTasksPanel() {
 
   useEffect(() => {
     const normalize = list => list.map(t => ({ ...t, steps: normalizeSteps(t) }))
-    fetch('/api/sky-tasks')
+    fetch(dataUrl)
       .then(r => r.json())
       .then(data => setTasks(normalize(data.tasks || data)))
       .catch(() => {
-        import('../../config/common/sky-tasks.json').then(m => setTasks(normalize(m.default.tasks)))
+        if (dataUrl.includes('att')) {
+          import('../../config/common/sky-tasks-att.json').then(m => setTasks(normalize(m.default.tasks)))
+        } else {
+          import('../../config/common/sky-tasks.json').then(m => setTasks(normalize(m.default.tasks)))
+        }
       })
-  }, [])
+  }, [dataUrl])
 
   const selectedTask = tasks.find(t => t.id === selectedTaskId)
 
@@ -53,16 +58,20 @@ export default function SkyTasksPanel() {
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
     return (
-      t.id.includes(q) ||
-      t.orderId.toLowerCase().includes(q) ||
+      (t.id || '').toLowerCase().includes(q) ||
+      (t.orderId || '').toLowerCase().includes(q) ||
       (t.assigneeGroup || '').toLowerCase().includes(q) ||
       (t.assignee || '').toLowerCase().includes(q) ||
-      (t.workflowName || '').toLowerCase().includes(q)
+      (t.workflowName || '').toLowerCase().includes(q) ||
+      (t.summary || '').toLowerCase().includes(q)
     )
   })
 
   if (selectedTask) {
-    return <SkyTaskDetail task={selectedTask} onBack={() => setSelectedTaskId(null)} />
+    if (detailsMode === 'workflow') {
+      return <TicketDetails2 task={selectedTask} onBack={() => setSelectedTaskId(null)} />
+    }
+    return <SkyTaskDetail task={selectedTask} onBack={() => setSelectedTaskId(null)} hybridMode={detailsMode === 'hybrid'} />
   }
 
   const activeStepLabel = (task) => {
@@ -79,7 +88,7 @@ export default function SkyTasksPanel() {
       <div className="sky-tasks-header">
         <h2>
           <AlertTriangle size={20} />
-          Sky — Fallout Tasks
+          {panelTitle}
         </h2>
         <span className="sky-tasks-count">{filtered.length} task{filtered.length !== 1 ? 's' : ''}</span>
       </div>

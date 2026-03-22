@@ -424,6 +424,15 @@ app.get('/api/sky-tasks', (req, res) => {
   } catch { res.json({ tasks: [] }) }
 })
 
+// ── GET /api/sky-tasks-att ──
+app.get('/api/sky-tasks-att', (req, res) => {
+  const tasksPath = path.join(DATA_DIR, 'common', 'sky-tasks-att.json')
+  if (!fs.existsSync(tasksPath)) return res.json({ tasks: [] })
+  try {
+    res.json(JSON.parse(fs.readFileSync(tasksPath, 'utf-8')))
+  } catch { res.json({ tasks: [] }) }
+})
+
 // ── GET /api/agent-handlers ──
 app.get('/api/agent-handlers', (req, res) => {
   const dirs = fs.readdirSync(AGENTS_DIR).filter(d => {
