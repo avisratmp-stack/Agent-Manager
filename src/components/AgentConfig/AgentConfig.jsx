@@ -4,7 +4,7 @@ import {
   Menu, LayoutDashboard, ListTodo, Inbox, Activity, FileText, Settings,
   Cloud, Bot, Workflow, Gauge, Rocket, Wrench, ChevronDown, ChevronUp,
   ChevronRightIcon, Copy, Map, List, Server, Eye, Grid3x3, Tag, X,
-  Plug, Zap, LayoutGrid, GitBranchPlus, User, Shield, Layers
+  Plug, Zap, LayoutGrid, GitBranchPlus, User, Shield, Layers, Download
 } from 'lucide-react'
 import AgentFormDialog from './AgentFormDialog'
 import AgentDetailPanel from './AgentDetailPanel'
@@ -415,6 +415,8 @@ const AgentConfig = () => {
         })
         setAgents(prev => [...prev, record])
         setSelectedId(record.id)
+        setDialogMode('edit')
+        return
       } else {
         const updated = await api.updateAgent(selectedId, {
           type: formData.type,
@@ -450,6 +452,16 @@ const AgentConfig = () => {
       alert('Import failed: ' + err.message)
     } finally {
       setImporting(false)
+    }
+  }
+
+  const releasedCount = useMemo(() => agents.filter(a => (a.stage || '').toLowerCase() === 'released' && a.enabled !== false).length, [agents])
+
+  const handleExportRegistry = async () => {
+    try {
+      await api.exportRegistry()
+    } catch (err) {
+      alert('Export failed: ' + err.message)
     }
   }
 
@@ -647,10 +659,10 @@ const AgentConfig = () => {
 
         {/* Main Content */}
         <main className="ac-main">
-          {/* Toolbar */}
-          <div className="ac-toolbar">
+          {/* Toolbar — hidden on Test page */}
+          {activeView !== 'test' && <div className="ac-toolbar">
             <div className="ac-toolbar-actions">
-              {(activeView === 'list' || activeView === 'cards' || activeView === 'map') && (
+              {(activeView === 'list' || activeView === 'cards') && (
                 <>
                   <button className="ac-btn ac-btn-create" onClick={handleCreate}>
                     <Plus size={14} /> Create Agent / MCP
@@ -683,6 +695,14 @@ const AgentConfig = () => {
                     style={{ display: 'none' }}
                     onChange={handleImportAgent}
                   />
+                  <button
+                    className="ac-btn ac-btn-export"
+                    onClick={handleExportRegistry}
+                    disabled={releasedCount === 0}
+                    title={releasedCount > 0 ? `Download registry with ${releasedCount} released agent(s)` : 'No agents with stage "Released"'}
+                  >
+                    <Download size={14} /> Export Registry
+                  </button>
                 </>
               )}
               {activeView === 'mcp' && (
@@ -814,8 +834,8 @@ const AgentConfig = () => {
                 </button>
               </div>
             )}
-          </div>
-          {!activeView.startsWith('sky-') && (selectedTags.length > 0 || selectedStages.length > 0 || selectedSuites.length > 0) && (
+          </div>}
+          {activeView !== 'test' && !activeView.startsWith('sky-') && (selectedTags.length > 0 || selectedStages.length > 0 || selectedSuites.length > 0) && (
             <div className="ac-tag-chips">
               {selectedStages.map(stage => (
                 <span key={`s-${stage}`} className="ac-tag-chip ac-stage-chip" onClick={() => toggleStage(stage)}>
@@ -892,7 +912,7 @@ const AgentConfig = () => {
             </div>
           ) : activeView === 'map' ? (
             <div className={`ac-map-split ${logViewer ? 'has-logs' : ''}`}>
-              <AgentMapPanel agents={filteredAgents} consumers={consumers} mcpServers={filteredMcpServers} onAddAgent={handleCreate} onToggleAgent={handleToggleAgent} onToggleMcp={handleToggleMcp} onAgentDblClick={(slug, name) => setLogViewer({ slug, name })} />
+              <AgentMapPanel agents={filteredAgents} consumers={consumers} mcpServers={filteredMcpServers} onAddAgent={handleCreate} onToggleAgent={handleToggleAgent} onToggleMcp={handleToggleMcp} onAgentDblClick={(slug, name) => setLogViewer({ slug, name })} onOpenEdit={(agentId, tab) => { setSelectedId(agentId); setDialogMode('edit'); setDialogOpen(true); if (tab) setTimeout(() => window.__agentDialogTab?.(tab), 100) }} />
               {logViewer && (
                 <AgentLogViewer
                   agentSlug={logViewer.slug}

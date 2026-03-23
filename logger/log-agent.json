@@ -4,13 +4,20 @@
     "timestamp": "2026-03-08T09:12:34.123Z",
     "request": {
       "action": "log-search",
-      "params": { "query": "ERROR payment-service", "timeRange": "1h", "limit": 100 }
+      "params": {
+        "query": "ERROR payment-service",
+        "timeRange": "1h",
+        "limit": 100
+      }
     },
     "reasoning": "User requested error logs for payment-service in the last hour. Querying Elasticsearch with full-text search on ERROR level, filtering by service name.",
     "response": {
       "status": "success",
       "matchCount": 47,
-      "topPatterns": ["NullPointerException in PaymentProcessor.execute", "Connection timeout to payment-gateway"],
+      "topPatterns": [
+        "NullPointerException in PaymentProcessor.execute",
+        "Connection timeout to payment-gateway"
+      ],
       "latencyMs": 312
     }
   },
@@ -19,7 +26,11 @@
     "timestamp": "2026-03-08T09:15:01.456Z",
     "request": {
       "action": "pattern-detect",
-      "params": { "service": "order-service", "window": "30m", "baseline": "7d" }
+      "params": {
+        "service": "order-service",
+        "window": "30m",
+        "baseline": "7d"
+      }
     },
     "reasoning": "Anomaly detection triggered for order-service. Comparing current 30-minute error rate against 7-day baseline. Error rate is 3.2x above normal threshold.",
     "response": {
@@ -36,13 +47,20 @@
     "timestamp": "2026-03-08T09:18:22.789Z",
     "request": {
       "action": "log-search",
-      "params": { "query": "timeout", "service": "catalog-service", "timeRange": "2h", "limit": 50 }
+      "params": {
+        "query": "timeout",
+        "service": "catalog-service",
+        "timeRange": "2h",
+        "limit": 50
+      }
     },
     "reasoning": "Searching for timeout-related entries in catalog-service logs. This is a follow-up investigation from an APM latency alert on the catalog endpoint.",
     "response": {
       "status": "success",
       "matchCount": 12,
-      "topPatterns": ["Read timed out after 30000ms calling inventory-api"],
+      "topPatterns": [
+        "Read timed out after 30000ms calling inventory-api"
+      ],
       "latencyMs": 198
     }
   },
@@ -51,7 +69,11 @@
     "timestamp": "2026-03-08T09:22:45.012Z",
     "request": {
       "action": "log-tail",
-      "params": { "service": "billing-service", "follow": true, "filter": "level:ERROR OR level:WARN" }
+      "params": {
+        "service": "billing-service",
+        "follow": true,
+        "filter": "level:ERROR OR level:WARN"
+      }
     },
     "reasoning": "Live tail requested for billing-service errors and warnings. Streaming mode activated to monitor ongoing billing reconciliation batch job.",
     "response": {
@@ -66,13 +88,20 @@
     "timestamp": "2026-03-08T09:31:10.345Z",
     "request": {
       "action": "log-search",
-      "params": { "traceId": "abc-123-def-456", "timeRange": "15m" }
+      "params": {
+        "traceId": "abc-123-def-456",
+        "timeRange": "15m"
+      }
     },
     "reasoning": "Correlated log lookup requested by Trace Agent. Fetching all log entries tied to trace ID abc-123-def-456 across all indexed services to build incident timeline.",
     "response": {
       "status": "success",
       "matchCount": 23,
-      "servicesInvolved": ["order-service", "payment-service", "inventory-api"],
+      "servicesInvolved": [
+        "order-service",
+        "payment-service",
+        "inventory-api"
+      ],
       "latencyMs": 267
     }
   },
@@ -81,7 +110,11 @@
     "timestamp": "2026-03-08T10:05:33.678Z",
     "request": {
       "action": "pattern-detect",
-      "params": { "service": "*", "window": "1h", "baseline": "24h" }
+      "params": {
+        "service": "*",
+        "window": "1h",
+        "baseline": "24h"
+      }
     },
     "reasoning": "Global anomaly scan across all services. Scheduled hourly check comparing current error patterns against 24-hour rolling baseline.",
     "response": {
@@ -96,14 +129,725 @@
     "timestamp": "2026-03-08T10:12:55.901Z",
     "request": {
       "action": "log-search",
-      "params": { "query": "OOM", "service": "recommendation-engine", "timeRange": "6h", "limit": 200 }
+      "params": {
+        "query": "OOM",
+        "service": "recommendation-engine",
+        "timeRange": "6h",
+        "limit": 200
+      }
     },
     "reasoning": "Investigating OutOfMemory reports in recommendation-engine. The service has been flagged by APM Agent for memory pressure exceeding 90% heap usage.",
     "response": {
       "status": "success",
       "matchCount": 8,
-      "topPatterns": ["java.lang.OutOfMemoryError: Java heap space", "GC overhead limit exceeded"],
+      "topPatterns": [
+        "java.lang.OutOfMemoryError: Java heap space",
+        "GC overhead limit exceeded"
+      ],
       "latencyMs": 423
     }
+  },
+  {
+    "requestId": "req-c9d0e1f2",
+    "timestamp": "2026-03-08T10:30:12.234Z",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "FATAL OR CRITICAL",
+        "service": "notification-service",
+        "timeRange": "4h",
+        "limit": 50
+      }
+    },
+    "reasoning": "Urgent escalation from PagerDuty incident #4821. Searching for fatal/critical entries in notification-service after SMS delivery pipeline stopped.",
+    "response": {
+      "status": "success",
+      "matchCount": 3,
+      "topPatterns": [
+        "FATAL: Kafka consumer group rebalance failed",
+        "CRITICAL: SMS gateway connection pool exhausted"
+      ],
+      "latencyMs": 156
+    }
+  },
+  {
+    "requestId": "req-g3h4i5j6",
+    "timestamp": "2026-03-08T10:45:08.567Z",
+    "request": {
+      "action": "pattern-detect",
+      "params": {
+        "service": "payment-service",
+        "window": "15m",
+        "baseline": "1h",
+        "sensitivity": "high"
+      }
+    },
+    "reasoning": "High-sensitivity anomaly detection for payment-service after a spike in 5xx responses. Comparing 15-minute window against past hour. Detected 4.7x increase in connection reset errors.",
+    "response": {
+      "status": "success",
+      "anomalyDetected": true,
+      "errorRateMultiplier": 4.7,
+      "baselineErrorRate": 0.12,
+      "currentErrorRate": 0.56,
+      "dominantPattern": "Connection reset by peer (payment-gateway:443)",
+      "latencyMs": 612
+    }
+  },
+  {
+    "requestId": "req-k7l8m9n0",
+    "timestamp": "2026-03-08T11:02:44.890Z",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "circuit breaker OPEN",
+        "service": "*",
+        "timeRange": "30m"
+      }
+    },
+    "reasoning": "Cross-service circuit breaker scan. Ensemble Agent requested a sweep of all services for open circuit breakers after cascading timeout reports.",
+    "response": {
+      "status": "success",
+      "matchCount": 6,
+      "servicesAffected": [
+        "payment-service",
+        "inventory-api",
+        "shipping-service"
+      ],
+      "topPatterns": [
+        "Circuit breaker OPEN for downstream: payment-gateway",
+        "Circuit breaker OPEN for downstream: inventory-db-replica"
+      ],
+      "latencyMs": 445
+    }
+  },
+  {
+    "requestId": "req-o1p2q3r4",
+    "timestamp": "2026-03-08T11:15:30.123Z",
+    "request": {
+      "action": "log-tail",
+      "params": {
+        "service": "api-gateway",
+        "follow": true,
+        "filter": "status:502 OR status:503"
+      }
+    },
+    "reasoning": "Live tail on api-gateway for 502/503 errors. Operations team monitoring ongoing deployment rollout of v3.2.1.",
+    "response": {
+      "status": "streaming",
+      "eventsPerSecond": 0.8,
+      "sessionId": "tail-sess-a2b3c4",
+      "latencyMs": 38
+    }
+  },
+  {
+    "requestId": "req-s5t6u7v8",
+    "timestamp": "2026-03-08T11:28:19.456Z",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "deadlock detected",
+        "service": "order-service",
+        "timeRange": "12h",
+        "limit": 25
+      }
+    },
+    "reasoning": "Database deadlock investigation for order-service. DBA team reported increased lock-wait timeouts during peak hours. Searching for deadlock trace logs.",
+    "response": {
+      "status": "success",
+      "matchCount": 4,
+      "topPatterns": [
+        "Deadlock detected between transactions on orders_table and inventory_reservation"
+      ],
+      "latencyMs": 389
+    }
+  },
+  {
+    "requestId": "trace-test-log-001",
+    "timestamp": "2026-03-08T11:45:00.000Z",
+    "source": "test",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "ERROR payment-service",
+        "timeRange": "1h"
+      }
+    },
+    "reasoning": "Test trace executed for action \"log-search\". MCP calls: Elasticsearch, Kafka, S3.",
+    "response": {
+      "status": "success",
+      "totalLatencyMs": 287,
+      "stepsCount": 9,
+      "stubMode": false
+    },
+    "traceSteps": [
+      {
+        "seq": 0,
+        "type": "request",
+        "from": "Consumer",
+        "to": "Log Agent",
+        "detail": {
+          "action": "log-search",
+          "params": {
+            "query": "ERROR payment-service",
+            "timeRange": "1h"
+          }
+        },
+        "startMs": 0,
+        "durationMs": 5,
+        "endMs": 5,
+        "status": "ok"
+      },
+      {
+        "seq": 1,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "Elasticsearch",
+        "detail": {
+          "tool": "search",
+          "purpose": "Log storage, full-text search, and anomaly aggregation",
+          "serverId": "elasticsearch"
+        },
+        "startMs": 5,
+        "durationMs": 78,
+        "endMs": 83,
+        "status": "ok"
+      },
+      {
+        "seq": 2,
+        "type": "mcp-response",
+        "from": "Elasticsearch",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "search",
+          "result": {
+            "status": "success",
+            "records": 47
+          }
+        },
+        "startMs": 83,
+        "durationMs": 3,
+        "endMs": 86,
+        "status": "ok"
+      },
+      {
+        "seq": 3,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "Kafka",
+        "detail": {
+          "tool": "consume",
+          "purpose": "Real-time log stream ingestion",
+          "serverId": "kafka"
+        },
+        "startMs": 86,
+        "durationMs": 52,
+        "endMs": 138,
+        "status": "ok"
+      },
+      {
+        "seq": 4,
+        "type": "mcp-response",
+        "from": "Kafka",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "consume",
+          "result": {
+            "status": "success",
+            "records": 128
+          }
+        },
+        "startMs": 138,
+        "durationMs": 3,
+        "endMs": 141,
+        "status": "ok"
+      },
+      {
+        "seq": 5,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "S3",
+        "detail": {
+          "tool": "get-object",
+          "purpose": "Retrieve archived log batches",
+          "serverId": "s3"
+        },
+        "startMs": 141,
+        "durationMs": 65,
+        "endMs": 206,
+        "status": "ok"
+      },
+      {
+        "seq": 6,
+        "type": "mcp-response",
+        "from": "S3",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "get-object",
+          "result": {
+            "status": "success",
+            "records": 312
+          }
+        },
+        "startMs": 206,
+        "durationMs": 3,
+        "endMs": 209,
+        "status": "ok"
+      },
+      {
+        "seq": 7,
+        "type": "response",
+        "from": "Log Agent",
+        "to": "Consumer",
+        "detail": {
+          "action": "log-search",
+          "result": {
+            "status": "success",
+            "summary": "Log Agent processed \"log-search\" across 0 sub-agent(s) and 3 MCP binding(s)",
+            "totalLatencyMs": 287
+          }
+        },
+        "startMs": 209,
+        "durationMs": 2,
+        "endMs": 211,
+        "status": "ok"
+      }
+    ]
+  },
+  {
+    "requestId": "trace-test-log-002",
+    "timestamp": "2026-03-08T12:00:15.000Z",
+    "source": "test",
+    "request": {
+      "action": "pattern-detect",
+      "params": {
+        "service": "billing-service",
+        "window": "1h",
+        "baseline": "7d"
+      }
+    },
+    "reasoning": "Test trace executed for action \"pattern-detect\". MCP calls: Elasticsearch, Kafka, S3. Stub mode was active.",
+    "response": {
+      "status": "success",
+      "totalLatencyMs": 195,
+      "stepsCount": 9,
+      "stubMode": true
+    },
+    "traceSteps": [
+      {
+        "seq": 0,
+        "type": "request",
+        "from": "Consumer",
+        "to": "Log Agent",
+        "detail": {
+          "action": "pattern-detect",
+          "params": {
+            "service": "billing-service",
+            "window": "1h",
+            "baseline": "7d"
+          }
+        },
+        "startMs": 0,
+        "durationMs": 5,
+        "endMs": 5,
+        "status": "ok"
+      },
+      {
+        "seq": 1,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "STUB MCP (Elasticsearch)",
+        "detail": {
+          "tool": "search",
+          "purpose": "Log storage, full-text search, and anomaly aggregation",
+          "serverId": "stub-mcp",
+          "originalServerId": "elasticsearch",
+          "stubMode": true
+        },
+        "startMs": 5,
+        "durationMs": 45,
+        "endMs": 50,
+        "status": "ok"
+      },
+      {
+        "seq": 2,
+        "type": "mcp-response",
+        "from": "STUB MCP (Elasticsearch)",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "search",
+          "result": {
+            "status": "success",
+            "records": 89,
+            "note": "*STUB RESULTS*",
+            "stub": true
+          }
+        },
+        "startMs": 50,
+        "durationMs": 3,
+        "endMs": 53,
+        "status": "ok"
+      },
+      {
+        "seq": 3,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "STUB MCP (Kafka)",
+        "detail": {
+          "tool": "consume",
+          "purpose": "Real-time log stream ingestion",
+          "serverId": "stub-mcp",
+          "originalServerId": "kafka",
+          "stubMode": true
+        },
+        "startMs": 53,
+        "durationMs": 38,
+        "endMs": 91,
+        "status": "ok"
+      },
+      {
+        "seq": 4,
+        "type": "mcp-response",
+        "from": "STUB MCP (Kafka)",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "consume",
+          "result": {
+            "status": "success",
+            "records": 201,
+            "note": "*STUB RESULTS*",
+            "stub": true
+          }
+        },
+        "startMs": 91,
+        "durationMs": 3,
+        "endMs": 94,
+        "status": "ok"
+      },
+      {
+        "seq": 5,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "STUB MCP (S3)",
+        "detail": {
+          "tool": "get-object",
+          "purpose": "Retrieve archived log batches",
+          "serverId": "stub-mcp",
+          "originalServerId": "s3",
+          "stubMode": true
+        },
+        "startMs": 94,
+        "durationMs": 42,
+        "endMs": 136,
+        "status": "ok"
+      },
+      {
+        "seq": 6,
+        "type": "mcp-response",
+        "from": "STUB MCP (S3)",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "get-object",
+          "result": {
+            "status": "success",
+            "records": 156,
+            "note": "*STUB RESULTS*",
+            "stub": true
+          }
+        },
+        "startMs": 136,
+        "durationMs": 3,
+        "endMs": 139,
+        "status": "ok"
+      },
+      {
+        "seq": 7,
+        "type": "response",
+        "from": "Log Agent",
+        "to": "Consumer",
+        "detail": {
+          "action": "pattern-detect",
+          "result": {
+            "status": "success",
+            "summary": "*STUB RESULTS* — Log Agent processed \"pattern-detect\" across 0 sub-agent(s) and 3 MCP binding(s) [STUB MODE]",
+            "totalLatencyMs": 195,
+            "stubMode": true
+          }
+        },
+        "startMs": 139,
+        "durationMs": 2,
+        "endMs": 141,
+        "status": "ok"
+      }
+    ]
+  },
+  {
+    "requestId": "req-w9x0y1z2",
+    "timestamp": "2026-03-08T12:10:42.789Z",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "disk space",
+        "service": "media-storage",
+        "timeRange": "24h",
+        "limit": 100
+      }
+    },
+    "reasoning": "Disk space investigation for media-storage service. Alert triggered at 92% disk utilization. Searching for related WARN/ERROR entries about storage pressure.",
+    "response": {
+      "status": "success",
+      "matchCount": 18,
+      "topPatterns": [
+        "WARN: Disk usage at 91.7% on /data/media-uploads",
+        "ERROR: Failed to write segment — no space left on device"
+      ],
+      "latencyMs": 274
+    }
+  },
+  {
+    "requestId": "req-a3b4c5d6",
+    "timestamp": "2026-03-08T12:25:03.012Z",
+    "request": {
+      "action": "pattern-detect",
+      "params": {
+        "service": "auth-service",
+        "window": "2h",
+        "baseline": "48h",
+        "sensitivity": "medium"
+      }
+    },
+    "reasoning": "Scheduled anomaly scan on auth-service after reports of intermittent login failures. Comparing 2-hour error window against 48-hour baseline.",
+    "response": {
+      "status": "success",
+      "anomalyDetected": true,
+      "errorRateMultiplier": 2.1,
+      "baselineErrorRate": 0.08,
+      "currentErrorRate": 0.17,
+      "dominantPattern": "LDAP bind timeout after 5000ms",
+      "latencyMs": 934
+    }
+  },
+  {
+    "requestId": "req-e7f8g9h0",
+    "timestamp": "2026-03-08T12:40:18.345Z",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "certificate expired",
+        "service": "*",
+        "timeRange": "48h"
+      }
+    },
+    "reasoning": "Security audit sweep across all services for expired TLS certificates. Triggered by rotation policy compliance check.",
+    "response": {
+      "status": "success",
+      "matchCount": 2,
+      "servicesAffected": [
+        "payment-gateway-proxy",
+        "legacy-soap-adapter"
+      ],
+      "topPatterns": [
+        "SSL handshake failed: certificate expired on 2026-03-06"
+      ],
+      "latencyMs": 521
+    }
+  },
+  {
+    "requestId": "req-i1j2k3l4",
+    "timestamp": "2026-03-08T13:00:55.678Z",
+    "request": {
+      "action": "log-tail",
+      "params": {
+        "service": "order-service",
+        "follow": true,
+        "filter": "correlation_id:ord-2026030800451"
+      }
+    },
+    "reasoning": "Tracing a specific customer order through all processing stages. Customer support escalation for order ord-2026030800451 stuck in 'processing' state for >2 hours.",
+    "response": {
+      "status": "streaming",
+      "eventsPerSecond": 0.3,
+      "sessionId": "tail-sess-d5e6f7",
+      "latencyMs": 42
+    }
+  },
+  {
+    "requestId": "req-m5n6o7p8",
+    "timestamp": "2026-03-08T13:15:22.901Z",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "memory pressure",
+        "service": "recommendation-engine",
+        "timeRange": "3h",
+        "limit": 100
+      }
+    },
+    "reasoning": "Follow-up from earlier OOM investigation. APM Agent confirmed heap usage at 94%. Searching for memory pressure warnings and GC pause logs.",
+    "response": {
+      "status": "success",
+      "matchCount": 31,
+      "topPatterns": [
+        "GC pause 2.3s (Full GC)",
+        "Tenured generation at 89%",
+        "Heap memory pool 'old gen' exceeded threshold"
+      ],
+      "latencyMs": 387
+    }
+  },
+  {
+    "requestId": "trace-mn2v926mly62",
+    "timestamp": "2026-03-23T07:30:27.024Z",
+    "source": "test",
+    "request": {
+      "action": "log-search",
+      "params": {
+        "query": "test verify",
+        "timeRange": "1h"
+      }
+    },
+    "reasoning": "Test trace executed for action \"log-search\". MCP calls: Elasticsearch, Apache Kafka, AWS S3, AOC Log Aggregator.",
+    "response": {
+      "status": "success",
+      "totalLatencyMs": 213,
+      "stepsCount": 8,
+      "stubMode": false
+    },
+    "traceSteps": [
+      {
+        "seq": 0,
+        "type": "request",
+        "from": "Consumer",
+        "to": "Log Agent",
+        "detail": {
+          "action": "log-search",
+          "params": {
+            "query": "test verify",
+            "timeRange": "1h"
+          }
+        },
+        "startMs": 0,
+        "durationMs": 5,
+        "endMs": 5,
+        "status": "ok"
+      },
+      {
+        "seq": 1,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "Elasticsearch",
+        "detail": {
+          "tool": "search",
+          "purpose": "Log storage, full-text search, and anomaly aggregation",
+          "serverId": "elasticsearch",
+          "stubMode": false
+        },
+        "startMs": 5,
+        "durationMs": 58,
+        "endMs": 63,
+        "status": "ok"
+      },
+      {
+        "seq": 2,
+        "type": "mcp-response",
+        "from": "Elasticsearch",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "search",
+          "result": {
+            "status": "success",
+            "records": 195
+          }
+        },
+        "startMs": 63,
+        "durationMs": 3,
+        "endMs": 66,
+        "status": "ok"
+      },
+      {
+        "seq": 3,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "Apache Kafka",
+        "detail": {
+          "tool": "consume",
+          "purpose": "Real-time log stream ingestion",
+          "serverId": "kafka",
+          "stubMode": false
+        },
+        "startMs": 66,
+        "durationMs": 100,
+        "endMs": 166,
+        "status": "ok"
+      },
+      {
+        "seq": 4,
+        "type": "mcp-response",
+        "from": "Apache Kafka",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "consume",
+          "result": {
+            "status": "success",
+            "records": 278
+          }
+        },
+        "startMs": 166,
+        "durationMs": 3,
+        "endMs": 169,
+        "status": "ok"
+      },
+      {
+        "seq": 5,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "AWS S3",
+        "detail": {
+          "tool": "get-object",
+          "purpose": "Retrieve archived log batches",
+          "serverId": "s3",
+          "stubMode": false
+        },
+        "startMs": 169,
+        "durationMs": 39,
+        "endMs": 208,
+        "status": "ok"
+      },
+      {
+        "seq": 6,
+        "type": "mcp-response",
+        "from": "AWS S3",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "get-object",
+          "result": {
+            "status": "success",
+            "records": 455
+          }
+        },
+        "startMs": 208,
+        "durationMs": 3,
+        "endMs": 211,
+        "status": "ok"
+      },
+      {
+        "seq": 7,
+        "type": "response",
+        "from": "Log Agent",
+        "to": "Consumer",
+        "detail": {
+          "action": "log-search",
+          "result": {
+            "status": "success",
+            "summary": "Log Agent processed \"log-search\" across 0 sub-agent(s) and 4 MCP binding(s)",
+            "totalLatencyMs": 211,
+            "stubMode": false
+          }
+        },
+        "startMs": 211,
+        "durationMs": 2,
+        "endMs": 213,
+        "status": "ok"
+      }
+    ]
   }
 ]

@@ -1,10 +1,113 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   Plus, Eye, Pencil, Power, Trash2, GripVertical, X,
-  FileText, Zap, Shield, ExternalLink
+  FileText, Zap, Shield, ExternalLink, FolderOpen, Upload,
+  Download, ChevronDown, ChevronRight, Image, BookOpen, Code
 } from 'lucide-react'
 import SkillEditorDialog from './SkillEditorDialog'
 import { api } from '../../api'
+
+const SKILL_FOLDERS = [
+  { key: 'assets', label: 'Assets', icon: Image, hint: 'Templates, images, resources' },
+  { key: 'references', label: 'References', icon: BookOpen, hint: 'Documentation, specs' },
+  { key: 'scripts', label: 'Scripts', icon: Code, hint: 'Executable code, automation' },
+]
+
+function SkillFolders({ agentSlug, skillName }) {
+  const [expanded, setExpanded] = useState(null)
+  const [files, setFiles] = useState({})
+  const [uploading, setUploading] = useState(false)
+
+  const loadFiles = useCallback(async (folder) => {
+    if (!agentSlug || !skillName) return
+    try {
+      const res = await fetch(`/api/agents/${agentSlug}/skills/${skillName}/${folder}/files`)
+      const data = await res.json()
+      setFiles(prev => ({ ...prev, [folder]: data }))
+    } catch {
+      setFiles(prev => ({ ...prev, [folder]: [] }))
+    }
+  }, [agentSlug, skillName])
+
+  const toggleFolder = (folder) => {
+    if (expanded === folder) {
+      setExpanded(null)
+    } else {
+      setExpanded(folder)
+      if (!files[folder]) loadFiles(folder)
+    }
+  }
+
+  const handleUpload = async (folder, e) => {
+    const file = e.target.files?.[0]
+    if (!file || !agentSlug || !skillName) return
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    try {
+      await fetch(`/api/agents/${agentSlug}/skills/${skillName}/${folder}/upload`, { method: 'POST', body: fd })
+      await loadFiles(folder)
+    } catch {}
+    setUploading(false)
+    e.target.value = ''
+  }
+
+  const handleDelete = async (folder, fileName) => {
+    if (!agentSlug || !skillName) return
+    try {
+      await fetch(`/api/agents/${agentSlug}/skills/${skillName}/${folder}/files/${fileName}`, { method: 'DELETE' })
+      setFiles(prev => ({ ...prev, [folder]: (prev[folder] || []).filter(f => f.name !== fileName) }))
+    } catch {}
+  }
+
+  return (
+    <div className="sk-folders">
+      {SKILL_FOLDERS.map(({ key, label, icon: Icon, hint }) => (
+        <div key={key} className="sk-folder">
+          <div className="sk-folder-header" onClick={() => toggleFolder(key)}>
+            {expanded === key ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+            <Icon size={14} />
+            <span className="sk-folder-name">{label}/</span>
+            <span className="sk-folder-hint">{hint}</span>
+            {files[key]?.length > 0 && <span className="sk-folder-count">{files[key].length}</span>}
+          </div>
+          {expanded === key && (
+            <div className="sk-folder-body">
+              <div className="sk-folder-actions">
+                <label className="sk-folder-upload-btn">
+                  <Upload size={12} /> Upload
+                  <input type="file" hidden onChange={(e) => handleUpload(key, e)} />
+                </label>
+              </div>
+              {uploading && <div className="sk-folder-msg">Uploading...</div>}
+              {(files[key] || []).length === 0 && !uploading && (
+                <div className="sk-folder-msg">No files</div>
+              )}
+              {(files[key] || []).map(f => (
+                <div key={f.name} className="sk-folder-file">
+                  <FileText size={12} />
+                  <span className="sk-folder-file-name">{f.name}</span>
+                  <span className="sk-folder-file-size">{f.size < 1024 ? f.size + ' B' : (f.size / 1024).toFixed(1) + ' KB'}</span>
+                  <a
+                    href={`/api/agents/${agentSlug}/skills/${skillName}/${key}/download/${f.name}`}
+                    download
+                    className="sk-folder-file-btn"
+                    title="Download"
+                  >
+                    <Download size={12} />
+                  </a>
+                  <button className="sk-folder-file-btn sk-folder-file-del" title="Delete" onClick={() => handleDelete(key, f.name)}>
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const SkillsPanel = ({ skills, onUpdate, agentSlug }) => {
   const [editorOpen, setEditorOpen] = useState(false)
@@ -12,6 +115,7 @@ const SkillsPanel = ({ skills, onUpdate, agentSlug }) => {
   const [viewingSkill, setViewingSkill] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [dragIdx, setDragIdx] = useState(null)
+  const [foldersOpen, setFoldersOpen] = useState({})
 
   const handleAdd = () => {
     setEditingSkill(null)
@@ -154,6 +258,13 @@ const SkillsPanel = ({ skills, onUpdate, agentSlug }) => {
                 </div>
               </div>
               <div className="sk-item-actions">
+                <button
+                  className={`sk-action-btn ${foldersOpen[skill.id] ? 'sk-action-active' : ''}`}
+                  title="Files"
+                  onClick={() => setFoldersOpen(prev => ({ ...prev, [skill.id]: !prev[skill.id] }))}
+                >
+                  <FolderOpen size={14} />
+                </button>
                 <button className="sk-action-btn" title="View SKILL.md" onClick={() => setViewingSkill(skill)}>
                   <Eye size={14} />
                 </button>
@@ -171,6 +282,9 @@ const SkillsPanel = ({ skills, onUpdate, agentSlug }) => {
                   <Trash2 size={14} />
                 </button>
               </div>
+              {foldersOpen[skill.id] && (
+                <SkillFolders agentSlug={agentSlug} skillName={skill.name} />
+              )}
             </div>
           ))}
         </div>
@@ -196,7 +310,7 @@ const SkillsPanel = ({ skills, onUpdate, agentSlug }) => {
               </div>
               <div className="sk-viewer-dir">
                 <span className="sk-dir-label">Directory Structure (per agentskills.io spec)</span>
-                <pre className="sk-dir-tree">{`${viewingSkill.name}/\n├── SKILL.md          # Required: metadata + instructions\n├── scripts/          # Optional: executable code\n├── references/       # Optional: documentation\n└── assets/           # Optional: templates, resources`}</pre>
+                <pre className="sk-dir-tree">{`${viewingSkill.name}/\n├── SKILL.md          # Required: metadata + instructions\n├── scripts/          # Optional: executable code\n│   └── readme.txt\n├── references/       # Optional: documentation\n│   └── readme.txt\n└── assets/           # Optional: templates, resources\n    └── readme.txt`}</pre>
               </div>
               <div className="sk-viewer-file-label">SKILL.md</div>
               <pre className="sk-viewer-content">{viewingSkill.content}</pre>

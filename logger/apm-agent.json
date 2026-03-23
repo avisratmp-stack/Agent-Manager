@@ -4,7 +4,11 @@
     "timestamp": "2026-03-08T09:10:02.111Z",
     "request": {
       "action": "latency-check",
-      "params": { "service": "order-service", "endpoint": "/api/orders", "window": "15m" }
+      "params": {
+        "service": "order-service",
+        "endpoint": "/api/orders",
+        "window": "15m"
+      }
     },
     "reasoning": "Monitoring p95 latency for order-service /api/orders endpoint. Alert threshold is 500ms. Current p95 detected at 1230ms — breaching SLA.",
     "response": {
@@ -21,15 +25,30 @@
     "timestamp": "2026-03-08T09:14:18.222Z",
     "request": {
       "action": "dependency-map",
-      "params": { "service": "payment-service", "depth": 2 }
+      "params": {
+        "service": "payment-service",
+        "depth": 2
+      }
     },
     "reasoning": "Building runtime dependency map for payment-service with 2-hop depth. Identifying downstream services to correlate failures reported by Log Agent.",
     "response": {
       "status": "success",
       "dependencies": [
-        { "target": "payment-gateway", "callRate": 120, "errorRate": 4.2 },
-        { "target": "fraud-detection-api", "callRate": 120, "errorRate": 0.1 },
-        { "target": "account-service", "callRate": 85, "errorRate": 0.0 }
+        {
+          "target": "payment-gateway",
+          "callRate": 120,
+          "errorRate": 4.2
+        },
+        {
+          "target": "fraud-detection-api",
+          "callRate": 120,
+          "errorRate": 0.1
+        },
+        {
+          "target": "account-service",
+          "callRate": 85,
+          "errorRate": 0
+        }
       ],
       "latencyMs": 156
     }
@@ -39,15 +58,31 @@
     "timestamp": "2026-03-08T09:20:45.333Z",
     "request": {
       "action": "error-rate",
-      "params": { "service": "catalog-service", "window": "30m", "groupBy": "endpoint" }
+      "params": {
+        "service": "catalog-service",
+        "window": "30m",
+        "groupBy": "endpoint"
+      }
     },
     "reasoning": "Catalog-service error rate analysis per endpoint. Triggered after Log Agent reported timeout patterns. Breaking down by endpoint to isolate the impacted route.",
     "response": {
       "status": "success",
       "endpoints": [
-        { "path": "/api/products/search", "errorRate": 8.7, "totalCalls": 450 },
-        { "path": "/api/products/:id", "errorRate": 0.3, "totalCalls": 1200 },
-        { "path": "/api/categories", "errorRate": 0.0, "totalCalls": 320 }
+        {
+          "path": "/api/products/search",
+          "errorRate": 8.7,
+          "totalCalls": 450
+        },
+        {
+          "path": "/api/products/:id",
+          "errorRate": 0.3,
+          "totalCalls": 1200
+        },
+        {
+          "path": "/api/categories",
+          "errorRate": 0,
+          "totalCalls": 320
+        }
       ],
       "latencyMs": 201
     }
@@ -57,14 +92,21 @@
     "timestamp": "2026-03-08T09:28:12.444Z",
     "request": {
       "action": "trace-analyze",
-      "params": { "traceId": "abc-123-def-456", "includeSpans": true }
+      "params": {
+        "traceId": "abc-123-def-456",
+        "includeSpans": true
+      }
     },
     "reasoning": "Full trace analysis for abc-123-def-456 requested by Trace Agent. Decomposing into spans to identify the slowest hop in the request chain.",
     "response": {
       "status": "success",
       "totalDurationMs": 4520,
       "spanCount": 7,
-      "bottleneck": { "service": "payment-gateway", "operation": "authorize", "durationMs": 3100 },
+      "bottleneck": {
+        "service": "payment-gateway",
+        "operation": "authorize",
+        "durationMs": 3100
+      },
       "latencyMs": 134
     }
   },
@@ -73,16 +115,40 @@
     "timestamp": "2026-03-08T09:35:55.555Z",
     "request": {
       "action": "health-check",
-      "params": { "services": ["order-service", "payment-service", "billing-service", "catalog-service"] }
+      "params": {
+        "services": [
+          "order-service",
+          "payment-service",
+          "billing-service",
+          "catalog-service"
+        ]
+      }
     },
     "reasoning": "Periodic health check for core services. Evaluating availability, response time, and error rate across the critical transaction path.",
     "response": {
       "status": "success",
       "results": [
-        { "service": "order-service", "healthy": true, "responseMs": 45 },
-        { "service": "payment-service", "healthy": false, "responseMs": 2100, "issue": "high latency" },
-        { "service": "billing-service", "healthy": true, "responseMs": 78 },
-        { "service": "catalog-service", "healthy": true, "responseMs": 62 }
+        {
+          "service": "order-service",
+          "healthy": true,
+          "responseMs": 45
+        },
+        {
+          "service": "payment-service",
+          "healthy": false,
+          "responseMs": 2100,
+          "issue": "high latency"
+        },
+        {
+          "service": "billing-service",
+          "healthy": true,
+          "responseMs": 78
+        },
+        {
+          "service": "catalog-service",
+          "healthy": true,
+          "responseMs": 62
+        }
       ],
       "latencyMs": 2350
     }
@@ -92,7 +158,14 @@
     "timestamp": "2026-03-08T10:01:08.666Z",
     "request": {
       "action": "resource-usage",
-      "params": { "service": "recommendation-engine", "metrics": ["cpu", "memory", "heap"] }
+      "params": {
+        "service": "recommendation-engine",
+        "metrics": [
+          "cpu",
+          "memory",
+          "heap"
+        ]
+      }
     },
     "reasoning": "Resource utilization check for recommendation-engine. Memory pressure has been flagged. Collecting CPU, memory, and heap metrics to assess if scaling is needed.",
     "response": {
@@ -113,7 +186,11 @@
     "timestamp": "2026-03-08T10:08:30.777Z",
     "request": {
       "action": "latency-check",
-      "params": { "service": "notification-service", "endpoint": "/api/send", "window": "1h" }
+      "params": {
+        "service": "notification-service",
+        "endpoint": "/api/send",
+        "window": "1h"
+      }
     },
     "reasoning": "Routine latency monitoring for notification-service send endpoint. No alerts triggered — operating within normal parameters.",
     "response": {
@@ -130,18 +207,290 @@
     "timestamp": "2026-03-08T10:15:42.888Z",
     "request": {
       "action": "dependency-map",
-      "params": { "service": "order-service", "depth": 3 }
+      "params": {
+        "service": "order-service",
+        "depth": 3
+      }
     },
     "reasoning": "Deep dependency mapping for order-service at 3-hop depth. Used for root cause analysis of intermittent failures cascading from downstream services.",
     "response": {
       "status": "success",
       "dependencies": [
-        { "target": "payment-service", "callRate": 200, "errorRate": 2.1 },
-        { "target": "inventory-api", "callRate": 200, "errorRate": 0.5 },
-        { "target": "catalog-service", "callRate": 150, "errorRate": 0.8 },
-        { "target": "notification-service", "callRate": 180, "errorRate": 0.0 }
+        {
+          "target": "payment-service",
+          "callRate": 200,
+          "errorRate": 2.1
+        },
+        {
+          "target": "inventory-api",
+          "callRate": 200,
+          "errorRate": 0.5
+        },
+        {
+          "target": "catalog-service",
+          "callRate": 150,
+          "errorRate": 0.8
+        },
+        {
+          "target": "notification-service",
+          "callRate": 180,
+          "errorRate": 0
+        }
       ],
       "latencyMs": 289
     }
+  },
+  {
+    "requestId": "trace-mn30wrap4sjv",
+    "timestamp": "2026-03-23T10:08:50.738Z",
+    "source": "test",
+    "request": {
+      "action": "metric-query",
+      "params": {
+        "query": "Order 113443 fails. tell why ",
+        "timeRange": "1h"
+      }
+    },
+    "reasoning": "Test trace executed for action \"metric-query\". Delegated to: Log Agent. MCP calls: Jaeger, Prometheus, Elasticsearch, AOC Log Aggregator.",
+    "response": {
+      "status": "success",
+      "totalLatencyMs": 235,
+      "stepsCount": 14,
+      "stubMode": false
+    },
+    "traceSteps": [
+      {
+        "seq": 0,
+        "type": "request",
+        "from": "Consumer",
+        "to": "APM Agent",
+        "detail": {
+          "action": "metric-query",
+          "params": {
+            "query": "Order 113443 fails. tell why ",
+            "timeRange": "1h"
+          }
+        },
+        "startMs": 0,
+        "durationMs": 5,
+        "endMs": 5,
+        "status": "ok"
+      },
+      {
+        "seq": 1,
+        "type": "agent-call",
+        "from": "APM Agent",
+        "to": "Log Agent",
+        "detail": {
+          "action": "log-search",
+          "reason": "Delegating to Log Agent for log-search"
+        },
+        "startMs": 5,
+        "durationMs": 24,
+        "endMs": 29,
+        "status": "ok"
+      },
+      {
+        "seq": 2,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "Elasticsearch",
+        "detail": {
+          "tool": "search",
+          "purpose": "Log storage, full-text search, and anomaly aggregation",
+          "serverId": "elasticsearch",
+          "stubMode": false
+        },
+        "startMs": 29,
+        "durationMs": 23,
+        "endMs": 52,
+        "status": "ok"
+      },
+      {
+        "seq": 3,
+        "type": "mcp-response",
+        "from": "Elasticsearch",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "search",
+          "result": {
+            "status": "success",
+            "records": 34
+          }
+        },
+        "startMs": 52,
+        "durationMs": 3,
+        "endMs": 55,
+        "status": "ok"
+      },
+      {
+        "seq": 4,
+        "type": "mcp-call",
+        "from": "Log Agent",
+        "to": "Apache Kafka",
+        "detail": {
+          "tool": "consume",
+          "purpose": "Real-time log stream ingestion",
+          "serverId": "kafka",
+          "stubMode": false
+        },
+        "startMs": 55,
+        "durationMs": 20,
+        "endMs": 75,
+        "status": "ok"
+      },
+      {
+        "seq": 5,
+        "type": "mcp-response",
+        "from": "Apache Kafka",
+        "to": "Log Agent",
+        "detail": {
+          "tool": "consume",
+          "result": {
+            "status": "success",
+            "records": 24
+          }
+        },
+        "startMs": 75,
+        "durationMs": 3,
+        "endMs": 78,
+        "status": "ok"
+      },
+      {
+        "seq": 6,
+        "type": "agent-response",
+        "from": "Log Agent",
+        "to": "APM Agent",
+        "detail": {
+          "action": "log-search",
+          "result": {
+            "status": "success",
+            "summary": "Log Agent completed log-search"
+          }
+        },
+        "startMs": 78,
+        "durationMs": 5,
+        "endMs": 83,
+        "status": "ok"
+      },
+      {
+        "seq": 7,
+        "type": "mcp-call",
+        "from": "APM Agent",
+        "to": "Jaeger",
+        "detail": {
+          "tool": "find-traces",
+          "purpose": "Distributed trace retrieval and analysis",
+          "serverId": "jaeger",
+          "stubMode": false
+        },
+        "startMs": 83,
+        "durationMs": 32,
+        "endMs": 115,
+        "status": "ok"
+      },
+      {
+        "seq": 8,
+        "type": "mcp-response",
+        "from": "Jaeger",
+        "to": "APM Agent",
+        "detail": {
+          "tool": "find-traces",
+          "result": {
+            "status": "success",
+            "records": 228
+          }
+        },
+        "startMs": 115,
+        "durationMs": 3,
+        "endMs": 118,
+        "status": "ok"
+      },
+      {
+        "seq": 9,
+        "type": "mcp-call",
+        "from": "APM Agent",
+        "to": "Prometheus",
+        "detail": {
+          "tool": "query",
+          "purpose": "Metric queries for latency, throughput, and error rates",
+          "serverId": "prometheus",
+          "stubMode": false
+        },
+        "startMs": 118,
+        "durationMs": 80,
+        "endMs": 198,
+        "status": "ok"
+      },
+      {
+        "seq": 10,
+        "type": "mcp-response",
+        "from": "Prometheus",
+        "to": "APM Agent",
+        "detail": {
+          "tool": "query",
+          "result": {
+            "status": "success",
+            "records": 57
+          }
+        },
+        "startMs": 198,
+        "durationMs": 3,
+        "endMs": 201,
+        "status": "ok"
+      },
+      {
+        "seq": 11,
+        "type": "mcp-call",
+        "from": "APM Agent",
+        "to": "Elasticsearch",
+        "detail": {
+          "tool": "search",
+          "purpose": "Correlated log lookups from trace context",
+          "serverId": "elasticsearch",
+          "stubMode": false
+        },
+        "startMs": 201,
+        "durationMs": 29,
+        "endMs": 230,
+        "status": "ok"
+      },
+      {
+        "seq": 12,
+        "type": "mcp-response",
+        "from": "Elasticsearch",
+        "to": "APM Agent",
+        "detail": {
+          "tool": "search",
+          "result": {
+            "status": "success",
+            "records": 30
+          }
+        },
+        "startMs": 230,
+        "durationMs": 3,
+        "endMs": 233,
+        "status": "ok"
+      },
+      {
+        "seq": 13,
+        "type": "response",
+        "from": "APM Agent",
+        "to": "Consumer",
+        "detail": {
+          "action": "metric-query",
+          "result": {
+            "status": "success",
+            "summary": "APM Agent processed \"metric-query\" across 1 sub-agent(s) and 4 MCP binding(s)",
+            "totalLatencyMs": 233,
+            "stubMode": false
+          }
+        },
+        "startMs": 233,
+        "durationMs": 2,
+        "endMs": 235,
+        "status": "ok"
+      }
+    ]
   }
 ]

@@ -41,6 +41,16 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
   const [refUploading, setRefUploading] = useState(false)
 
   useEffect(() => {
+    window.__agentDialogTab = (tab) => setActiveTab(tab)
+    return () => { delete window.__agentDialogTab }
+  }, [])
+
+  const prevEditIdRef = React.useRef(null)
+  useEffect(() => {
+    const editId = editData?.id
+    const isNewDialog = editId !== prevEditIdRef.current
+    prevEditIdRef.current = editId
+
     if (editData && (mode === 'edit' || mode === 'import')) {
       const clone = JSON.parse(JSON.stringify(editData))
       const a = clone.agent || {}
@@ -52,19 +62,21 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
       if (!a.tools) a.tools = []
       a.tools = a.tools.map(t => ({ id: t.id || '', name: t.name || '', description: t.description || '', tags: t.tags || [], ...t }))
       clone.agent = a
-      setFormData(clone)
+      if (isNewDialog) setFormData(clone)
     } else {
       setFormData(JSON.parse(JSON.stringify(emptyFormData)))
     }
-    setErrors({})
-    setActiveTab('general')
-    setHandlerCode(null)
-    setServersConfig(null)
-    setRefFiles([])
-    if (editData?.slug && (mode === 'edit')) {
-      fetch(`/api/agents/${editData.slug}/handler`).then(r => r.json()).then(d => setHandlerCode(d.content)).catch(() => {})
-      fetch(`/api/agents/${editData.slug}/servers-config`).then(r => r.json()).then(d => setServersConfig(d.content)).catch(() => {})
-      fetch(`/api/agents/${editData.slug}/references/files`).then(r => r.json()).then(setRefFiles).catch(() => {})
+    if (isNewDialog) {
+      setErrors({})
+      setActiveTab('general')
+      setHandlerCode(null)
+      setServersConfig(null)
+      setRefFiles([])
+      if (editData?.slug && (mode === 'edit')) {
+        fetch(`/api/agents/${editData.slug}/handler`).then(r => r.json()).then(d => setHandlerCode(d.content)).catch(() => {})
+        fetch(`/api/agents/${editData.slug}/servers-config`).then(r => r.json()).then(d => setServersConfig(d.content)).catch(() => {})
+        fetch(`/api/agents/${editData.slug}/references/files`).then(r => r.json()).then(setRefFiles).catch(() => {})
+      }
     }
   }, [editData, mode, isOpen])
 
@@ -74,12 +86,12 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
   const isLocal = formData.type === 'local'
   const isEdit = mode === 'edit'
   const isImport = mode === 'import'
-  const showExtendedTabs = isLocal && isEdit
+  const showExtendedTabs = isLocal
 
   const tabs = [
     { id: 'general', label: 'General', icon: Settings },
     ...(showExtendedTabs ? [{ id: 'skills', label: 'Skills', icon: Zap }] : []),
-    ...(showExtendedTabs ? [{ id: 'mcp', label: 'MCP Bindings', icon: Server }] : []),
+    ...(showExtendedTabs ? [{ id: 'mcp', label: 'Connectors (MCP / Tools)', icon: Server }] : []),
     ...(showExtendedTabs ? [{ id: 'references', label: 'References', icon: BookOpen }] : []),
     ...(showExtendedTabs ? [{ id: 'handler', label: 'Handler', icon: FileCode }] : []),
     ...(showExtendedTabs ? [{ id: 'contract', label: 'Contract', icon: FileJson }] : []),
@@ -217,6 +229,8 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
 
   const skillCount = (editData?.managedSkills || []).length
   const mcpCount = (editData?.mcpBindings || []).length
+  const toolCount = (agent.tools || []).length
+  const connectorsCount = mcpCount + toolCount
 
   return (
     <div className="dialog-overlay">
@@ -240,8 +254,8 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                 {tab.id === 'skills' && skillCount > 0 && (
                   <span className="dlg-tab-count">{skillCount}</span>
                 )}
-                {tab.id === 'mcp' && mcpCount > 0 && (
-                  <span className="dlg-tab-count">{mcpCount}</span>
+                {tab.id === 'mcp' && connectorsCount > 0 && (
+                  <span className="dlg-tab-count">{connectorsCount}</span>
                 )}
               </button>
             ))}
@@ -419,50 +433,31 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                 </div>
               </div>
 
-              {/* Handler */}
-              <div className="form-section">
-                <h3 className="form-section-title">Handler</h3>
-                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>Runtime configuration — the Python class that processes incoming requests and the executor that implements agent logic.</span>
-                <div className="form-grid">
-                  <div className="form-group full-width">
-                    <label>Handler Class <span className="required">*</span></label>
-                    <input
-                      type="text"
-                      value={agent.handler?.class || ''}
-                      onChange={e => updateHandler('class', e.target.value)}
-                      placeholder="e.g. framework.handlers.DefaultRequestHandler"
-                      className={errors.handlerClass ? 'input-error' : ''}
-                    />
-                    <span className="sk-field-hint">Fully-qualified Python class that handles HTTP requests for this agent.</span>
-                    {errors.handlerClass && <span className="error-text">{errors.handlerClass}</span>}
-                  </div>
-                  <div className="form-group">
-                    <label>Agent Executor <span className="required">*</span></label>
-                    <input
-                      type="text"
-                      value={agent.handler?.args?.agent_executor || ''}
-                      onChange={e => updateHandlerArg('agent_executor', e.target.value)}
-                      placeholder="e.g. services.calculator_executor.CalculatorAgentExecutor"
-                      className={errors.agentExecutor ? 'input-error' : ''}
-                    />
-                    <span className="sk-field-hint">The executor class that implements the agent's core logic and tool orchestration.</span>
-                    {errors.agentExecutor && <span className="error-text">{errors.agentExecutor}</span>}
-                  </div>
-                  <div className="form-group">
-                    <label>Task Store</label>
-                    <input
-                      type="text"
-                      value={agent.handler?.args?.task_store || ''}
-                      onChange={e => updateHandlerArg('task_store', e.target.value)}
-                      placeholder="e.g. framework.task_stores.InMemoryTaskStore"
-                    />
-                    <span className="sk-field-hint">Where async task state is persisted. InMemoryTaskStore for dev, RedisTaskStore for production.</span>
-                  </div>
-                </div>
-              </div>
+
+            </>
+          )}
+
+          {activeTab === 'skills' && showExtendedTabs && (
+            <div className="dlg-extended-tab-body">
+              <SkillsPanel
+                skills={editData?.managedSkills || []}
+                onUpdate={onUpdateSkills}
+                agentSlug={editData?.slug}
+              />
+            </div>
+          )}
+
+          {activeTab === 'mcp' && showExtendedTabs && (
+            <div className="dlg-extended-tab-body">
+              <McpBindingsPanel
+                agentId={editData?.id}
+                bindings={editData?.mcpBindings || []}
+                mcpServers={mcpServers || []}
+                onUpdate={onUpdateMcpBindings}
+              />
 
               {/* Tools */}
-              <div className="form-section">
+              <div className="form-section" style={{ marginTop: 16 }}>
                 <div className="form-section-header">
                   <h3 className="form-section-title">Tools</h3>
                   <button className="btn-add-skill" onClick={addTool}>
@@ -532,27 +527,6 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
                   </div>
                 ))}
               </div>
-            </>
-          )}
-
-          {activeTab === 'skills' && showExtendedTabs && (
-            <div className="dlg-extended-tab-body">
-              <SkillsPanel
-                skills={editData?.managedSkills || []}
-                onUpdate={onUpdateSkills}
-                agentSlug={editData?.slug}
-              />
-            </div>
-          )}
-
-          {activeTab === 'mcp' && showExtendedTabs && (
-            <div className="dlg-extended-tab-body">
-              <McpBindingsPanel
-                agentId={editData?.id}
-                bindings={editData?.mcpBindings || []}
-                mcpServers={mcpServers || []}
-                onUpdate={onUpdateMcpBindings}
-              />
             </div>
           )}
 
@@ -637,6 +611,46 @@ const AgentFormDialog = ({ isOpen, onClose, onSave, editData, mode, mcpServers, 
 
           {activeTab === 'handler' && showExtendedTabs && (
             <div className="dlg-extended-tab-body">
+              <div className="form-section">
+                <h3 className="form-section-title">Handler Configuration</h3>
+                <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>Runtime configuration — the Python class that processes incoming requests and the executor that implements agent logic.</span>
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label>Handler Class <span className="required">*</span></label>
+                    <input
+                      type="text"
+                      value={agent.handler?.class || ''}
+                      onChange={e => updateHandler('class', e.target.value)}
+                      placeholder="e.g. framework.handlers.DefaultRequestHandler"
+                      className={errors.handlerClass ? 'input-error' : ''}
+                    />
+                    <span className="sk-field-hint">Fully-qualified Python class that handles HTTP requests for this agent.</span>
+                    {errors.handlerClass && <span className="error-text">{errors.handlerClass}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label>Agent Executor <span className="required">*</span></label>
+                    <input
+                      type="text"
+                      value={agent.handler?.args?.agent_executor || ''}
+                      onChange={e => updateHandlerArg('agent_executor', e.target.value)}
+                      placeholder="e.g. services.calculator_executor.CalculatorAgentExecutor"
+                      className={errors.agentExecutor ? 'input-error' : ''}
+                    />
+                    <span className="sk-field-hint">The executor class that implements the agent's core logic and tool orchestration.</span>
+                    {errors.agentExecutor && <span className="error-text">{errors.agentExecutor}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label>Task Store</label>
+                    <input
+                      type="text"
+                      value={agent.handler?.args?.task_store || ''}
+                      onChange={e => updateHandlerArg('task_store', e.target.value)}
+                      placeholder="e.g. framework.task_stores.InMemoryTaskStore"
+                    />
+                    <span className="sk-field-hint">Where async task state is persisted. InMemoryTaskStore for dev, RedisTaskStore for production.</span>
+                  </div>
+                </div>
+              </div>
               <div className="form-section">
                 <h3 className="form-section-title">Handler Service — handler.py</h3>
                 <span className="sk-field-hint" style={{ marginBottom: 8, display: 'block' }}>

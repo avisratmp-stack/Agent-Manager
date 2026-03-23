@@ -1,0 +1,248 @@
+[
+  {
+    "requestId": "trace-mn2zsjn1bfz4",
+    "timestamp": "2026-03-23T09:37:34.574Z",
+    "source": "test",
+    "request": {
+      "action": "incident-manage",
+      "params": {
+        "query": "ERROR payment-service",
+        "timeRange": "1h"
+      }
+    },
+    "reasoning": "Test trace executed for action \"incident-manage\". MCP calls: AOC Ticket Resolver, AOC Log Aggregator.",
+    "response": {
+      "status": "success",
+      "totalLatencyMs": 132,
+      "stepsCount": 6,
+      "stubMode": false
+    },
+    "traceSteps": [
+      {
+        "seq": 0,
+        "type": "request",
+        "from": "Consumer",
+        "to": "AWS OASIS Operational AI Agent",
+        "detail": {
+          "action": "incident-manage",
+          "params": {
+            "query": "ERROR payment-service",
+            "timeRange": "1h"
+          }
+        },
+        "startMs": 0,
+        "durationMs": 5,
+        "endMs": 5,
+        "status": "ok"
+      },
+      {
+        "seq": 1,
+        "type": "mcp-call",
+        "from": "AWS OASIS Operational AI Agent",
+        "to": "AOC Ticket Resolver",
+        "detail": {
+          "tool": "resolve_ticket",
+          "purpose": "Using AOC Ticket Resolver",
+          "serverId": "aoc-ticket-resolver",
+          "stubMode": false
+        },
+        "startMs": 5,
+        "durationMs": 89,
+        "endMs": 94,
+        "status": "ok"
+      },
+      {
+        "seq": 2,
+        "type": "mcp-response",
+        "from": "AOC Ticket Resolver",
+        "to": "AWS OASIS Operational AI Agent",
+        "detail": {
+          "tool": "resolve_ticket",
+          "result": {
+            "status": "success",
+            "records": 402
+          }
+        },
+        "startMs": 94,
+        "durationMs": 3,
+        "endMs": 97,
+        "status": "ok"
+      },
+      {
+        "seq": 3,
+        "type": "mcp-call",
+        "from": "AWS OASIS Operational AI Agent",
+        "to": "AOC Log Aggregator",
+        "detail": {
+          "tool": "query_logs",
+          "purpose": "Using AOC Log Aggregator",
+          "serverId": "aoc-log-aggregator",
+          "stubMode": false
+        },
+        "startMs": 97,
+        "durationMs": 30,
+        "endMs": 127,
+        "status": "ok"
+      },
+      {
+        "seq": 4,
+        "type": "mcp-response",
+        "from": "AOC Log Aggregator",
+        "to": "AWS OASIS Operational AI Agent",
+        "detail": {
+          "tool": "query_logs",
+          "result": {
+            "status": "success",
+            "records": 59
+          }
+        },
+        "startMs": 127,
+        "durationMs": 3,
+        "endMs": 130,
+        "status": "ok"
+      },
+      {
+        "seq": 5,
+        "type": "response",
+        "from": "AWS OASIS Operational AI Agent",
+        "to": "Consumer",
+        "detail": {
+          "action": "incident-manage",
+          "result": {
+            "status": "success",
+            "summary": "AWS OASIS Operational AI Agent processed \"incident-manage\" across 0 sub-agent(s) and 2 MCP binding(s)",
+            "totalLatencyMs": 130,
+            "stubMode": false
+          }
+        },
+        "startMs": 130,
+        "durationMs": 2,
+        "endMs": 132,
+        "status": "ok"
+      }
+    ]
+  },
+  {
+    "requestId": "trace-mn360qr6u2q1",
+    "timestamp": "2026-03-23T12:31:54.748Z",
+    "source": "test",
+    "request": {
+      "action": "incident-manage",
+      "params": {
+        "query": "ERROR payment-service",
+        "timeRange": "1h"
+      }
+    },
+    "reasoning": "Test trace executed for action \"incident-manage\". MCP calls: AOC Ticket Resolver, AOC Log Aggregator.",
+    "response": {
+      "status": "success",
+      "totalLatencyMs": 115,
+      "stepsCount": 6,
+      "stubMode": false
+    },
+    "traceSteps": [
+      {
+        "seq": 0,
+        "type": "request",
+        "from": "Consumer",
+        "to": "AWS OASIS Operational AI Agent",
+        "detail": {
+          "action": "incident-manage",
+          "params": {
+            "query": "ERROR payment-service",
+            "timeRange": "1h"
+          }
+        },
+        "startMs": 0,
+        "durationMs": 5,
+        "endMs": 5,
+        "status": "ok"
+      },
+      {
+        "seq": 1,
+        "type": "mcp-call",
+        "from": "AWS OASIS Operational AI Agent",
+        "to": "AOC Ticket Resolver",
+        "detail": {
+          "tool": "resolve_ticket",
+          "purpose": "Using AOC Ticket Resolver",
+          "serverId": "aoc-ticket-resolver",
+          "stubMode": false
+        },
+        "startMs": 5,
+        "durationMs": 75,
+        "endMs": 80,
+        "status": "ok"
+      },
+      {
+        "seq": 2,
+        "type": "mcp-response",
+        "from": "AOC Ticket Resolver",
+        "to": "AWS OASIS Operational AI Agent",
+        "detail": {
+          "tool": "resolve_ticket",
+          "result": {
+            "status": "success",
+            "records": 22
+          }
+        },
+        "startMs": 80,
+        "durationMs": 3,
+        "endMs": 83,
+        "status": "ok"
+      },
+      {
+        "seq": 3,
+        "type": "mcp-call",
+        "from": "AWS OASIS Operational AI Agent",
+        "to": "AOC Log Aggregator",
+        "detail": {
+          "tool": "query_logs",
+          "purpose": "Using AOC Log Aggregator",
+          "serverId": "aoc-log-aggregator",
+          "stubMode": false
+        },
+        "startMs": 83,
+        "durationMs": 27,
+        "endMs": 110,
+        "status": "ok"
+      },
+      {
+        "seq": 4,
+        "type": "mcp-response",
+        "from": "AOC Log Aggregator",
+        "to": "AWS OASIS Operational AI Agent",
+        "detail": {
+          "tool": "query_logs",
+          "result": {
+            "status": "success",
+            "records": 447
+          }
+        },
+        "startMs": 110,
+        "durationMs": 3,
+        "endMs": 113,
+        "status": "ok"
+      },
+      {
+        "seq": 5,
+        "type": "response",
+        "from": "AWS OASIS Operational AI Agent",
+        "to": "Consumer",
+        "detail": {
+          "action": "incident-manage",
+          "result": {
+            "status": "success",
+            "summary": "AWS OASIS Operational AI Agent processed \"incident-manage\" across 0 sub-agent(s) and 2 MCP binding(s)",
+            "totalLatencyMs": 113,
+            "stubMode": false
+          }
+        },
+        "startMs": 113,
+        "durationMs": 2,
+        "endMs": 115,
+        "status": "ok"
+      }
+    ]
+  }
+]

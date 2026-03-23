@@ -31,7 +31,7 @@
       "id": 1,
       "type": "local",
       "role": "sub-agent",
-      "stage": "Dev",
+      "stage": "Released",
       "slug": "log-agent",
       "calls": [],
       "mcpBindings": [
@@ -107,7 +107,7 @@
           }
         }
       },
-      "enabled": false,
+      "enabled": true,
       "tags": [],
       "environment": "AOC",
       "suite": []
@@ -116,7 +116,7 @@
       "id": 2,
       "type": "local",
       "role": "sub-agent",
-      "stage": "Dev",
+      "stage": "Released",
       "slug": "apm-agent",
       "calls": [
         "log-agent"
@@ -194,7 +194,7 @@
           }
         }
       },
-      "enabled": false,
+      "enabled": true,
       "tags": [],
       "environment": "AOC",
       "suite": []
@@ -253,7 +253,7 @@
     {
       "id": 5,
       "type": "local",
-      "stage": "Draft",
+      "stage": "Released",
       "slug": "ensemble-agent",
       "calls": [
         "log-agent",

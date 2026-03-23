@@ -1,8 +1,12 @@
-import React, { useMemo, useState, useCallback } from 'react'
-import { Monitor, Bot, Plug, Plus, Link2 } from 'lucide-react'
+import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react'
+import { Monitor, Bot, Plug, Plus, Link2, Zap, Pencil, BookOpen } from 'lucide-react'
 
 const NODE_W = 190
 const NODE_H = 52
+const SKILL_W = 124
+const SKILL_H = 22
+const SKILL_V_GAP = 3
+const SKILL_H_OFF = 18
 const COL_GAP = 140
 const ROW_GAP = 18
 const SECTION_GAP = 36
@@ -13,15 +17,26 @@ function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgent, onToggleMcp, onAgentDblClick }) => {
+const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgent, onToggleMcp, onAgentDblClick, onOpenEdit }) => {
   const [hoveredId, setHoveredId] = useState(null)
   const [lockedId, setLockedId] = useState(null)
   const [showEdges, setShowEdges] = useState(true)
+  const [showSkills, setShowSkills] = useState(false)
+  const [ctxMenu, setCtxMenu] = useState(null)
+
+  const scrollRef = useRef(null)
 
   const handleNodeClick = useCallback((nodeId, isAdd) => {
     if (isAdd) return
     setLockedId(prev => prev === nodeId ? null : nodeId)
   }, [])
+
+  useEffect(() => {
+    if (!ctxMenu) return
+    const dismiss = () => setCtxMenu(null)
+    window.addEventListener('click', dismiss)
+    return () => window.removeEventListener('click', dismiss)
+  }, [ctxMenu])
 
   const activeId = lockedId || hoveredId
 
@@ -162,9 +177,61 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
       nodePositions[n.id] = { x: PAD_X + n.col * (NODE_W + COL_GAP), y, col: n.col }
     })
 
-    const svgW = PAD_X * 2 + totalCols * NODE_W + (totalCols - 1) * COL_GAP
+    const skillBubbles = []
+    const skillEdges = []
+
+    const placedSkillRects = []
+
+    allNodes.forEach(n => {
+      if (!n.slug) return
+      const a = agentBySlug[n.slug]
+      if (!a || !a.managedSkills || a.managedSkills.length === 0) return
+      const pos = nodePositions[n.id]
+      if (!pos) return
+
+      const count = a.managedSkills.length
+      const blockH = count * SKILL_H + (count - 1) * SKILL_V_GAP
+      const sx = pos.x + NODE_W + SKILL_H_OFF
+      let startY = pos.y + NODE_H / 2 - blockH / 2
+
+      a.managedSkills.forEach((sk, si) => {
+        let pillY = startY + si * (SKILL_H + SKILL_V_GAP)
+
+        // Push down if overlapping a previously placed skill pill
+        let settled = false
+        for (let pass = 0; pass < 20 && !settled; pass++) {
+          settled = true
+          for (const pr of placedSkillRects) {
+            const overlapX = sx < pr.x + pr.w && sx + SKILL_W > pr.x
+            const overlapY = pillY < pr.y + pr.h + SKILL_V_GAP && pillY + SKILL_H > pr.y - SKILL_V_GAP
+            if (overlapX && overlapY) {
+              pillY = pr.y + pr.h + SKILL_V_GAP
+              settled = false
+              break
+            }
+          }
+        }
+
+        placedSkillRects.push({ x: sx, y: pillY, w: SKILL_W, h: SKILL_H })
+
+        const bid = `skill-${n.slug}-${si}`
+        skillBubbles.push({
+          id: bid, agentId: a.id, slug: n.slug,
+          label: sk.name || `skill-${si}`,
+          x: sx, y: pillY, parentId: n.id
+        })
+        skillEdges.push({
+          fromX: pos.x + NODE_W, fromY: pos.y + NODE_H / 2,
+          toX: sx, toY: pillY + SKILL_H / 2
+        })
+      })
+    })
+
+    const skillMaxX = skillBubbles.length ? Math.max(...skillBubbles.map(sb => sb.x + SKILL_W + 10)) : 0
+    const skillMaxY = skillBubbles.length ? Math.max(...skillBubbles.map(sb => sb.y + SKILL_H + 10)) : 0
+    const svgW = Math.max(PAD_X * 2 + totalCols * NODE_W + (totalCols - 1) * COL_GAP + 200, skillMaxX + PAD_X)
     const allY = Object.values(nodePositions).map(p => p.y + NODE_H)
-    const svgH = Math.max(...allY, 200) + PAD_Y
+    const svgH = Math.max(...allY, skillMaxY, 200) + PAD_Y
 
     const colLabels = {}
     colLabels[0] = 'CONSUMERS'
@@ -173,10 +240,10 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
     if (privateSlugs.length > 0) colLabels[privateCol] = 'PRIVATE AGENTS'
     if (boundExternalMcp.length > 0) colLabels[extMcpCol] = 'EXTERNAL MCP'
 
-    return { allNodes, edges, nodePositions, svgW, svgH, totalCols, colLabels, hasPrivate: privateSlugs.length > 0 }
+    return { allNodes, edges, nodePositions, svgW, svgH, totalCols, colLabels, hasPrivate: privateSlugs.length > 0, skillBubbles, skillEdges }
   }, [agents, consumers, mcpServers])
 
-  const { allNodes, edges, nodePositions, svgW, svgH, colLabels, hasPrivate } = graph
+  const { allNodes, edges, nodePositions, svgW, svgH, colLabels, hasPrivate, skillBubbles, skillEdges } = graph
 
   const { highlightNodes, highlightEdges } = useMemo(() => {
     if (!activeId) return { highlightNodes: new Set(), highlightEdges: new Set() }
@@ -189,14 +256,20 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
         edgeIdxs.add(i)
       }
     })
+    skillBubbles.forEach(sb => {
+      if (sb.parentId === activeId || sb.id === activeId) {
+        nodes.add(sb.parentId)
+        nodes.add(sb.id)
+      }
+    })
     return { highlightNodes: nodes, highlightEdges: edgeIdxs }
-  }, [activeId, edges])
+  }, [activeId, edges, skillBubbles])
 
   // Private agents & external MCPs get lighter/faded colors
-  const kindColor    = { consumer: '#6366f1', local: '#059669', external: '#2563eb', private: '#15803d', mcp: '#d97706', 'mcp-local': '#d97706', 'mcp-ext': '#78350f', add: '#6d28d9' }
-  const kindBg       = { consumer: '#f5f3ff', local: '#ecfdf5', external: '#eff6ff', private: '#f0fdf4', mcp: '#fffbeb', 'mcp-local': '#fffbeb', 'mcp-ext': '#fef3c7', add: '#faf5ff' }
-  const kindBorder   = { consumer: '#c4b5fd', local: '#a7f3d0', external: '#bfdbfe', private: '#bbf7d0', mcp: '#fde68a', 'mcp-local': '#fde68a', 'mcp-ext': '#92400e', add: '#d8b4fe' }
-  const KindIcon     = { consumer: Monitor, local: Bot, external: Bot, private: Bot, mcp: Plug, 'mcp-local': Plug, 'mcp-ext': Plug, add: Plus }
+  const kindColor    = { consumer: '#6366f1', local: '#059669', external: '#2563eb', private: '#15803d', mcp: '#d97706', 'mcp-local': '#d97706', 'mcp-ext': '#78350f', add: '#6d28d9', skill: '#ec4899' }
+  const kindBg       = { consumer: '#f5f3ff', local: '#ecfdf5', external: '#eff6ff', private: '#f0fdf4', mcp: '#fffbeb', 'mcp-local': '#fffbeb', 'mcp-ext': '#fef3c7', add: '#faf5ff', skill: '#fdf2f8' }
+  const kindBorder   = { consumer: '#c4b5fd', local: '#a7f3d0', external: '#bfdbfe', private: '#bbf7d0', mcp: '#fde68a', 'mcp-local': '#fde68a', 'mcp-ext': '#92400e', add: '#d8b4fe', skill: '#f9a8d4' }
+  const KindIcon     = { consumer: Monitor, local: Bot, external: Bot, private: Bot, mcp: Plug, 'mcp-local': Plug, 'mcp-ext': Plug, add: Plus, skill: Zap }
 
   function edgePath(from, to) {
     const sameCol = from.col === to.col
@@ -227,6 +300,7 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
           ...(hasPrivate ? [{ kind: 'private', label: 'Private Agent' }] : []),
           { kind: 'mcp-local', label: 'Local MCP' },
           { kind: 'mcp-ext', label: 'External MCP' },
+          { kind: 'skill', label: 'Skill' },
         ].map(l => (
           <span key={l.kind} className="map-legend-item">
             <span className="map-legend-dot" style={{ background: kindColor[l.kind] }} />
@@ -259,6 +333,14 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
         >
           <Link2 size={13} />
           <span>{showEdges ? 'Hide' : 'Show'} connections</span>
+        </button>
+        <button
+          className={`map-edge-toggle ${showSkills ? 'active' : ''}`}
+          onClick={() => setShowSkills(v => !v)}
+          title={showSkills ? 'Hide skills' : 'Show skills'}
+        >
+          <Zap size={13} />
+          <span>{showSkills ? 'Hide' : 'Show'} skills</span>
         </button>
         {lockedId && (
           <button className="map-edge-toggle" onClick={() => setLockedId(null)} title="Clear selection">
@@ -337,6 +419,7 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
                 onMouseEnter={() => !lockedId && setHoveredId(node.id)}
                 onMouseLeave={() => !lockedId && setHoveredId(null)}
                 onClick={() => {
+                  setCtxMenu(null)
                   if (isAdd && onAddAgent) { onAddAgent(); return }
                   handleNodeClick(node.id, isAdd)
                 }}
@@ -344,6 +427,12 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
                   if (!isAdd && node.slug && onAgentDblClick) {
                     onAgentDblClick(node.slug, node.label)
                   }
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  if (isAdd || node.kind === 'consumer') return
+                  const svgRect = e.currentTarget.closest('svg').getBoundingClientRect()
+                  setCtxMenu({ x: e.clientX - svgRect.left, y: e.clientY - svgRect.top, agentId: node.agentId, slug: node.slug, label: node.label, kind: node.kind, tab: 'general' })
                 }}
                 style={{ cursor: 'pointer', opacity: isDim ? 0.2 : isFaded && !isHov && !isLocked ? 0.6 : 1, transition: 'opacity 0.2s' }}
               >
@@ -389,7 +478,78 @@ const AgentMapPanel = ({ agents, consumers, mcpServers, onAddAgent, onToggleAgen
               </g>
             )
           })}
+
+          {showSkills && skillEdges.map((se, i) => {
+            const parentBubble = skillBubbles[i]
+            const isDim = activeId && parentBubble && !highlightNodes.has(parentBubble.id) && !highlightNodes.has(parentBubble.parentId)
+            return (
+              <line
+                key={`skill-edge-${i}`}
+                x1={se.fromX} y1={se.fromY} x2={se.toX} y2={se.toY}
+                stroke="#f9a8d4" strokeWidth={1}
+                style={{ opacity: isDim ? 0.08 : 0.45, transition: 'opacity 0.2s' }}
+              />
+            )
+          })}
+
+          {showSkills && skillBubbles.map(sb => {
+            const isDim = activeId && !highlightNodes.has(sb.id) && !highlightNodes.has(sb.parentId)
+            const isHov = activeId === sb.id
+            return (
+              <g
+                key={sb.id}
+                transform={`translate(${sb.x}, ${sb.y})`}
+                style={{ cursor: 'pointer', opacity: isDim ? 0.15 : 1, transition: 'opacity 0.2s' }}
+                onMouseEnter={() => !lockedId && setHoveredId(sb.id)}
+                onMouseLeave={() => !lockedId && setHoveredId(null)}
+                onClick={() => {
+                  setCtxMenu(null)
+                  handleNodeClick(sb.id, false)
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  const svgRect = e.currentTarget.closest('svg').getBoundingClientRect()
+                  setCtxMenu({ x: e.clientX - svgRect.left, y: e.clientY - svgRect.top, agentId: sb.agentId, label: sb.label, kind: 'skill', tab: 'skills' })
+                }}
+              >
+                {isHov && <rect x={-2} y={-2} width={SKILL_W + 4} height={SKILL_H + 4} rx={SKILL_H / 2 + 2} fill="none" stroke="#ec4899" strokeWidth={1} opacity={0.4} />}
+                <rect width={SKILL_W} height={SKILL_H} rx={SKILL_H / 2} fill="#fdf2f8" stroke={isHov ? '#ec4899' : '#f9a8d4'} strokeWidth={isHov ? 1.5 : 1} />
+                <foreignObject x={0} y={0} width={SKILL_W} height={SKILL_H}>
+                  <div xmlns="http://www.w3.org/1999/xhtml" className="map-skill-pill">
+                    <Zap size={10} color="#ec4899" style={{ flexShrink: 0 }} />
+                    <span className="map-skill-pill-name" title={sb.label}>{sb.label}</span>
+                  </div>
+                </foreignObject>
+              </g>
+            )
+          })}
         </svg>
+
+        {ctxMenu && (
+          <div
+            className="map-ctx-menu"
+            style={{ left: ctxMenu.x + 4, top: ctxMenu.y + 4 }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="map-ctx-header">{ctxMenu.label}</div>
+            <button className="map-ctx-item" onClick={() => { setCtxMenu(null); if (onOpenEdit) onOpenEdit(ctxMenu.agentId, ctxMenu.tab) }}>
+              <Pencil size={13} />
+              <span>{ctxMenu.kind === 'skill' ? 'Edit Skills' : 'Edit Agent'}</span>
+            </button>
+            {ctxMenu.kind !== 'skill' && ctxMenu.slug && (
+              <button className="map-ctx-item" onClick={() => { setCtxMenu(null); if (onOpenEdit) onOpenEdit(ctxMenu.agentId, 'skills') }}>
+                <Zap size={13} />
+                <span>Edit Skills</span>
+              </button>
+            )}
+            {ctxMenu.kind !== 'skill' && ctxMenu.slug && (
+              <button className="map-ctx-item" onClick={() => { setCtxMenu(null); if (onAgentDblClick) onAgentDblClick(ctxMenu.slug, ctxMenu.label) }}>
+                <BookOpen size={13} />
+                <span>View Logs</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

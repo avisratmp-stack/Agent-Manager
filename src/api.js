@@ -74,4 +74,27 @@ export const api = {
 
   executeTrace: (agentSlug, action, params, stubMode) =>
     request('/api/test/execute', { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify({ agentSlug, action, params, stubMode }) }),
+
+  fetchAgentCard: (url) =>
+    request('/api/test/agent-card', { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify({ url }) }),
+
+  invokeA2A: (agentUrl, skill, params, userMessage) =>
+    request('/api/test/a2a-invoke', { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify({ agentUrl, skill, params, userMessage }) }),
+
+  exportRegistry: async () => {
+    const res = await fetch('/api/registry/export')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const blob = await res.blob()
+    const disposition = res.headers.get('Content-Disposition') || ''
+    const match = disposition.match(/filename="?([^"]+)"?/)
+    const filename = match ? match[1] : 'agent-registry.json'
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  },
 }

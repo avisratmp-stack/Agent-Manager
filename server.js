@@ -94,7 +94,7 @@ function loadSkillsForAgent(slug) {
   if (!fs.existsSync(skillsDir)) return []
   const skills = []
   for (const dir of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-    if (!dir.isDirectory()) continue
+    if (!dir.isDirectory() || dir.name.startsWith('_')) continue
     const mdPath = path.join(skillsDir, dir.name, 'SKILL.md')
     if (!fs.existsSync(mdPath)) continue
     const content = fs.readFileSync(mdPath, 'utf-8')
@@ -151,29 +151,50 @@ function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
 }
 
+const TEMPLATE_DIR = path.join(AGENTS_DIR, '_template-agent')
+const TEMPLATE_SKILL_DIR = path.join(TEMPLATE_DIR, 'skills', '_template-skill')
+
+function copyDirRecursive(src, dest, replacements) {
+  ensureDir(dest)
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+    if (entry.isDirectory()) {
+      copyDirRecursive(srcPath, destPath, replacements)
+    } else {
+      let content = fs.readFileSync(srcPath, 'utf-8')
+      if (replacements) {
+        for (const [token, value] of Object.entries(replacements)) {
+          content = content.replace(new RegExp(token.replace(/[{}]/g, '\\$&'), 'g'), value)
+        }
+      }
+      if (!fs.existsSync(destPath)) fs.writeFileSync(destPath, content)
+    }
+  }
+}
+
 function scaffoldAgentDir(slug) {
   const agentDir = path.join(AGENTS_DIR, slug)
-  const skillsDir = path.join(agentDir, 'skills')
-  const referenceDir = path.join(agentDir, 'references')
-
-  ensureDir(skillsDir)
-  ensureDir(referenceDir)
-
-  const skillsReadme = path.join(skillsDir, 'README.optional.md')
-  if (!fs.existsSync(skillsReadme)) {
-    fs.writeFileSync(skillsReadme,
-      `# Skills\n\nEach subdirectory is one skill. Every skill folder must contain a \`SKILL.md\` file\nwith YAML frontmatter (name, description) and markdown instructions.\n\nOptional subdirectories per skill: \`scripts/\`, \`references/\`, \`assets/\`.\n\nSee https://agentskills.io/specification for the full spec.\n`)
+  if (fs.existsSync(TEMPLATE_DIR)) {
+    copyDirRecursive(TEMPLATE_DIR, agentDir, { '{{AGENT_SLUG}}': slug })
+    const templateSkillCopy = path.join(agentDir, 'skills', '_template-skill')
+    if (fs.existsSync(templateSkillCopy)) {
+      fs.rmSync(templateSkillCopy, { recursive: true, force: true })
+    }
+  } else {
+    ensureDir(path.join(agentDir, 'skills'))
+    ensureDir(path.join(agentDir, 'references'))
+    ensureDir(path.join(agentDir, 'services'))
   }
+}
 
-  const referenceReadme = path.join(referenceDir, 'README.optional.md')
-  if (!fs.existsSync(referenceReadme)) {
-    fs.writeFileSync(referenceReadme,
-      `# Reference\n\nPlace reference documents here (PDF, DOCX, TXT, MD).\nThe \`manifest.json\` file tracks all entries.\n`)
-  }
-
-  const manifestPath = path.join(referenceDir, 'manifest.json')
-  if (!fs.existsSync(manifestPath)) {
-    fs.writeFileSync(manifestPath, '[]\n')
+function scaffoldSkillDir(skillDir, skillName) {
+  if (fs.existsSync(TEMPLATE_SKILL_DIR)) {
+    copyDirRecursive(TEMPLATE_SKILL_DIR, skillDir, { '_template-skill': skillName })
+  } else {
+    ensureDir(path.join(skillDir, 'scripts'))
+    ensureDir(path.join(skillDir, 'references'))
+    ensureDir(path.join(skillDir, 'assets'))
   }
 }
 
@@ -246,20 +267,8 @@ app.post('/api/agents/:slug/skills', (req, res) => {
   const { slug } = req.params
   const { name, content } = req.body
   const skillDir = path.join(AGENTS_DIR, slug, 'skills', name)
-  ensureDir(skillDir)
-  ensureDir(path.join(skillDir, 'scripts'))
-  ensureDir(path.join(skillDir, 'references'))
-  ensureDir(path.join(skillDir, 'assets'))
+  scaffoldSkillDir(skillDir, name)
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), content)
-
-  const readmeTpl = { scripts: 'Helper scripts', references: 'Reference materials', assets: 'Static assets' }
-  for (const [dir, desc] of Object.entries(readmeTpl)) {
-    const rp = path.join(skillDir, dir, 'README.optional.md')
-    if (!fs.existsSync(rp)) {
-      fs.writeFileSync(rp, `# ${desc.charAt(0).toUpperCase() + desc.slice(1)} (Optional)\n\nPlace ${desc.toLowerCase()} here.\n`)
-    }
-  }
-
   res.json({ skills: loadSkillsForAgent(slug) })
 })
 
@@ -283,6 +292,50 @@ app.delete('/api/agents/:slug/skills/:skillName', (req, res) => {
     fs.rmSync(skillDir, { recursive: true, force: true })
   }
   res.json({ skills: loadSkillsForAgent(slug) })
+})
+
+// ── Skill sub-folder file management (assets, references, scripts) ──
+const skillFolderUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } })
+const SKILL_SUBDIRS = ['assets', 'references', 'scripts']
+
+app.get('/api/agents/:slug/skills/:skillName/:folder/files', (req, res) => {
+  const { slug, skillName, folder } = req.params
+  if (!SKILL_SUBDIRS.includes(folder)) return res.status(400).json({ error: 'Invalid folder' })
+  const dir = path.join(AGENTS_DIR, slug, 'skills', skillName, folder)
+  if (!fs.existsSync(dir)) return res.json([])
+  const files = fs.readdirSync(dir)
+    .filter(f => f !== 'readme.txt' && !f.startsWith('README'))
+    .map(f => {
+      const stat = fs.statSync(path.join(dir, f))
+      return { name: f, size: stat.size, modified: stat.mtime.toISOString() }
+    })
+  res.json(files)
+})
+
+app.post('/api/agents/:slug/skills/:skillName/:folder/upload', skillFolderUpload.single('file'), (req, res) => {
+  const { slug, skillName, folder } = req.params
+  if (!SKILL_SUBDIRS.includes(folder)) return res.status(400).json({ error: 'Invalid folder' })
+  if (!req.file) return res.status(400).json({ error: 'No file' })
+  const dir = path.join(AGENTS_DIR, slug, 'skills', skillName, folder)
+  ensureDir(dir)
+  fs.writeFileSync(path.join(dir, req.file.originalname), req.file.buffer)
+  res.json({ ok: true, name: req.file.originalname })
+})
+
+app.get('/api/agents/:slug/skills/:skillName/:folder/download/:fileName', (req, res) => {
+  const { slug, skillName, folder, fileName } = req.params
+  if (!SKILL_SUBDIRS.includes(folder)) return res.status(400).json({ error: 'Invalid folder' })
+  const filePath = path.join(AGENTS_DIR, slug, 'skills', skillName, folder, fileName)
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Not found' })
+  res.download(filePath)
+})
+
+app.delete('/api/agents/:slug/skills/:skillName/:folder/files/:fileName', (req, res) => {
+  const { slug, skillName, folder, fileName } = req.params
+  if (!SKILL_SUBDIRS.includes(folder)) return res.status(400).json({ error: 'Invalid folder' })
+  const filePath = path.join(AGENTS_DIR, slug, 'skills', skillName, folder, fileName)
+  if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
+  res.json({ ok: true })
 })
 
 // ── POST /api/agents/:slug/reference ──
@@ -317,7 +370,7 @@ app.get('/api/agents/:slug/references/files', (req, res) => {
   const refDir = path.join(AGENTS_DIR, req.params.slug, 'references')
   if (!fs.existsSync(refDir)) return res.json([])
   const files = fs.readdirSync(refDir)
-    .filter(f => !f.startsWith('README') && f !== 'manifest.json')
+    .filter(f => !f.startsWith('README') && f !== 'manifest.json' && f !== 'readme.txt')
     .map(f => {
       const stat = fs.statSync(path.join(refDir, f))
       return { name: f, size: stat.size, modified: stat.mtime.toISOString() }
@@ -459,6 +512,42 @@ app.get('/api/agents/:slug/servers-config', (req, res) => {
   const cfgPath = path.join(AGENTS_DIR, req.params.slug, 'agent_servers.json')
   if (!fs.existsSync(cfgPath)) return res.json({ content: null })
   res.json({ content: fs.readFileSync(cfgPath, 'utf-8') })
+})
+
+// ── GET /api/registry/export — download a consumer-facing agent registry (Released agents only) ──
+app.get('/api/registry/export', (req, res) => {
+  const registry = readRegistry()
+
+  const released = registry.agents.filter(a => (a.stage || '').toLowerCase() === 'released' && a.enabled !== false)
+
+  const cards = released.map(a => {
+    const agent = a.agent || {}
+    const slug = a.slug || agent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
+    const skills = (a.type === 'local' && slug) ? loadSkillsForAgent(slug).map(sk => ({
+      name: sk.name,
+      description: sk.description || ''
+    })) : []
+
+    return {
+      name: agent.name,
+      description: (agent.description || '').replace(/^Mock\.\s*/i, ''),
+      url: agent.url || null,
+      skills
+    }
+  })
+
+  const output = {
+    $schema: 'aoc-agent-registry/1.0',
+    generatedAt: new Date().toISOString(),
+    agentCount: cards.length,
+    agents: cards
+  }
+
+  const filename = `agent-registry-${new Date().toISOString().slice(0, 10)}.json`
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  res.setHeader('Content-Type', 'application/json')
+  res.send(JSON.stringify(output, null, 2))
 })
 
 // ── GET /api/agents/:slug/logs ──
@@ -618,6 +707,170 @@ app.post('/api/agents/import-confirm', upload.single('file'), (req, res) => {
   }
 })
 
+// ── Demo agent card for "test" mode ──
+const DEMO_AGENT_CARD = {
+  name: 'Demo Agent',
+  version: '2.0.0',
+  description: 'A fully-featured demo agent for testing the A2A Tester. Supports notifications, calculations, and greeting skills.',
+  url: 'http://localhost:8002/demo',
+  capabilities: { streaming: false, async_execution: true },
+  skills: [
+    {
+      id: 'invoke',
+      name: 'invoke',
+      description: 'Invoke connectors to fetch or retrieve data from external sources (databases, APIs, etc.)',
+      tags: ['connector', 'database', 'fetch', 'retrieve', 'data'],
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notification_id: { type: 'string', description: 'Notification ID to look up' }
+        },
+        required: ['notification_id']
+      }
+    },
+    {
+      id: 'calculate',
+      name: 'calculate',
+      description: 'Perform mathematical calculations — add, subtract, multiply, divide two numbers',
+      tags: ['math', 'calculation', 'arithmetic'],
+      inputSchema: {
+        type: 'object',
+        properties: {
+          operation: { type: 'string', description: 'Operation to perform (add, subtract, multiply, divide)' },
+          a: { type: 'number', description: 'First operand' },
+          b: { type: 'number', description: 'Second operand' }
+        },
+        required: ['operation', 'a', 'b']
+      }
+    },
+    {
+      id: 'greet',
+      name: 'greet',
+      description: 'Generate a personalized greeting message for a given name',
+      tags: ['greeting', 'hello', 'message'],
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Name of the person to greet' }
+        },
+        required: ['name']
+      }
+    }
+  ]
+}
+
+function simulateDemoResponse(skill, params, userMessage) {
+  const msgId = Math.random().toString(36).slice(2, 14) + '-' + Date.now().toString(36)
+  const delay = 200 + Math.floor(Math.random() * 800)
+
+  let resultText
+  if (skill === 'calculate') {
+    const op = params?.operation || 'add'
+    const a = parseFloat(params?.a) || 0
+    const b = parseFloat(params?.b) || 0
+    let val
+    if (op === 'add') val = a + b
+    else if (op === 'subtract') val = a - b
+    else if (op === 'multiply') val = a * b
+    else if (op === 'divide') val = b !== 0 ? a / b : 'Error: division by zero'
+    else val = `Unknown operation: ${op}`
+    resultText = JSON.stringify({
+      result: [{ tool: 'calculate', result: { operation: op, a, b, answer: val } }],
+      error: null
+    }, null, 2)
+  } else if (skill === 'greet') {
+    const name = params?.name || 'World'
+    resultText = JSON.stringify({
+      result: [{ tool: 'greet', result: { greeting: `Hello, ${name}! Welcome to the Demo Agent.` } }],
+      error: null
+    }, null, 2)
+  } else {
+    const nid = params?.notification_id || '1'
+    resultText = JSON.stringify({
+      result: [{ tool: 'getNotification', result: { id: nid, title: `Notification #${nid}`, status: 'active', message: `This is demo notification ${nid}, fetched successfully.` } }],
+      error: null
+    }, null, 2)
+  }
+
+  return {
+    delay,
+    body: {
+      id: msgId,
+      jsonrpc: '2.0',
+      result: {
+        kind: 'message',
+        messageId: msgId,
+        parts: [{ kind: 'text', text: resultText }],
+        role: 'agent'
+      }
+    }
+  }
+}
+
+// ── POST /api/test/agent-card — fetch an A2A agent card from a remote URL ──
+app.post('/api/test/agent-card', async (req, res) => {
+  const { url } = req.body
+  if (!url) return res.status(400).json({ error: 'url required' })
+
+  if (url.trim().toLowerCase() === 'test') {
+    return res.json(DEMO_AGENT_CARD)
+  }
+
+  try {
+    const resp = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    if (!resp.ok) return res.status(resp.status).json({ error: `Remote returned HTTP ${resp.status}` })
+    const card = await resp.json()
+    res.json(card)
+  } catch (err) {
+    res.status(502).json({ error: err.message || 'Failed to fetch agent card' })
+  }
+})
+
+// ── POST /api/test/a2a-invoke — send a JSON-RPC message to an A2A agent ──
+app.post('/api/test/a2a-invoke', async (req, res) => {
+  const { agentUrl, skill, params, userMessage } = req.body
+  if (!agentUrl) return res.status(400).json({ error: 'agentUrl required' })
+
+  const rpcBody = {
+    jsonrpc: '2.0',
+    id: 'test-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    method: 'message/send',
+    params: {
+      message: {
+        role: 'user',
+        parts: [{ kind: 'text', text: userMessage || JSON.stringify(params || {}) }]
+      },
+      ...(skill ? { skill } : {})
+    }
+  }
+
+  // Demo mode
+  if (agentUrl.trim().toLowerCase() === 'test' || agentUrl === DEMO_AGENT_CARD.url) {
+    const demo = simulateDemoResponse(skill, params, userMessage)
+    await new Promise(r => setTimeout(r, demo.delay))
+    const raw = JSON.stringify(demo.body)
+    return res.json({ status: 200, elapsedMs: demo.delay, request: rpcBody, raw, parsed: demo.body })
+  }
+
+  const startMs = Date.now()
+  try {
+    const resp = await fetch(agentUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rpcBody),
+      signal: AbortSignal.timeout(30000)
+    })
+    const elapsed = Date.now() - startMs
+    const text = await resp.text()
+    let parsed
+    try { parsed = JSON.parse(text) } catch { parsed = null }
+    res.json({ status: resp.status, elapsedMs: elapsed, request: rpcBody, raw: text, parsed })
+  } catch (err) {
+    const elapsed = Date.now() - startMs
+    res.json({ status: 0, elapsedMs: elapsed, request: rpcBody, raw: null, parsed: null, error: err.message })
+  }
+})
+
 // ── POST /api/test/execute — simulate a traced request through agent graph ──
 app.post('/api/test/execute', (req, res) => {
   const { agentSlug, action, params, stubMode } = req.body
@@ -735,7 +988,51 @@ app.post('/api/test/execute', (req, res) => {
     }
   }, 2)
 
-  res.json({ traceId, agentSlug, agentName: rootAgent.agent.name, totalMs: tsOffset, stubMode: stubMode || false, steps })
+  const traceResult = { traceId, agentSlug, agentName: rootAgent.agent.name, totalMs: tsOffset, stubMode: stubMode || false, steps }
+
+  // Persist trace as a traffic-log entry so it shows in the Traffic Log viewer
+  try {
+    ensureDir(LOGGER_DIR)
+    const logFile = path.join(LOGGER_DIR, `${agentSlug}.json`)
+    let existing = []
+    if (fs.existsSync(logFile)) {
+      try { existing = JSON.parse(fs.readFileSync(logFile, 'utf-8')) } catch { existing = [] }
+    }
+
+    const calledAgents = calls.map(s => agentBySlug[s]?.agent?.name).filter(Boolean)
+    const mcpNames = rootBindings.map(b => {
+      const sid = typeof b === 'string' ? b : b.serverId
+      return mcpServers.find(s => s.id === sid)?.name || sid
+    }).filter(Boolean)
+
+    const reasoning = [
+      `Test trace executed for action "${selectedAction}".`,
+      calledAgents.length ? `Delegated to: ${calledAgents.join(', ')}.` : null,
+      mcpNames.length ? `MCP calls: ${mcpNames.join(', ')}.` : null,
+      stubMode ? 'Stub mode was active.' : null
+    ].filter(Boolean).join(' ')
+
+    existing.push({
+      requestId: traceId,
+      timestamp: new Date().toISOString(),
+      source: 'test',
+      request: { action: selectedAction, params: requestParams },
+      reasoning,
+      response: {
+        status: 'success',
+        totalLatencyMs: tsOffset,
+        stepsCount: steps.length,
+        stubMode: stubMode || false
+      },
+      traceSteps: steps
+    })
+
+    fs.writeFileSync(logFile, JSON.stringify(existing, null, 2))
+  } catch (e) {
+    console.error('Failed to persist trace to logger:', e.message)
+  }
+
+  res.json(traceResult)
 })
 
 const PORT = 3001
